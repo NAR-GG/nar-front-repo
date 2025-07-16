@@ -36,7 +36,6 @@ const ChampionSelector = ({ selectedChampions = [], onChampionRemove }) => {
                                     size={isMobile ? 56 : 80}
                                     radius="md"
                                     style={{
-                                        border: '3px solid #4c6ef5',
                                         cursor: 'pointer',
                                         transition: 'all 0.2s ease',
                                         '&:hover': {

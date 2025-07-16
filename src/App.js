@@ -5,6 +5,7 @@ import '@mantine/core/styles.css';
 
 import Layout from './components/layout/Layout';
 import HomePage from './pages/HomePage';
+import CombinationResultPage from "./pages/CombinationResultPage";
 
 const theme = createTheme({
     breakpoints: {
@@ -36,7 +37,7 @@ function App() {
                     <Layout>
                         <Routes>
                             <Route path="/" element={<HomePage />} />
-                            {/* 추가 라우트들 */}
+                            <Route path="/combinations" element={<CombinationResultPage />} />
                         </Routes>
                     </Layout>
                 </BrowserRouter>

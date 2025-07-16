@@ -3,7 +3,7 @@ import { Group, Paper, Avatar, Text } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import { useMediaQuery } from '@mantine/hooks';
 
-const ChampionSelector = ({ selectedChampions, onChampionRemove }) => {
+const ChampionSelector = ({ selectedChampions = [], onChampionRemove }) => {
     const isMobile = useMediaQuery('(max-width: 768px)');
 
     return (
@@ -44,7 +44,7 @@ const ChampionSelector = ({ selectedChampions, onChampionRemove }) => {
                                             transform: 'scale(0.95)'
                                         }
                                     }}
-                                    onClick={() => onChampionRemove(selectedChampions[index])}
+                                    onClick={() => onChampionRemove && onChampionRemove(selectedChampions[index])}
                                 />
                                 <Text
                                     size="xs"

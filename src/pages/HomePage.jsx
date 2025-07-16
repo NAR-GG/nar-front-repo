@@ -1,10 +1,15 @@
-import React, { useState } from 'react';
+// src/pages/HomePage.jsx
+import React, { useState, useEffect } from 'react';
 import { Container, Stack } from '@mantine/core';
+import { useNavigate, useLocation } from 'react-router-dom';
 import ChampionSelector from '../components/layout/ChampionSelector';
 import FilterSection from '../components/layout/FilterSection';
 import ChampionGrid from '../components/list/ChampionGrid';
+import CombinationResults from "../components/results/CombinationResults";
 
 const HomePage = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
     const [selectedChampions, setSelectedChampions] = useState([]);
     const [filters, setFilters] = useState({
         year: null,
@@ -14,49 +19,57 @@ const HomePage = () => {
         patch: null
     });
 
+    // URL 파라미터로 결과 화면 여부 판단
+    const showResults = location.search.includes('results=true');
+
+    // 브라우저 뒤로가기/앞으로가기 이벤트 처리
+    useEffect(() => {
+        const handlePopState = () => {
+            // URL 변경 시 컴포넌트 리렌더링
+            // showResults는 location.search로 결정되므로 자동으로 처리됨
+        };
+
+        window.addEventListener('popstate', handlePopState);
+        return () => window.removeEventListener('popstate', handlePopState);
+    }, []);
+
     const handleChampionSelect = (champion) => {
-        console.log('=== handleChampionSelect called ===');
-        console.log('Clicked champion:', champion);
-        console.log('Current selected:', selectedChampions);
+        console.log('Champion clicked:', champion);
 
-        if (!champion || !champion.id) {
-            console.error('Invalid champion data:', champion);
-            return;
-        }
-
-        // 이미 선택된 챔피언인지 확인
         const isAlreadySelected = selectedChampions.some(c => c && c.id === champion.id);
-        console.log('Is already selected:', isAlreadySelected);
 
         if (isAlreadySelected) {
-            // 이미 선택된 챔피언이면 제거
             const newSelected = selectedChampions.filter(c => c && c.id !== champion.id);
-            console.log('Removing champion, new array:', newSelected);
             setSelectedChampions(newSelected);
         } else {
-            // 새로운 챔피언이고 5개 미만이면 추가
             if (selectedChampions.length < 5) {
                 const newSelected = [...selectedChampions, champion];
-                console.log('Adding champion, new array:', newSelected);
                 setSelectedChampions(newSelected);
-            } else {
-                console.log('Cannot add more champions (limit: 5)');
             }
         }
     };
 
     const handleChampionRemove = (championToRemove) => {
-        console.log('=== handleChampionRemove called ===');
-        console.log('Removing champion:', championToRemove);
-
         if (!championToRemove || !championToRemove.id) {
-            console.error('Invalid champion data for removal:', championToRemove);
             return;
         }
 
         const newSelected = selectedChampions.filter(c => c && c.id !== championToRemove.id);
-        console.log('New selected after removal:', newSelected);
         setSelectedChampions(newSelected);
+    };
+
+    const handleCombinationSearch = () => {
+        if (selectedChampions.length === 0) {
+            alert('최소 1개의 챔피언을 선택해주세요.');
+            return;
+        }
+        // URL에 results=true 파라미터 추가
+        navigate('/?results=true', { replace: false });
+    };
+
+    const handleBackToSelection = () => {
+        // URL에서 results 파라미터 제거
+        navigate('/', { replace: false });
     };
 
     return (
@@ -71,12 +84,22 @@ const HomePage = () => {
                     filters={filters}
                     onFiltersChange={setFilters}
                     selectedChampions={selectedChampions}
+                    onCombinationSearch={handleCombinationSearch}
                 />
 
-                <ChampionGrid
-                    onChampionSelect={handleChampionSelect}
-                    selectedChampions={selectedChampions}
-                />
+                {/* 조건부 렌더링 */}
+                {showResults ? (
+                    <CombinationResults
+                        selectedChampions={selectedChampions}
+                        filters={filters}
+                        onBackToSelection={handleBackToSelection}
+                    />
+                ) : (
+                    <ChampionGrid
+                        onChampionSelect={handleChampionSelect}
+                        selectedChampions={selectedChampions}
+                    />
+                )}
             </Stack>
         </Container>
     );

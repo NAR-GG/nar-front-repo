@@ -1,5 +1,5 @@
 import React from 'react';
-import { Stack } from '@mantine/core';
+import { Stack, Container } from '@mantine/core';
 import Header from './Header';
 import Footer from './Footer';
 
@@ -17,7 +17,14 @@ const Layout = ({ children }) => {
                 paddingTop: '2rem',
                 paddingBottom: '2rem'
             }}>
-                {children}
+                {/* 전체 프로젝트 최대 너비 통일 */}
+                <Container
+                    size="lg"  // xl에서 lg로 변경
+                    px={{ base: 16, sm: 24, md: 32 }}
+                    style={{ maxWidth: '1200px' }}  // 최대 너비 제한
+                >
+                    {children}
+                </Container>
             </main>
 
             <Footer />

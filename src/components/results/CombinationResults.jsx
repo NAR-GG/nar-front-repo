@@ -45,24 +45,28 @@ const CombinationResults = ({ selectedChampions, filters, onBackToSelection }) =
         <Paper p="md" withBorder radius="md">
             <Stack gap="sm">
                 {/* 헤더 */}
-                <Group justify="space-between" align="center" mb="sm">
+                <Group justify="space-between" align="center">
+                    <Title order={2} c="dark">
+                        조합 분석 결과
+                    </Title>
                     <Group>
+                        <Text size="sm" c="dimmed">
+                            {selectedChampions.length}개 챔피언 조합 • {combinations.length}개 결과
+                        </Text>
                         <Button
                             variant="light"
                             size="sm"
+                            color="gray"
                             leftSection={<IconArrowLeft size={16} />}
                             onClick={onBackToSelection}
                         >
-                            챔피언 선택으로 돌아가기
+                            돌아가기
                         </Button>
-                        <Title order={2} c="#4c6ef5">
-                            조합 분석 결과
-                        </Title>
                     </Group>
-                    <Text size="sm" c="dimmed">
-                        {selectedChampions.length}개 챔피언 조합 • {combinations.length}개 결과
-                    </Text>
                 </Group>
+
+                {/* 헤더 구분선 */}
+                <Divider color="#e9ecef" size="sm" />
 
                 {/* 조합 리스트 */}
                 <Stack gap={0}>

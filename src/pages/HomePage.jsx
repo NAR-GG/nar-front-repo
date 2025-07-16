@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Container, Stack, Title, Paper } from '@mantine/core';
-import Header from '../components/layout/Header';
 import ChampionSelector from '../components/layout/ChampionSelector';
 import FilterSection from '../components/layout/FilterSection';
 import ChampionGrid from '../components/list/ChampionGrid';
@@ -28,7 +27,6 @@ const HomePage = () => {
     return (
         <Container size="xl" px={{ base: 16, sm: 24, md: 32 }}>
             <Stack gap="xl">
-                <Header />
 
                 <ChampionSelector
                     selectedChampions={selectedChampions}

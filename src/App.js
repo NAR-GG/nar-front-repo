@@ -1,5 +1,9 @@
 import { MantineProvider, createTheme } from '@mantine/core';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import '@mantine/core/styles.css';
+
+import Layout from './components/layout/Layout';
 import HomePage from './pages/HomePage';
 
 const theme = createTheme({
@@ -15,13 +19,29 @@ const theme = createTheme({
     }
 });
 
+const queryClient = new QueryClient({
+    defaultOptions: {
+        queries: {
+            retry: 1,
+            refetchOnWindowFocus: false,
+        },
+    },
+});
+
 function App() {
     return (
-        <MantineProvider theme={theme}>
-            <div style={{ minHeight: '100vh', backgroundColor: '#f8f9fa' }}>
-                <HomePage />
-            </div>
-        </MantineProvider>
+        <QueryClientProvider client={queryClient}>
+            <MantineProvider theme={theme}>
+                <BrowserRouter>
+                    <Layout>
+                        <Routes>
+                            <Route path="/" element={<HomePage />} />
+                            {/* 추가 라우트들 */}
+                        </Routes>
+                    </Layout>
+                </BrowserRouter>
+            </MantineProvider>
+        </QueryClientProvider>
     );
 }
 

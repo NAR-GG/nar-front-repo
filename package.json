@@ -2,6 +2,7 @@
   "name": "nar-front",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://localhost:8080",
   "dependencies": {
     "@emotion/react": "^11.14.0",
     "@mantine/core": "^8.1.3",

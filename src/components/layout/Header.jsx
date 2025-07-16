@@ -1,5 +1,5 @@
 import React from 'react';
-import { Title, Paper, Center } from '@mantine/core';
+import { Title, Paper, Center, Group } from '@mantine/core';
 
 const Header = () => {
     return (
@@ -16,21 +16,29 @@ const Header = () => {
             }}
         >
             <Center>
-                <Title
-                    order={1}
-                    size="h1"
-                    fw={700}
-                    style={{
-                        fontSize: '2rem',
-                        textShadow: '2px 2px 4px rgba(0,0,0,0.3)'
-                    }}
-                >
-                    NAR.GG
-                </Title>
+                <Group gap="md" align="center">
+                    <img
+                        src="/icons/nar-icon.png"
+                        alt="NAR.GG 아이콘"
+                        width={46}
+                        height={46}
+                        style={{ objectFit: 'contain' }}
+                    />
+                    <Title
+                        order={1}
+                        size="h1"
+                        fw={700}
+                        style={{
+                            fontSize: '2rem',
+                            textShadow: '2px 2px 4px rgba(0,0,0,0.3)'
+                        }}
+                    >
+                        NAR.GG
+                    </Title>
+                </Group>
             </Center>
         </Paper>
     );
 };
-
 
 export default Header;

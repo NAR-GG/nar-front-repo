@@ -1,6 +1,6 @@
 import React from 'react';
 import { Group, Paper, Avatar, ActionIcon, Text } from '@mantine/core';
-import { IconHelmet, IconX } from '@tabler/icons-react';
+import { IconX, IconPlus } from '@tabler/icons-react';
 
 const ChampionSelector = ({ selectedChampions, onChampionRemove }) => {
     return (
@@ -11,11 +11,12 @@ const ChampionSelector = ({ selectedChampions, onChampionRemove }) => {
                         {selectedChampions[index] ? (
                             <>
                                 <Avatar
-                                    src={selectedChampions[index].image}
+                                    src={selectedChampions[index].imageUrl}
+                                    alt={selectedChampions[index].championNameKr}
                                     size={80}
                                     radius="md"
                                     style={{
-                                        border: '3px solid #667eea',
+                                        border: '3px solid #4c6ef5',
                                         cursor: 'pointer'
                                     }}
                                 />
@@ -29,7 +30,7 @@ const ChampionSelector = ({ selectedChampions, onChampionRemove }) => {
                                         right: -8,
                                         zIndex: 1
                                     }}
-                                    onClick={() => onChampionRemove(index)}
+                                    onClick={() => onChampionRemove(selectedChampions[index])}
                                 >
                                     <IconX size={12} />
                                 </ActionIcon>
@@ -39,7 +40,7 @@ const ChampionSelector = ({ selectedChampions, onChampionRemove }) => {
                                     mt={4}
                                     style={{ maxWidth: 80 }}
                                 >
-                                    {selectedChampions[index].name}
+                                    {selectedChampions[index].championNameKr}
                                 </Text>
                             </>
                         ) : (
@@ -50,10 +51,38 @@ const ChampionSelector = ({ selectedChampions, onChampionRemove }) => {
                                     style={{
                                         backgroundColor: '#f8f9fa',
                                         border: '2px dashed #dee2e6',
-                                        cursor: 'pointer'
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        transition: 'all 0.2s ease',
+                                        '&:hover': {
+                                            backgroundColor: '#e9ecef',
+                                            borderColor: '#adb5bd'
+                                        }
                                     }}
                                 >
-                                    <IconHelmet size={40} color="#adb5bd" />
+                                    <div
+                                        style={{
+                                            width: '50px',
+                                            height: '50px',
+                                            borderRadius: '50%',
+                                            backgroundColor: '#e9ecef',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            transition: 'all 0.2s ease'
+                                        }}
+                                    >
+                                        <IconPlus
+                                            size={24}
+                                            color="#6c757d"
+                                            style={{
+                                                strokeWidth: 2,
+                                                filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))'
+                                            }}
+                                        />
+                                    </div>
                                 </Avatar>
                                 <Text size="xs" c="dimmed" mt={4}>
                                     챔피언 선택

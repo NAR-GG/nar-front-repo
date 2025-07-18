@@ -15,6 +15,7 @@ import {
 import { IconSearch } from '@tabler/icons-react';
 import { useChampions } from '../../hooks/useChampions';
 import { useMediaQuery } from '@mantine/hooks';
+import { championPositions } from '../../data/championPositions';
 
 const ChampionGrid = ({ onChampionSelect, selectedChampions }) => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -36,9 +37,13 @@ const ChampionGrid = ({ onChampionSelect, selectedChampions }) => {
         return champions.filter(champion => {
             const matchesSearch = champion.championNameKr.includes(searchTerm) ||
                 champion.championNameEn.toLowerCase().includes(searchTerm.toLowerCase());
-            return matchesSearch;
+
+            const matchesPosition = selectedPosition === '*' ||
+                championPositions[champion.championNameEn]?.includes(selectedPosition);
+
+            return matchesSearch && matchesPosition;
         });
-    }, [champions, searchTerm]);
+    }, [champions, searchTerm, selectedPosition]);
 
     const handleChampionClick = (champion) => {
         console.log('Champion clicked:', champion);

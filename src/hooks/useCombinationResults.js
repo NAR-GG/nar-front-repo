@@ -1,151 +1,95 @@
-import { useQuery } from '@tanstack/react-query';
+// useCombinationResults.js
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
-const mockCombinations = [
-    {
-        id: 1,
-        champions: [
-            { championNameKr: '가렌', championNameEn: 'Garen', imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Garen.png' },
-            { championNameKr: '그라가스', championNameEn: 'Gragas', imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Gragas.png' },
-            { championNameKr: '그웬', championNameEn: 'Gwen', imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Gwen.png' },
-            { championNameKr: '그레이브즈', championNameEn: 'Graves', imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Graves.png' },
-            { championNameKr: '갈리오', championNameEn: 'Galio', imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Galio.png' }
-        ],
-        winRate: 68.5,
-        wins: 37,
-        losses: 17,
-        recentGame: '2024-07-15',
-        recentPatch: '14.14',
-        matches: [
-            {
-                id: 1,
-                blueTeam: 'T1',
-                redTeam: 'Gen.G',
-                isWin: true,
-                league: 'LCK',
-                patch: '14.14',
-                gameTime: '32:15',
-                date: '2024-07-15',
-                blueTeamPlayers: [
-                    { playerName: 'Zeus', championName: 'Garen', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Garen.png', lane: 'TOP' },
-                    { playerName: 'Oner', championName: 'Gragas', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Gragas.png', lane: 'JUNGLE' },
-                    { playerName: 'Faker', championName: 'Gwen', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Gwen.png', lane: 'MID' },
-                    { playerName: 'Gumayusi', championName: 'Graves', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Graves.png', lane: 'BOTTOM' },
-                    { playerName: 'Keria', championName: 'Galio', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Galio.png', lane: 'SUPPORT' }
-                ],
-                redTeamPlayers: [
-                    { playerName: 'Kiin', championName: 'Jax', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Jax.png', lane: 'TOP' },
-                    { playerName: 'Canyon', championName: 'Viego', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Viego.png', lane: 'JUNGLE' },
-                    { playerName: 'Chovy', championName: 'Azir', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Azir.png', lane: 'MID' },
-                    { playerName: 'Peyz', championName: 'Jinx', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Jinx.png', lane: 'BOTTOM' },
-                    { playerName: 'Lehends', championName: 'Nautilus', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Nautilus.png', lane: 'SUPPORT' }
-                ]
-            },
-            {
-                id: 2,
-                blueTeam: 'DK',
-                redTeam: 'KT',
-                isWin: false,
-                league: 'LCK',
-                patch: '14.14',
-                gameTime: '28:42',
-                date: '2024-07-14',
-                blueTeamPlayers: [
-                    { playerName: 'Showmaker', championName: 'Garen', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Garen.png', lane: 'TOP' },
-                    { playerName: 'Canyon', championName: 'Gragas', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Gragas.png', lane: 'JUNGLE' },
-                    { playerName: 'Zeka', championName: 'Gwen', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Gwen.png', lane: 'MID' },
-                    { playerName: 'Aiming', championName: 'Graves', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Graves.png', lane: 'BOTTOM' },
-                    { playerName: 'Kellin', championName: 'Galio', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Galio.png', lane: 'SUPPORT' }
-                ],
-                redTeamPlayers: [
-                    { playerName: 'Kiin', championName: 'Aatrox', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Aatrox.png', lane: 'TOP' },
-                    { playerName: 'Pyosik', championName: 'Kindred', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Kindred.png', lane: 'JUNGLE' },
-                    { playerName: 'Bdd', championName: 'Orianna', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Orianna.png', lane: 'MID' },
-                    { playerName: 'Deft', championName: 'Ashe', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Ashe.png', lane: 'BOTTOM' },
-                    { playerName: 'BeryL', championName: 'Thresh', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Thresh.png', lane: 'SUPPORT' }
-                ]
-            }
-        ]
-    },
-    {
-        id: 2,
-        champions: [
-            { championNameKr: '가렌', championNameEn: 'Garen', imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Garen.png' },
-            { championNameKr: '그라가스', championNameEn: 'Gragas', imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Gragas.png' },
-            { championNameKr: '그웬', championNameEn: 'Gwen', imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Gwen.png' },
-            { championNameKr: '그레이브즈', championNameEn: 'Graves', imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Graves.png' },
-            { championNameKr: '갈리오', championNameEn: 'Galio', imageUrl: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Galio.png' }
-        ],
-        winRate: 68.5,
-        wins: 37,
-        losses: 17,
-        recentGame: '2024-07-15',
-        recentPatch: '14.14',
-        matches: [
-            {
-                id: 1,
-                blueTeam: 'T1',
-                redTeam: 'Gen.G',
-                isWin: true,
-                league: 'LCK',
-                patch: '14.14',
-                gameTime: '32:15',
-                date: '2024-07-15',
-                blueTeamPlayers: [
-                    { playerName: 'Zeus', championName: 'Garen', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Garen.png', lane: 'TOP' },
-                    { playerName: 'Oner', championName: 'Gragas', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Gragas.png', lane: 'JUNGLE' },
-                    { playerName: 'Faker', championName: 'Gwen', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Gwen.png', lane: 'MID' },
-                    { playerName: 'Gumayusi', championName: 'Graves', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Graves.png', lane: 'BOTTOM' },
-                    { playerName: 'Keria', championName: 'Galio', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Galio.png', lane: 'SUPPORT' }
-                ],
-                redTeamPlayers: [
-                    { playerName: 'Kiin', championName: 'Jax', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Jax.png', lane: 'TOP' },
-                    { playerName: 'Canyon', championName: 'Viego', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Viego.png', lane: 'JUNGLE' },
-                    { playerName: 'Chovy', championName: 'Azir', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Azir.png', lane: 'MID' },
-                    { playerName: 'Peyz', championName: 'Jinx', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Jinx.png', lane: 'BOTTOM' },
-                    { playerName: 'Lehends', championName: 'Nautilus', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Nautilus.png', lane: 'SUPPORT' }
-                ]
-            },
-            {
-                id: 2,
-                blueTeam: 'DK',
-                redTeam: 'KT',
-                isWin: false,
-                league: 'LCK',
-                patch: '14.14',
-                gameTime: '28:42',
-                date: '2024-07-14',
-                blueTeamPlayers: [
-                    { playerName: 'Showmaker', championName: 'Garen', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Garen.png', lane: 'TOP' },
-                    { playerName: 'Canyon', championName: 'Gragas', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Gragas.png', lane: 'JUNGLE' },
-                    { playerName: 'Zeka', championName: 'Gwen', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Gwen.png', lane: 'MID' },
-                    { playerName: 'Aiming', championName: 'Graves', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Graves.png', lane: 'BOTTOM' },
-                    { playerName: 'Kellin', championName: 'Galio', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Galio.png', lane: 'SUPPORT' }
-                ],
-                redTeamPlayers: [
-                    { playerName: 'Kiin', championName: 'Aatrox', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Aatrox.png', lane: 'TOP' },
-                    { playerName: 'Pyosik', championName: 'Kindred', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Kindred.png', lane: 'JUNGLE' },
-                    { playerName: 'Bdd', championName: 'Orianna', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Orianna.png', lane: 'MID' },
-                    { playerName: 'Deft', championName: 'Ashe', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Ashe.png', lane: 'BOTTOM' },
-                    { playerName: 'BeryL', championName: 'Thresh', championImg: 'https://ddragon.leagueoflegends.com/cdn/14.1.1/img/champion/Thresh.png', lane: 'SUPPORT' }
-                ]
-            }
-        ]
-    }
-];
+const fetchCombinationResults = async (selectedChampions, filters, queryClient) => {
+    console.log('🔍 Selected champions:', selectedChampions);
+    console.log('🔍 Filters:', filters);
 
-const fetchCombinationResults = async (selectedChampions, filters) => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve(mockCombinations);
-        }, 1000);
+    const params = new URLSearchParams();
+
+    // 챔피언 객체에서 영어 이름만 추출
+    selectedChampions.forEach(champion => {
+        const championName = typeof champion === 'string' ? champion : champion.championNameEn;
+        params.append('champions', championName);
     });
+
+    // 기본값으로 2025 추가
+    const year = filters.year || 2025;
+    params.append('year', year);
+
+    // 다중 스플릿 처리
+    if (filters.splitNames && filters.splitNames.length > 0) {
+        filters.splitNames.forEach(split => {
+            params.append('split', split);
+        });
+    }
+
+    // 다중 리그 처리
+    if (filters.leagueNames && filters.leagueNames.length > 0) {
+        filters.leagueNames.forEach(league => {
+            params.append('leagueName', league);
+        });
+    }
+
+    // 다중 팀 처리
+    if (filters.teamNames && filters.teamNames.length > 0) {
+        filters.teamNames.forEach(team => {
+            params.append('teamName', team);
+        });
+    }
+
+    console.log('🔍 Final URL:', `/api/combinations?${params.toString()}`);
+
+    // 조합 데이터 가져오기
+    const response = await fetch(`/api/combinations?${params.toString()}`);
+
+    if (!response.ok) {
+        throw new Error('조합 데이터를 불러오는데 실패했습니다');
+    }
+
+    const data = await response.json();
+    console.log('🔍 API Response:', data);
+
+    // 캐시된 챔피언 데이터 가져오기
+    const championData = queryClient.getQueryData(['champions']) || [];
+
+    // 챔피언 이름으로 빠른 검색을 위한 Map 생성
+    const championMap = new Map();
+    championData.forEach(champion => {
+        championMap.set(champion.championNameEn, champion);
+    });
+
+    // 백엔드 응답 데이터를 프론트엔드 형태로 변환
+    return data.map(item => ({
+        combinationId: item.combinationId,
+        rank: item.rank,
+        champions: item.champions.map(champName => {
+            const championInfo = championMap.get(champName);
+            return {
+                championNameKr: championInfo?.championNameKr || champName,
+                championNameEn: champName,
+                imageUrl: championInfo?.imageUrl || `https://ddragon.leagueoflegends.com/cdn/15.13.1/img/champion/${champName}.png`
+            };
+        }),
+        winRate: Math.round(item.winRate * 100) / 100,
+        wins: item.winCount,
+        losses: item.lossCount,
+        recentGame: item.latestGameDate,
+        recentPatch: item.recentPatches?.[0] || '알 수 없음',
+        frequency: item.frequency,
+        matches: []
+    }));
 };
 
 export const useCombinationResults = (selectedChampions, filters) => {
+    const queryClient = useQueryClient();
+
     return useQuery({
         queryKey: ['combinations', selectedChampions, filters],
-        queryFn: () => fetchCombinationResults(selectedChampions, filters),
+        queryFn: () => fetchCombinationResults(selectedChampions, filters, queryClient),
         enabled: Array.isArray(selectedChampions) && selectedChampions.length > 0,
         staleTime: 5 * 60 * 1000,
+        retry: 3,
+        retryDelay: 1000
     });
 };

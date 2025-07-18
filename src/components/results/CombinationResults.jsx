@@ -5,17 +5,48 @@ import { IconArrowLeft } from '@tabler/icons-react';
 import CombinationCard from '../list/CombinationCard';
 import MatchHistory from '../detail/MatchHistory';
 import { useCombinationResults } from '../../hooks/useCombinationResults';
+import { useCombinationDetail } from '../../hooks/useCombinationDetail';
 
 const CombinationResults = ({ selectedChampions, filters, onBackToSelection }) => {
     const [expandedCards, setExpandedCards] = useState({});
+    const [loadingDetails, setLoadingDetails] = useState({});
 
     const { data: combinations = [], isLoading, error } = useCombinationResults(selectedChampions, filters);
 
-    const toggleCard = (index) => {
+    const toggleCard = async (index) => {
+        const combination = combinations[index];
+        const isExpanding = !expandedCards[index];
+
+        // 카드 상태 토글
         setExpandedCards(prev => ({
             ...prev,
-            [index]: !prev[index]
+            [index]: isExpanding
         }));
+
+        // 확장할 때만 상세정보 로드
+        if (isExpanding && combination.combinationId) {
+            setLoadingDetails(prev => ({ ...prev, [index]: true }));
+
+            try {
+                const response = await fetch(`/api/combinations/${combination.combinationId}/detail`);
+                if (!response.ok) {
+                    throw new Error('상세정보를 불러오는데 실패했습니다');
+                }
+
+                const detailData = await response.json();
+
+                // 조합 데이터에 상세정보 추가
+                combinations[index] = {
+                    ...combination,
+                    gameDetails: detailData.gameDetails || []
+                };
+
+            } catch (error) {
+                console.error('상세정보 로드 실패:', error);
+            } finally {
+                setLoadingDetails(prev => ({ ...prev, [index]: false }));
+            }
+        }
     };
 
     if (isLoading) {
@@ -82,14 +113,18 @@ const CombinationResults = ({ selectedChampions, filters, onBackToSelection }) =
                                         combination={combination}
                                         isExpanded={expandedCards[index]}
                                         onToggle={() => toggleCard(index)}
+                                        selectedChampions={selectedChampions}  // 이 부분이 있는지 확인
                                     />
                                 </div>
 
                                 <Collapse in={expandedCards[index]}>
-                                    <div style={{ paddingBottom: '12px' }}>
+                                    <div style={{ paddingBottom: '12px', position: 'relative' }}>
+                                        {loadingDetails[index] && (
+                                            <LoadingOverlay visible={true} />
+                                        )}
                                         <MatchHistory
                                             champions={combination.champions}
-                                            matches={combination.matches}
+                                            gameDetails={combination.gameDetails || []}
                                         />
                                     </div>
                                 </Collapse>

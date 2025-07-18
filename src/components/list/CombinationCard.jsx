@@ -4,7 +4,7 @@ import { Group, Avatar, Text, Button, Stack, Progress } from '@mantine/core';
 import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 import { useMediaQuery } from '@mantine/hooks';
 
-const CombinationCard = ({ combination, isExpanded, onToggle }) => {
+const CombinationCard = ({ combination, isExpanded, onToggle, selectedChampions }) => {
     const isMobile = useMediaQuery('(max-width: 768px)');
 
     const {
@@ -19,6 +19,34 @@ const CombinationCard = ({ combination, isExpanded, onToggle }) => {
     const totalGames = wins + losses;
     const winPercentage = totalGames > 0 ? (wins / totalGames) * 100 : 0;
     const lossPercentage = totalGames > 0 ? (losses / totalGames) * 100 : 0;
+    const displayWinRate = Math.round(winRate * 100);
+    // 선택한 챔피언을 앞에, 나머지를 뒤에 배치
+    const orderedChampions = React.useMemo(() => {
+        if (!selectedChampions || selectedChampions.length === 0) {
+            return champions;
+        }
+
+        const championMap = new Map();
+        champions.forEach(champion => {
+            championMap.set(champion.championNameEn, champion);
+        });
+
+        const selectedChampionNames = selectedChampions.map(selectedChamp =>
+            typeof selectedChamp === 'string' ? selectedChamp : selectedChamp.championNameEn
+        );
+
+        // 선택한 챔피언들 (순서대로)
+        const selectedInOrder = selectedChampionNames.map(name =>
+            championMap.get(name)
+        ).filter(Boolean);
+
+        // 선택하지 않은 나머지 챔피언들
+        const remaining = champions.filter(champion =>
+            !selectedChampionNames.includes(champion.championNameEn)
+        );
+
+        return [...selectedInOrder, ...remaining];
+    }, [champions, selectedChampions]);
 
     return (
         <Stack gap="xs">
@@ -28,7 +56,7 @@ const CombinationCard = ({ combination, isExpanded, onToggle }) => {
                     {/* 첫 번째 행: 챔피언 5개 한 행 + 화살표 버튼 */}
                     <Group justify="space-between" align="center" wrap="nowrap">
                         <Group gap="xs">
-                            {champions.map((champion, index) => (
+                            {orderedChampions.map((champion, index) => (
                                 <Avatar
                                     key={index}
                                     src={champion.imageUrl}
@@ -89,7 +117,7 @@ const CombinationCard = ({ combination, isExpanded, onToggle }) => {
                         </Progress.Root>
 
                         <Text size="sm" fw={600} c={winRate >= 50 ? '#5383e8' : '#e84057'}>
-                            {winRate}%
+                            {displayWinRate}%
                         </Text>
                     </Group>
 
@@ -110,9 +138,9 @@ const CombinationCard = ({ combination, isExpanded, onToggle }) => {
                 /* 데스크톱에서는 기존 레이아웃 유지 */
                 <Group justify="space-between" align="center" wrap="nowrap">
                     <Group gap="sm" style={{ flex: 1 }}>
-                        {/* 챔피언 아바타들 */}
+                        {/* 챔피언 아바타들 - 선택한 것 먼저, 나머지 뒤에 */}
                         <Group gap="xs">
-                            {champions.map((champion, index) => (
+                            {orderedChampions.map((champion, index) => (
                                 <Avatar
                                     key={index}
                                     src={champion.imageUrl}
@@ -170,7 +198,7 @@ const CombinationCard = ({ combination, isExpanded, onToggle }) => {
                             </div>
 
                             <Text size="sm" fw={600} c={winRate >= 50 ? '#5383e8' : '#e84057'}>
-                                {winRate}%
+                                {displayWinRate}%
                             </Text>
                         </div>
 
@@ -182,7 +210,7 @@ const CombinationCard = ({ combination, isExpanded, onToggle }) => {
                             <Text size="sm" c="dimmed">
                                 최근: {recentGame}
                             </Text>
-                            <Text size="sm" c="dimmed">
+                            <Text size="xs" c="dimmed">
                                 패치: {recentPatch}
                             </Text>
                         </Group>

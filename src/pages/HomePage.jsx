@@ -1,4 +1,3 @@
-// src/pages/HomePage.jsx
 import React, { useState, useEffect } from 'react';
 import { Container, Stack } from '@mantine/core';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -11,13 +10,14 @@ const HomePage = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [selectedChampions, setSelectedChampions] = useState([]);
+    const [showChampionGrid, setShowChampionGrid] = useState(false); // 🔥 챔피언 그리드 표시 상태
     const [filters, setFilters] = useState({
-        year: 2025,                    // ✅ 기본 연도
+        year: 2025,
         split: null,
         leagueName: null,
         teamName: null,
         patch: null,
-        leagueNames: ['LCK'],         // ✅ 기본 리그 LCK
+        leagueNames: ['LCK'],
         splitNames: [],
         teamNames: []
     });
@@ -28,13 +28,20 @@ const HomePage = () => {
     // 브라우저 뒤로가기/앞으로가기 이벤트 처리
     useEffect(() => {
         const handlePopState = () => {
-            // URL 변경 시 컴포넌트 리렌더링
-            // showResults는 location.search로 결정되므로 자동으로 처리됨
+            // URL 변경 시 챔피언 그리드 숨기기
+            setShowChampionGrid(false);
         };
 
         window.addEventListener('popstate', handlePopState);
         return () => window.removeEventListener('popstate', handlePopState);
     }, []);
+
+    // 🔥 결과 화면이 아닐 때 기본적으로 챔피언 그리드 표시
+    useEffect(() => {
+        if (!showResults) {
+            setShowChampionGrid(true);
+        }
+    }, [showResults]);
 
     const handleChampionSelect = (champion) => {
         console.log('Champion clicked:', champion);
@@ -61,17 +68,30 @@ const HomePage = () => {
         setSelectedChampions(newSelected);
     };
 
+    // 🔥 빈 슬롯 클릭 핸들러
+    const handleEmptySlotClick = (slotIndex) => {
+        console.log('Empty slot clicked:', slotIndex);
+
+        // 결과 화면에서 빈 슬롯 클릭 시 챔피언 선택 화면으로 전환
+        if (showResults) {
+            setShowChampionGrid(true);
+            navigate('/', { replace: false }); // URL에서 results 파라미터 제거
+        }
+    };
+
     const handleCombinationSearch = () => {
         if (selectedChampions.length === 0) {
             alert('최소 1개의 챔피언을 선택해주세요.');
             return;
         }
-        // URL에 results=true 파라미터 추가
+        // 챔피언 그리드 숨기고 결과 화면 표시
+        setShowChampionGrid(false);
         navigate('/?results=true', { replace: false });
     };
 
     const handleBackToSelection = () => {
-        // URL에서 results 파라미터 제거
+        // 챔피언 그리드 표시하고 결과 화면 숨기기
+        setShowChampionGrid(true);
         navigate('/', { replace: false });
     };
 
@@ -81,6 +101,7 @@ const HomePage = () => {
                 <ChampionSelector
                     selectedChampions={selectedChampions}
                     onChampionRemove={handleChampionRemove}
+                    onEmptySlotClick={handleEmptySlotClick} // 🔥 빈 슬롯 클릭 핸들러 전달
                 />
 
                 <FilterSection
@@ -90,19 +111,19 @@ const HomePage = () => {
                     onCombinationSearch={handleCombinationSearch}
                 />
 
-                {/* 조건부 렌더링 */}
+                {/* 🔥 조건부 렌더링 개선 */}
                 {showResults ? (
                     <CombinationResults
                         selectedChampions={selectedChampions}
                         filters={filters}
                         onBackToSelection={handleBackToSelection}
                     />
-                ) : (
+                ) : showChampionGrid ? (
                     <ChampionGrid
                         onChampionSelect={handleChampionSelect}
                         selectedChampions={selectedChampions}
                     />
-                )}
+                ) : null}
             </Stack>
         </Container>
     );

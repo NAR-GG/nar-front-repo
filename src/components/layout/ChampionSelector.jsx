@@ -3,7 +3,7 @@ import { Group, Paper, Avatar, Text } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import { useMediaQuery } from '@mantine/hooks';
 
-const ChampionSelector = ({ selectedChampions = [], onChampionRemove }) => {
+const ChampionSelector = ({ selectedChampions = [], onChampionRemove, onEmptySlotClick }) => {
     const isMobile = useMediaQuery('(max-width: 768px)');
 
     return (
@@ -73,8 +73,14 @@ const ChampionSelector = ({ selectedChampions = [], onChampionRemove }) => {
                                         display: 'flex',
                                         alignItems: 'center',
                                         justifyContent: 'center',
-                                        transition: 'all 0.2s ease'
+                                        transition: 'all 0.2s ease',
+                                        '&:hover': {
+                                            backgroundColor: '#e9ecef',
+                                            borderColor: '#adb5bd',
+                                            transform: 'scale(1.05)'
+                                        }
                                     }}
+                                    onClick={() => onEmptySlotClick && onEmptySlotClick(index)} // 🔥 빈 슬롯 클릭 핸들러
                                 >
                                     <div
                                         style={{

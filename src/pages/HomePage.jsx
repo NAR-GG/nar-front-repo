@@ -12,11 +12,14 @@ const HomePage = () => {
     const location = useLocation();
     const [selectedChampions, setSelectedChampions] = useState([]);
     const [filters, setFilters] = useState({
-        year: null,
+        year: 2025,                    // ✅ 기본 연도
         split: null,
         leagueName: null,
         teamName: null,
-        patch: null
+        patch: null,
+        leagueNames: ['LCK'],         // ✅ 기본 리그 LCK
+        splitNames: [],
+        teamNames: []
     });
 
     // URL 파라미터로 결과 화면 여부 판단

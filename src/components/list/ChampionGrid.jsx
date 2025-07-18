@@ -80,18 +80,18 @@ const ChampionGrid = ({ onChampionSelect, selectedChampions }) => {
                             display: 'flex',
                             width: '100%',
                             justifyContent: 'center',
-                            overflowX: 'auto',
                             paddingBottom: '4px'
                         }}>
                             <div style={{
                                 display: 'flex',
-                                minWidth: 'fit-content'
+                                width: '100%', // 전체 너비 사용
+                                maxWidth: '100%' // 최대 너비 제한
                             }}>
                                 {positions.map(({ id, name, iconSrc }, index) => (
                                     <div
                                         key={id}
                                         style={{
-                                            padding: '12px 16px',
+                                            padding: '8px 4px', // 패딩 줄임
                                             cursor: 'pointer',
                                             backgroundColor: selectedPosition === id ? '#4c6ef5' : '#f8f9fa',
                                             border: '1px solid #e9ecef',
@@ -103,9 +103,10 @@ const ChampionGrid = ({ onChampionSelect, selectedChampions }) => {
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'center',
-                                            minWidth: '50px',
                                             height: '44px',
-                                            flex: '0 0 auto'
+                                            flex: '1', // 균등 분할
+                                            minWidth: 0, // 최소 너비 제한 제거
+                                            overflow: 'hidden' // 내용 잘림 방지
                                         }}
                                         onClick={() => setSelectedPosition(id)}
                                         title={name}
@@ -113,8 +114,8 @@ const ChampionGrid = ({ onChampionSelect, selectedChampions }) => {
                                         <img
                                             src={iconSrc}
                                             alt={name}
-                                            width={24}
-                                            height={24}
+                                            width={20} // 아이콘 크기 줄임
+                                            height={20}
                                             style={{
                                                 objectFit: 'contain',
                                                 filter: selectedPosition === id

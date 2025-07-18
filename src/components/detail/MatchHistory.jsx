@@ -64,18 +64,49 @@ const MatchHistory = ({ champions, gameDetails }) => {
 
             <Stack gap="sm">
                 {gameDetails.map((game, index) => {
-                    const { ourTeam, opponentTeam } = game;
-                    const weWon = ourTeam.isWin;
+                    // ✅ 방어코드: 게임 데이터 검증
+                    if (!game || !game.ourTeam || !game.opponentTeam) {
+                        console.warn(`Invalid game data at index ${index}:`, game);
+                        return (
+                            <Paper key={index} p="sm" bg="#f8f9fa" radius="md">
+                                <Text size="sm" c="red" ta="center">
+                                    게임 데이터가 불완전합니다.
+                                </Text>
+                            </Paper>
+                        );
+                    }
 
-                    // 블루사이드와 레드사이드 구분
-                    const blueTeam = ourTeam.side === 'Blue' ? ourTeam : opponentTeam;
-                    const redTeam = ourTeam.side === 'Red' ? ourTeam : opponentTeam;
-                    const ourTeamIsBlue = ourTeam.side === 'Blue';
+                    const { ourTeam, opponentTeam } = game;
+                    const weWon = ourTeam?.isWin ?? false;
+
+                    // ✅ 방어코드: 팀 사이드 정보 검증
+                    const ourTeamSide = ourTeam?.side;
+                    const opponentTeamSide = opponentTeam?.side;
+
+                    if (!ourTeamSide || !opponentTeamSide) {
+                        console.warn(`Missing team side data for game ${index}:`, { ourTeamSide, opponentTeamSide });
+                        return (
+                            <Paper key={index} p="sm" bg="#f8f9fa" radius="md">
+                                <Text size="sm" c="red" ta="center">
+                                    팀 사이드 정보가 없습니다.
+                                </Text>
+                            </Paper>
+                        );
+                    }
+
+                    // ✅ 방어코드: 블루/레드 팀 할당
+                    const blueTeam = ourTeamSide === 'Blue' ? ourTeam : opponentTeam;
+                    const redTeam = ourTeamSide === 'Red' ? ourTeam : opponentTeam;
+                    const ourTeamIsBlue = ourTeamSide === 'Blue';
+
+                    // ✅ 방어코드: 팀 이름 검증
+                    const blueTeamName = blueTeam?.teamName || '알 수 없는 팀';
+                    const redTeamName = redTeam?.teamName || '알 수 없는 팀';
 
                     return (
                         <Paper key={index} p="sm" bg="#f8f9fa" radius="md">
                             <Stack gap="xs">
-                                {/* 첫 번째 행: 경기 헤더 - 조합 사용팀을 블루/레드 위치에 맞게 배치 */}
+                                {/* 첫 번째 행: 경기 헤더 */}
                                 <Group justify="space-between" align="center">
                                     <Group gap="sm">
                                         <Text size="sm" fw={600}>
@@ -91,17 +122,17 @@ const MatchHistory = ({ champions, gameDetails }) => {
                                                             borderRadius: '4px'
                                                         }}
                                                     >
-                                                        {blueTeam.teamName}
+                                                        {blueTeamName}
                                                     </Text>
                                                     {' vs '}
                                                     <Text component="span" c="black" fw={600}>
-                                                        {redTeam.teamName}
+                                                        {redTeamName}
                                                     </Text>
                                                 </>
                                             ) : (
                                                 <>
                                                     <Text component="span" c="black" fw={600}>
-                                                        {blueTeam.teamName}
+                                                        {blueTeamName}
                                                     </Text>
                                                     {' vs '}
                                                     <Text
@@ -114,7 +145,7 @@ const MatchHistory = ({ champions, gameDetails }) => {
                                                             borderRadius: '4px'
                                                         }}
                                                     >
-                                                        {redTeam.teamName}
+                                                        {redTeamName}
                                                     </Text>
                                                 </>
                                             )}
@@ -127,15 +158,15 @@ const MatchHistory = ({ champions, gameDetails }) => {
                                             {weWon ? '승리' : '패배'}
                                         </Badge>
                                         <Text size="xs" c="dimmed">
-                                            {game.league} • {game.patch}
+                                            {game.league || '알 수 없음'} • {game.patch || '알 수 없음'}
                                         </Text>
                                     </Group>
                                     <Group gap="xs">
                                         <Text size="xs" c="dimmed">
-                                            {formatGameTime(game.gameLengthSeconds)}
+                                            {game.gameLengthSeconds ? formatGameTime(game.gameLengthSeconds) : '00:00'}
                                         </Text>
                                         <Text size="xs" c="dimmed">
-                                            {game.gameDate}
+                                            {game.gameDate || '날짜 없음'}
                                         </Text>
                                     </Group>
                                 </Group>
@@ -145,36 +176,41 @@ const MatchHistory = ({ champions, gameDetails }) => {
                                     {/* 블루사이드 (왼쪽) */}
                                     <Stack gap="xs" align="center">
                                         <Text size="xs" fw={600}>
-                                            {blueTeam.teamName}
+                                            {blueTeamName}
                                         </Text>
                                         <div style={{ display: 'flex', gap: '8px' }}>
-                                            {blueTeam.players?.map((player, idx) => (
-                                                <div key={idx} style={{
-                                                    display: 'flex',
-                                                    flexDirection: 'column',
-                                                    alignItems: 'center',
-                                                    width: '50px'
-                                                }}>
-                                                    <Avatar
-                                                        src={getChampionImageUrl(player.championName)}
-                                                        size={40}
-                                                        radius="md"
-                                                    />
-                                                    <Text
-                                                        size="xs"
-                                                        mt={4}
-                                                        style={{
-                                                            textAlign: 'center',
-                                                            width: '100%',
-                                                            whiteSpace: 'nowrap',
-                                                            overflow: 'hidden',
-                                                            textOverflow: 'ellipsis'
-                                                        }}
-                                                    >
-                                                        {player.playerName}
-                                                    </Text>
-                                                </div>
-                                            ))}
+                                            {/* ✅ 방어코드: 플레이어 배열 검증 */}
+                                            {(blueTeam?.players || []).length > 0 ? (
+                                                blueTeam.players.map((player, idx) => (
+                                                    <div key={idx} style={{
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        alignItems: 'center',
+                                                        width: '50px'
+                                                    }}>
+                                                        <Avatar
+                                                            src={getChampionImageUrl(player?.championName || '')}
+                                                            size={40}
+                                                            radius="md"
+                                                        />
+                                                        <Text
+                                                            size="xs"
+                                                            mt={4}
+                                                            style={{
+                                                                textAlign: 'center',
+                                                                width: '100%',
+                                                                whiteSpace: 'nowrap',
+                                                                overflow: 'hidden',
+                                                                textOverflow: 'ellipsis'
+                                                            }}
+                                                        >
+                                                            {player?.playerName || '알 수 없음'}
+                                                        </Text>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <Text size="xs" c="dimmed">플레이어 정보 없음</Text>
+                                            )}
                                         </div>
                                     </Stack>
 
@@ -193,40 +229,44 @@ const MatchHistory = ({ champions, gameDetails }) => {
                                     {/* 레드사이드 (오른쪽) */}
                                     <Stack gap="xs" align="center">
                                         <Text size="xs" fw={600}>
-                                            {redTeam.teamName}
+                                            {redTeamName}
                                         </Text>
                                         <div style={{ display: 'flex', gap: '8px' }}>
-                                            {redTeam.players?.map((player, idx) => (
-                                                <div key={idx} style={{
-                                                    display: 'flex',
-                                                    flexDirection: 'column',
-                                                    alignItems: 'center',
-                                                    width: '50px'
-                                                }}>
-                                                    <Avatar
-                                                        src={getChampionImageUrl(player.championName)}
-                                                        size={40}
-                                                        radius="md"
-                                                    />
-                                                    <Text
-                                                        size="xs"
-                                                        mt={4}
-                                                        style={{
-                                                            textAlign: 'center',
-                                                            width: '100%',
-                                                            whiteSpace: 'nowrap',
-                                                            overflow: 'hidden',
-                                                            textOverflow: 'ellipsis'
-                                                        }}
-                                                    >
-                                                        {player.playerName}
-                                                    </Text>
-                                                </div>
-                                            ))}
+                                            {/* ✅ 방어코드: 플레이어 배열 검증 */}
+                                            {(redTeam?.players || []).length > 0 ? (
+                                                redTeam.players.map((player, idx) => (
+                                                    <div key={idx} style={{
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        alignItems: 'center',
+                                                        width: '50px'
+                                                    }}>
+                                                        <Avatar
+                                                            src={getChampionImageUrl(player?.championName || '')}
+                                                            size={40}
+                                                            radius="md"
+                                                        />
+                                                        <Text
+                                                            size="xs"
+                                                            mt={4}
+                                                            style={{
+                                                                textAlign: 'center',
+                                                                width: '100%',
+                                                                whiteSpace: 'nowrap',
+                                                                overflow: 'hidden',
+                                                                textOverflow: 'ellipsis'
+                                                            }}
+                                                        >
+                                                            {player?.playerName || '알 수 없음'}
+                                                        </Text>
+                                                    </div>
+                                                ))
+                                            ) : (
+                                                <Text size="xs" c="dimmed">플레이어 정보 없음</Text>
+                                            )}
                                         </div>
                                     </Stack>
                                 </Group>
-
                             </Stack>
                         </Paper>
                     );

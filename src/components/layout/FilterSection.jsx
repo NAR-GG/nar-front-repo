@@ -4,12 +4,10 @@ import { IconSearch, IconX, IconChevronDown } from '@tabler/icons-react';
 import { useMediaQuery } from '@mantine/hooks';
 
 // 커스텀 MultiSelect 컴포넌트
-// 커스텀 MultiSelect 컴포넌트
 const CustomMultiSelect = ({ label, placeholder, data, value = [], onChange, disabled = false }) => {
     const [opened, setOpened] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
 
-    // 검색 및 제한된 데이터
     const filteredData = useMemo(() => {
         let filtered = data;
         if (searchTerm) {
@@ -17,7 +15,7 @@ const CustomMultiSelect = ({ label, placeholder, data, value = [], onChange, dis
                 item.label.toLowerCase().includes(searchTerm.toLowerCase())
             );
         }
-        return filtered.slice(0, 100); // 최대 100개로 제한
+        return filtered.slice(0, 100);
     }, [data, searchTerm]);
 
     const handleToggle = useCallback((itemValue) => {
@@ -27,7 +25,6 @@ const CustomMultiSelect = ({ label, placeholder, data, value = [], onChange, dis
         onChange(newValue);
     }, [value, onChange]);
 
-    // 시즌 필드는 선택 상태 스타일 적용하지 않음
     const getSelectedStyle = useCallback((hasSelection) => {
         if (disabled) {
             return {
@@ -67,10 +64,12 @@ const CustomMultiSelect = ({ label, placeholder, data, value = [], onChange, dis
         }
     }, [opened]);
 
-    // 표시할 텍스트 결정
     const getDisplayText = () => {
         if (label === '시즌') {
             return '2025';
+        }
+        if (value.length > 0) {
+            return `${value.length}개 선택됨`;
         }
         return placeholder;
     };
@@ -106,33 +105,48 @@ const CustomMultiSelect = ({ label, placeholder, data, value = [], onChange, dis
                             }
                         }}
                     >
-                        <Text size="sm" c={disabled ? 'dark' : (value.length > 0 ? 'dimmed' : 'placeholder')}>
+                        <Text size="sm" c={disabled ? 'dark' : (value.length > 0 ? 'dark' : 'placeholder')}>
                             {getDisplayText()}
                         </Text>
                     </Button>
                 </Popover.Target>
                 <Popover.Dropdown p={8} style={{ maxWidth: '300px' }} data-mantine-popover>
                     <Stack gap={8}>
-                        <TextInput
-                            placeholder="검색..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            size="sm"
-                        />
+                        {data.length > 0 && (
+                            <TextInput
+                                placeholder="검색..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                size="sm"
+                                leftSection={<IconSearch size={16} />}
+                            />
+                        )}
                         <ScrollArea.Autosize mah={200}>
                             <Stack gap={4}>
-                                {filteredData.map(item => (
-                                    <Checkbox
-                                        key={item.value}
-                                        label={item.label}
-                                        checked={value.includes(item.value)}
-                                        onChange={() => handleToggle(item.value)}
-                                        styles={{
-                                            root: { padding: '4px 8px' },
-                                            label: { cursor: 'pointer' }
-                                        }}
-                                    />
-                                ))}
+                                {filteredData.length > 0 ? (
+                                    filteredData.map(item => (
+                                        <Checkbox
+                                            key={item.value}
+                                            label={item.label}
+                                            checked={value.includes(item.value)}
+                                            onChange={() => handleToggle(item.value)}
+                                            styles={{
+                                                root: {
+                                                    padding: '4px 8px',
+                                                    borderRadius: '4px',
+                                                    '&:hover': {
+                                                        backgroundColor: '#f8f9fa'
+                                                    }
+                                                },
+                                                label: { cursor: 'pointer' }
+                                            }}
+                                        />
+                                    ))
+                                ) : (
+                                    <Text size="sm" c="dimmed" ta="center" p="md">
+                                        {searchTerm ? '검색 결과가 없습니다' : '선택할 수 있는 항목이 없습니다'}
+                                    </Text>
+                                )}
                             </Stack>
                         </ScrollArea.Autosize>
                         {data.length > 100 && (
@@ -150,105 +164,194 @@ const CustomMultiSelect = ({ label, placeholder, data, value = [], onChange, dis
 const FilterSection = ({ filters, onFiltersChange, selectedChampions, onCombinationSearch }) => {
     const isMobile = useMediaQuery('(max-width: 768px)');
     const [categoryData, setCategoryData] = useState(null);
-    const [leagueOptions, setLeagueOptions] = useState([]);
-    const [splitOptions, setSplitOptions] = useState([]);
-    const [teamOptions, setTeamOptions] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     // 카테고리 데이터 로드
     useEffect(() => {
         const fetchCategoryData = async () => {
             try {
+                setIsLoading(true);
                 const response = await fetch('/api/categories/tree');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch category data');
+                }
                 const data = await response.json();
                 setCategoryData(data);
-
-                // 리그 옵션 설정 (2025 시즌 기준)
-                const season2025 = data.seasons.find(s => s.year === 2025);
-                if (season2025) {
-                    const leagues = season2025.leagues.map(league => ({
-                        value: league.name,
-                        label: league.name
-                    }));
-                    setLeagueOptions(leagues);
-                }
             } catch (error) {
                 console.error('Failed to fetch category data:', error);
+            } finally {
+                setIsLoading(false);
             }
         };
 
         fetchCategoryData();
     }, []);
 
-    // 리그 변경 시 스플릿 옵션 업데이트 (합집합, 빈 스플릿 제외)
-    useEffect(() => {
-        if (categoryData && filters.leagueNames && filters.leagueNames.length > 0) {
-            const season2025 = categoryData.seasons.find(s => s.year === 2025);
-            const selectedLeagues = season2025?.leagues.filter(l => filters.leagueNames.includes(l.name));
+    // 🔥 리그 옵션 생성
+    const leagueOptions = useMemo(() => {
+        if (!categoryData) return [];
 
-            if (selectedLeagues && selectedLeagues.length > 0) {
-                const allSplits = selectedLeagues.flatMap(league =>
-                    league.splits
-                        .filter(split => split.name && split.name.trim() !== '') // 빈 스플릿 제외
-                        .map(split => split.name)
-                );
-                const uniqueSplits = [...new Set(allSplits)];
+        const season2025 = categoryData.seasons.find(s => s.year === 2025);
+        if (!season2025) return [];
 
-                const splits = uniqueSplits.map(splitName => ({
-                    value: splitName,
-                    label: splitName
-                }));
-                setSplitOptions(splits);
-            }
-        } else {
-            setSplitOptions([]);
+        return season2025.leagues.map(league => ({
+            value: league.name,
+            label: league.name
+        }));
+    }, [categoryData]);
+
+    // 🔥 스플릿 옵션 생성 (선택된 리그들의 스플릿 합집합)
+    const splitOptions = useMemo(() => {
+        if (!categoryData || !filters.leagueNames || filters.leagueNames.length === 0) {
+            return [];
         }
+
+        const season2025 = categoryData.seasons.find(s => s.year === 2025);
+        if (!season2025) return [];
+
+        const selectedLeagues = season2025.leagues.filter(l =>
+            filters.leagueNames.includes(l.name)
+        );
+
+        // 선택된 리그들의 모든 스플릿을 합집합으로 가져오기
+        const allSplits = selectedLeagues.flatMap(league =>
+            league.splits
+                .filter(split => split.name && split.name.trim() !== '') // 빈 스플릿 제외
+                .map(split => split.name)
+        );
+
+        const uniqueSplits = [...new Set(allSplits)];
+
+        return uniqueSplits.map(splitName => ({
+            value: splitName,
+            label: splitName
+        }));
     }, [categoryData, filters.leagueNames]);
 
-    // 스플릿 변경 시 팀 옵션 업데이트 (합집합)
-    useEffect(() => {
-        if (categoryData && filters.leagueNames && filters.leagueNames.length > 0) {
-            const season2025 = categoryData.seasons.find(s => s.year === 2025);
-            const selectedLeagues = season2025?.leagues.filter(l => filters.leagueNames.includes(l.name));
-
-            if (selectedLeagues && selectedLeagues.length > 0) {
-                const relevantSplits = selectedLeagues.flatMap(league =>
-                    league.splits.filter(split =>
-                        split.name && split.name.trim() !== '' && // 빈 스플릿 제외
-                        (!filters.splitNames ||
-                            filters.splitNames.length === 0 ||
-                            filters.splitNames.includes(split.name))
-                    )
-                );
-
-                if (relevantSplits.length > 0) {
-                    const allTeams = relevantSplits.flatMap(split =>
-                        split.teams.map(team => team.name)
-                    );
-                    const uniqueTeams = [...new Set(allTeams)];
-
-                    const teams = uniqueTeams.map(teamName => ({
-                        value: teamName,
-                        label: teamName
-                    }));
-                    setTeamOptions(teams);
-                } else {
-                    setTeamOptions([]);
-                }
-            }
-        } else {
-            setTeamOptions([]);
+    // 🔥 팀 옵션 생성 (선택된 리그들의 팀 합집합)
+    const teamOptions = useMemo(() => {
+        if (!categoryData || !filters.leagueNames || filters.leagueNames.length === 0) {
+            return [];
         }
+
+        const season2025 = categoryData.seasons.find(s => s.year === 2025);
+        if (!season2025) return [];
+
+        const selectedLeagues = season2025.leagues.filter(l =>
+            filters.leagueNames.includes(l.name)
+        );
+
+        // 🔥 빈 스플릿 이름 제외 조건 제거
+        const relevantSplits = selectedLeagues.flatMap(league =>
+            league.splits.filter(split => {
+                // 스플릿 필터가 없으면 모든 스플릿 포함
+                if (!filters.splitNames || filters.splitNames.length === 0) return true;
+
+                // 빈 스플릿 이름인 경우 항상 포함 (MSI 케이스)
+                if (!split.name || split.name.trim() === '') return true;
+
+                // 선택된 스플릿만 포함
+                return filters.splitNames.includes(split.name);
+            })
+        );
+
+        const allTeams = relevantSplits.flatMap(split =>
+            split.teams.map(team => team.name)
+        );
+
+        const uniqueTeams = [...new Set(allTeams)];
+
+        return uniqueTeams
+            .sort()
+            .map(teamName => ({
+                value: teamName,
+                label: teamName
+            }));
     }, [categoryData, filters.leagueNames, filters.splitNames]);
 
-    // 나머지 코드는 동일...
-    const handleFilterChange = (field, value) => {
-        onFiltersChange({
-            ...filters,
-            [field]: value
-        });
-    };
+    // 필터 변경 핸들러
+    const handleFilterChange = useCallback((field, value) => {
+        const newFilters = { ...filters, [field]: value };
 
-    const removeTag = (type, value) => {
+        // 🔥 리그 변경 시 유효하지 않은 스플릿과 팀 필터 정리
+        if (field === 'leagueNames') {
+            // 현재 선택된 리그들에 없는 스플릿 제거
+            if (newFilters.splitNames && newFilters.splitNames.length > 0) {
+                const season2025 = categoryData?.seasons.find(s => s.year === 2025);
+                const selectedLeagues = season2025?.leagues.filter(l =>
+                    newFilters.leagueNames.includes(l.name)
+                );
+
+                const validSplits = selectedLeagues?.flatMap(league =>
+                    league.splits
+                        .filter(split => split.name && split.name.trim() !== '')
+                        .map(split => split.name)
+                ) || [];
+
+                const uniqueValidSplits = [...new Set(validSplits)];
+                newFilters.splitNames = newFilters.splitNames.filter(split =>
+                    uniqueValidSplits.includes(split)
+                );
+            }
+
+            // 현재 선택된 리그들에 없는 팀 제거
+            if (newFilters.teamNames && newFilters.teamNames.length > 0) {
+                const season2025 = categoryData?.seasons.find(s => s.year === 2025);
+                const selectedLeagues = season2025?.leagues.filter(l =>
+                    newFilters.leagueNames.includes(l.name)
+                );
+
+                const allSplits = selectedLeagues?.flatMap(league =>
+                    league.splits.filter(split => {
+                        if (!split.name || split.name.trim() === '') return false;
+                        if (!newFilters.splitNames || newFilters.splitNames.length === 0) return true;
+                        return newFilters.splitNames.includes(split.name);
+                    })
+                ) || [];
+
+                const validTeams = allSplits.flatMap(split =>
+                    split.teams.map(team => team.name)
+                );
+                const uniqueValidTeams = [...new Set(validTeams)];
+
+                newFilters.teamNames = newFilters.teamNames.filter(team =>
+                    uniqueValidTeams.includes(team)
+                );
+            }
+        }
+
+        // 🔥 스플릿 변경 시 유효하지 않은 팀 필터 정리
+        if (field === 'splitNames') {
+            if (newFilters.teamNames && newFilters.teamNames.length > 0) {
+                const season2025 = categoryData?.seasons.find(s => s.year === 2025);
+                const selectedLeagues = season2025?.leagues.filter(l =>
+                    newFilters.leagueNames.includes(l.name)
+                );
+
+                const relevantSplits = selectedLeagues?.flatMap(league =>
+                    league.splits.filter(split => {
+                        if (!split.name || split.name.trim() === '') return false;
+                        if (!newFilters.splitNames || newFilters.splitNames.length === 0) return true;
+                        return newFilters.splitNames.includes(split.name);
+                    })
+                ) || [];
+
+                const validTeams = relevantSplits.flatMap(split =>
+                    split.teams.map(team => team.name)
+                );
+                const uniqueValidTeams = [...new Set(validTeams)];
+
+                newFilters.teamNames = newFilters.teamNames.filter(team =>
+                    uniqueValidTeams.includes(team)
+                );
+            }
+        }
+
+        onFiltersChange(newFilters);
+    }, [filters, categoryData, onFiltersChange]);
+
+    // 태그 제거 핸들러
+    const removeTag = useCallback((type, value) => {
         if (type === 'league') {
             const newLeagues = filters.leagueNames?.filter(name => name !== value) || [];
             handleFilterChange('leagueNames', newLeagues);
@@ -259,7 +362,7 @@ const FilterSection = ({ filters, onFiltersChange, selectedChampions, onCombinat
             const newTeams = filters.teamNames?.filter(name => name !== value) || [];
             handleFilterChange('teamNames', newTeams);
         }
-    };
+    }, [filters, handleFilterChange]);
 
     const tagStyle = {
         display: 'inline-flex',
@@ -271,7 +374,8 @@ const FilterSection = ({ filters, onFiltersChange, selectedChampions, onCombinat
         fontWeight: '500',
         cursor: 'pointer',
         border: 'none',
-        outline: 'none'
+        outline: 'none',
+        transition: 'all 0.2s ease'
     };
 
     const getTagColor = (type) => {
@@ -282,6 +386,17 @@ const FilterSection = ({ filters, onFiltersChange, selectedChampions, onCombinat
             default: return { backgroundColor: '#f5f5f5', color: '#666' };
         }
     };
+
+    // 로딩 중일 때
+    if (isLoading) {
+        return (
+            <Paper p="md" withBorder radius="md">
+                <Group justify="center" p="xl">
+                    <Text c="dimmed">필터 옵션을 불러오는 중...</Text>
+                </Group>
+            </Paper>
+        );
+    }
 
     return (
         <Paper p="md" withBorder radius="md">
@@ -297,7 +412,7 @@ const FilterSection = ({ filters, onFiltersChange, selectedChampions, onCombinat
                         />
                         <CustomMultiSelect
                             label="리그"
-                            placeholder="리그"
+                            placeholder="리그를 선택하세요"
                             data={leagueOptions}
                             value={filters.leagueNames || []}
                             onChange={(value) => handleFilterChange('leagueNames', value)}
@@ -307,7 +422,7 @@ const FilterSection = ({ filters, onFiltersChange, selectedChampions, onCombinat
                     <Group grow>
                         <CustomMultiSelect
                             label="스플릿"
-                            placeholder="스플릿"
+                            placeholder="스플릿을 선택하세요"
                             data={splitOptions}
                             value={filters.splitNames || []}
                             onChange={(value) => handleFilterChange('splitNames', value)}
@@ -315,7 +430,7 @@ const FilterSection = ({ filters, onFiltersChange, selectedChampions, onCombinat
                         />
                         <CustomMultiSelect
                             label="팀"
-                            placeholder="팀"
+                            placeholder="팀을 선택하세요"
                             data={teamOptions}
                             value={filters.teamNames || []}
                             onChange={(value) => handleFilterChange('teamNames', value)}
@@ -352,7 +467,7 @@ const FilterSection = ({ filters, onFiltersChange, selectedChampions, onCombinat
                         <Box style={{ width: 150 }}>
                             <CustomMultiSelect
                                 label="리그"
-                                placeholder="리그"
+                                placeholder="리그를 선택하세요"
                                 data={leagueOptions}
                                 value={filters.leagueNames || []}
                                 onChange={(value) => handleFilterChange('leagueNames', value)}
@@ -362,7 +477,7 @@ const FilterSection = ({ filters, onFiltersChange, selectedChampions, onCombinat
                         <Box style={{ width: 150 }}>
                             <CustomMultiSelect
                                 label="스플릿"
-                                placeholder="스플릿"
+                                placeholder="스플릿을 선택하세요"
                                 data={splitOptions}
                                 value={filters.splitNames || []}
                                 onChange={(value) => handleFilterChange('splitNames', value)}
@@ -373,7 +488,7 @@ const FilterSection = ({ filters, onFiltersChange, selectedChampions, onCombinat
                         <Box style={{ width: 150 }}>
                             <CustomMultiSelect
                                 label="팀"
-                                placeholder="팀"
+                                placeholder="팀을 선택하세요"
                                 data={teamOptions}
                                 value={filters.teamNames || []}
                                 onChange={(value) => handleFilterChange('teamNames', value)}
@@ -403,13 +518,22 @@ const FilterSection = ({ filters, onFiltersChange, selectedChampions, onCombinat
                 (filters.teamNames && filters.teamNames.length > 0)) && (
                 <>
                     <Divider my="md" />
-                    <Group gap="xs">
+                    <Group gap="xs" style={{ flexWrap: 'wrap' }}>
                         {filters.leagueNames?.map(league => (
                             <Box
                                 key={`league-${league}`}
                                 style={{
                                     ...tagStyle,
-                                    ...getTagColor('league')
+                                    ...getTagColor('league'),
+                                    '&:hover': {
+                                        opacity: 0.8
+                                    }
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.target.style.opacity = '0.8';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.target.style.opacity = '1';
                                 }}
                             >
                                 <Text size="xs">리그: {league}</Text>
@@ -426,7 +550,16 @@ const FilterSection = ({ filters, onFiltersChange, selectedChampions, onCombinat
                                 key={`split-${split}`}
                                 style={{
                                     ...tagStyle,
-                                    ...getTagColor('split')
+                                    ...getTagColor('split'),
+                                    '&:hover': {
+                                        opacity: 0.8
+                                    }
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.target.style.opacity = '0.8';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.target.style.opacity = '1';
                                 }}
                             >
                                 <Text size="xs">스플릿: {split}</Text>
@@ -443,7 +576,16 @@ const FilterSection = ({ filters, onFiltersChange, selectedChampions, onCombinat
                                 key={`team-${team}`}
                                 style={{
                                     ...tagStyle,
-                                    ...getTagColor('team')
+                                    ...getTagColor('team'),
+                                    '&:hover': {
+                                        opacity: 0.8
+                                    }
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.target.style.opacity = '0.8';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.target.style.opacity = '1';
                                 }}
                             >
                                 <Text size="xs">팀: {team}</Text>
@@ -462,4 +604,3 @@ const FilterSection = ({ filters, onFiltersChange, selectedChampions, onCombinat
 };
 
 export default FilterSection;
-

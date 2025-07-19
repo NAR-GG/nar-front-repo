@@ -105,9 +105,18 @@ const CombinationResults = ({ selectedChampions = [], filters = {}, onBackToSele
     if (!Array.isArray(safeSelectedChampions) || safeSelectedChampions.length === 0) {
         return (
             <Paper p="md" withBorder radius="md">
-                <Text ta="center" c="dimmed">
-                    유효한 챔피언 데이터가 없습니다.
-                </Text>
+                <Stack gap="md" align="center">
+                    <Text ta="center" c="dimmed">
+                        유효한 챔피언 데이터가 없습니다.
+                    </Text>
+                    <Button
+                        leftSection={<IconArrowLeft size={16} />}
+                        onClick={onBackToSelection}
+                        variant="light"
+                    >
+                        챔피언 선택하러 가기
+                    </Button>
+                </Stack>
             </Paper>
         );
     }

@@ -1,6 +1,7 @@
 // CombinationResults 컴포넌트
 import React, { useState, useEffect } from 'react';
-import { Stack, Title, Paper, Group, Text, Button, Collapse, LoadingOverlay, Divider, ActionIcon, Select } from '@mantine/core';
+import { Stack, Title, Paper, Group, Text, Button, Collapse, LoadingOverlay, Divider, ActionIcon, Select } from '@mantine/core'; // 🔥 useMediaQuery 추가
+import { useMediaQuery } from '@mantine/hooks'; // 🔥 모바일 감지
 import { IconArrowLeft, IconChevronDown } from '@tabler/icons-react';
 import CombinationCard from '../list/CombinationCard';
 import MatchHistory from '../detail/MatchHistory';
@@ -10,6 +11,9 @@ const CombinationResults = ({ selectedChampions = [], filters = {}, onBackToSele
     const [expandedCards, setExpandedCards] = useState({});
     const [loadingDetails, setLoadingDetails] = useState({});
     const [combinationsWithDetails, setCombinationsWithDetails] = useState([]);
+
+    // 🔥 모바일 감지: max-width 768px 이하를 모바일로 간주
+    const isMobile = useMediaQuery('(max-width: 768px)');
 
     // 🔥 안전한 기본값 설정
     const safeSelectedChampions = Array.isArray(selectedChampions) ? selectedChampions : [];
@@ -133,41 +137,78 @@ const CombinationResults = ({ selectedChampions = [], filters = {}, onBackToSele
         );
     }
 
-    return (
-        <Paper p="md" withBorder radius="md">
-            <Stack gap="sm">
-                {/* 헤더 */}
+    // 🔥 헤더 렌더링 함수: 모바일/데스크탑 조건부
+    const renderHeader = () => {
+        const loadText = (
+            <Text size="sm" c="dimmed">
+                {safeSelectedChampions.length}개 챔피언 조합 • 총 {totalCount}개 중 {combinationsWithDetails.length}개 로드
+            </Text>
+        );
+
+        const sortSelect = (
+            <Select
+                size="sm"
+                placeholder="정렬 기준"
+                data={[
+                    { value: 'recency', label: '최신순' },
+                    { value: 'frequency', label: '빈도순' },
+                    { value: 'patch', label: '패치순' }
+                ]}
+                defaultValue="frequency"
+                onChange={(value) => setSort(value)}
+                styles={{ input: { width: '120px' } }}
+            />
+        );
+
+        const backButton = (
+            <Button
+                size="sm"
+                color="gray"
+                leftSection={<IconArrowLeft size={16} />}
+                onClick={onBackToSelection}
+            >
+                돌아가기
+            </Button>
+        );
+
+        if (isMobile) {
+            // 모바일: 세로 배치 (텍스트 첫 줄, 정렬/버튼 두 번째 줄 오른쪽)
+            return (
+                <Stack gap="xs">
+                    <Group justify="space-between" align="center">
+                        <Title order={2} c="dark">
+                            조합 분석 결과
+                        </Title>
+                    </Group>
+                    {loadText}
+                    <Group justify="flex-end" gap="xs">
+                        {sortSelect}
+                        {backButton}
+                    </Group>
+                </Stack>
+            );
+        } else {
+            // 데스크탑: 기존 가로 배치
+            return (
                 <Group justify="space-between" align="center">
                     <Title order={2} c="dark">
                         조합 분석 결과
                     </Title>
                     <Group>
-                        <Text size="sm" c="dimmed">
-                            {safeSelectedChampions.length}개 챔피언 조합 • 총 {totalCount}개 중 {combinationsWithDetails.length}개 로드
-                        </Text>
-                        {/* 🔥 정렬 카테고리 추가: Select 컴포넌트 */}
-                        <Select
-                            size="sm"
-                            placeholder="정렬 기준"
-                            data={[
-                                { value: 'recency', label: '최신순' },
-                                { value: 'frequency', label: '빈도순' },
-                                { value: 'patch', label: '패치순' }
-                            ]}
-                            defaultValue="frequency"
-                            onChange={(value) => setSort(value)}  // 훅의 setSort 호출
-                            styles={{ input: { width: '120px' } }}  // 크기 조정
-                        />
-                        <Button
-                            size="sm"
-                            color="gray"
-                            leftSection={<IconArrowLeft size={16} />}
-                            onClick={onBackToSelection}
-                        >
-                            돌아가기
-                        </Button>
+                        {loadText}
+                        {sortSelect}
+                        {backButton}
                     </Group>
                 </Group>
+            );
+        }
+    };
+
+    return (
+        <Paper p="md" withBorder radius="md">
+            <Stack gap="sm">
+                {/* 헤더 */}
+                {renderHeader()}
 
                 {/* 헤더 구분선 */}
                 <Divider color="#e9ecef" size="sm" />

@@ -4,7 +4,6 @@ import { Stack, Group, Text, Badge, Paper, Avatar } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 
-
 const MatchHistory = ({ champions, gameDetails }) => {
     const isMobile = useMediaQuery('(max-width: 768px)');
     const queryClient = useQueryClient();
@@ -104,73 +103,122 @@ const MatchHistory = ({ champions, gameDetails }) => {
                     const blueTeamName = blueTeam?.teamName || '알 수 없는 팀';
                     const redTeamName = redTeam?.teamName || '알 수 없는 팀';
 
-                    return (
-                        <Paper key={index} p="sm" bg="#f8f9fa" radius="md">
-                            <Stack gap="xs">
-                                {/* 첫 번째 행: 경기 헤더 */}
+                    // 🔥 헤더 렌더링 함수: 모바일/데스크탑 조건부
+                    const renderHeader = () => {
+                        const teamNames = ourTeamIsBlue ? (
+                            <>
+                                <Text
+                                    component="span"
+                                    fw={700}
+                                    style={{
+                                        backgroundColor: weWon ? '#2196f3' : '#f44336',
+                                        color: 'white',
+                                        padding: '2px 6px',
+                                        borderRadius: '4px'
+                                    }}
+                                >
+                                    {blueTeamName}
+                                </Text>
+                                {' vs '}
+                                <Text component="span" c="black" fw={600}>
+                                    {redTeamName}
+                                </Text>
+                            </>
+                        ) : (
+                            <>
+                                <Text component="span" c="black" fw={600}>
+                                    {blueTeamName}
+                                </Text>
+                                {' vs '}
+                                <Text
+                                    component="span"
+                                    fw={700}
+                                    style={{
+                                        backgroundColor: weWon ? '#2196f3' : '#f44336',
+                                        color: 'white',
+                                        padding: '2px 6px',
+                                        borderRadius: '4px'
+                                    }}
+                                >
+                                    {redTeamName}
+                                </Text>
+                            </>
+                        );
+
+                        const badge = (
+                            <Badge
+                                size="sm"
+                                color={weWon ? 'blue' : 'red'}
+                                variant="filled"
+                            >
+                                {weWon ? '승리' : '패배'}
+                            </Badge>
+                        );
+
+                        const leaguePatch = (
+                            <Text size="xs" c="dimmed">
+                                {game.league || '알 수 없음'} • {game.patch || '알 수 없음'}
+                            </Text>
+                        );
+
+                        const gameTime = (
+                            <Text size="xs" c="dimmed">
+                                {game.gameLengthSeconds ? formatGameTime(game.gameLengthSeconds) : '00:00'}
+                            </Text>
+                        );
+
+                        const gameDate = (
+                            <Text size="xs" c="dimmed">
+                                {game.gameDate || '날짜 없음'}
+                            </Text>
+                        );
+
+                        if (isMobile) {
+                            // 모바일: 첫 번째 줄 (팀 이름 + Badge), 두 번째 줄 (리그/패치 왼쪽, 시간/날짜 오른쪽)
+                            return (
+                                <Stack gap="xs">
+                                    <Group justify="space-between" align="center">
+                                        <Group gap="sm">
+                                            <Text size="sm" fw={600}>
+                                                {teamNames}
+                                            </Text>
+                                            {badge}
+                                        </Group>
+                                    </Group>
+                                    <Group justify="space-between" align="center">
+                                        {leaguePatch}
+                                        <Group gap="xs">
+                                            {gameTime}
+                                            {gameDate}
+                                        </Group>
+                                    </Group>
+                                </Stack>
+                            );
+                        } else {
+                            // 데스크탑: 기존 한 줄 배치
+                            return (
                                 <Group justify="space-between" align="center">
                                     <Group gap="sm">
                                         <Text size="sm" fw={600}>
-                                            {ourTeamIsBlue ? (
-                                                <>
-                                                    <Text
-                                                        component="span"
-                                                        fw={700}
-                                                        style={{
-                                                            backgroundColor: weWon ? '#2196f3' : '#f44336',
-                                                            color: 'white',
-                                                            padding: '2px 6px',
-                                                            borderRadius: '4px'
-                                                        }}
-                                                    >
-                                                        {blueTeamName}
-                                                    </Text>
-                                                    {' vs '}
-                                                    <Text component="span" c="black" fw={600}>
-                                                        {redTeamName}
-                                                    </Text>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Text component="span" c="black" fw={600}>
-                                                        {blueTeamName}
-                                                    </Text>
-                                                    {' vs '}
-                                                    <Text
-                                                        component="span"
-                                                        fw={700}
-                                                        style={{
-                                                            backgroundColor: weWon ? '#2196f3' : '#f44336',
-                                                            color: 'white',
-                                                            padding: '2px 6px',
-                                                            borderRadius: '4px'
-                                                        }}
-                                                    >
-                                                        {redTeamName}
-                                                    </Text>
-                                                </>
-                                            )}
+                                            {teamNames}
                                         </Text>
-                                        <Badge
-                                            size="sm"
-                                            color={weWon ? 'blue' : 'red'}
-                                            variant="filled"
-                                        >
-                                            {weWon ? '승리' : '패배'}
-                                        </Badge>
-                                        <Text size="xs" c="dimmed">
-                                            {game.league || '알 수 없음'} • {game.patch || '알 수 없음'}
-                                        </Text>
+                                        {badge}
+                                        {leaguePatch}
                                     </Group>
                                     <Group gap="xs">
-                                        <Text size="xs" c="dimmed">
-                                            {game.gameLengthSeconds ? formatGameTime(game.gameLengthSeconds) : '00:00'}
-                                        </Text>
-                                        <Text size="xs" c="dimmed">
-                                            {game.gameDate || '날짜 없음'}
-                                        </Text>
+                                        {gameTime}
+                                        {gameDate}
                                     </Group>
                                 </Group>
+                            );
+                        }
+                    };
+
+                    return (
+                        <Paper key={index} p="sm" bg="#f8f9fa" radius="md">
+                            <Stack gap="xs">
+                                {/* 첫 번째 행: 경기 헤더 (조건부) */}
+                                {renderHeader()}
 
                                 {/* 두 번째 행: 블루사이드(왼쪽) vs 레드사이드(오른쪽) */}
                                 <Group justify="center" align="flex-start" gap="md">

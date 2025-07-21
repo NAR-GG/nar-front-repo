@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Stack, Title, Paper, Group, Text, Button, Collapse, LoadingOverlay, Divider } from '@mantine/core';
-import { IconArrowLeft } from '@tabler/icons-react';
+// CombinationResults 컴포넌트
+import React, { useState, useEffect } from 'react';
+import { Stack, Title, Paper, Group, Text, Button, Collapse, LoadingOverlay, Divider, ActionIcon, Select } from '@mantine/core';
+import { IconArrowLeft, IconChevronDown } from '@tabler/icons-react';
 import CombinationCard from '../list/CombinationCard';
 import MatchHistory from '../detail/MatchHistory';
 import { useCombinationResults } from '../../hooks/useCombinationResults';
@@ -10,40 +11,28 @@ const CombinationResults = ({ selectedChampions = [], filters = {}, onBackToSele
     const [loadingDetails, setLoadingDetails] = useState({});
     const [combinationsWithDetails, setCombinationsWithDetails] = useState([]);
 
-    // 🔥 이전 조합 데이터 참조를 위한 ref
-    const previousCombinationsRef = useRef(null);
-
     // 🔥 안전한 기본값 설정
     const safeSelectedChampions = Array.isArray(selectedChampions) ? selectedChampions : [];
     const safeFilters = filters || {};
 
-    const { data: combinations = [], isLoading, error } = useCombinationResults(safeSelectedChampions, safeFilters);
+    // 🔥 useCombinationResults 훅 사용 (페이징 데이터 가져오기) - sort를 여기서 전달
+    const { data, isLoading, error, hasMore, totalCount, loadMore, setSort } = useCombinationResults(safeSelectedChampions, safeFilters);
 
-    // 🔥 조합 데이터가 실제로 변경되었을 때만 상태 업데이트
+    // 🔥 데이터 업데이트 (gameDetails 포함)
     useEffect(() => {
-        // 이전 데이터와 비교하여 실제로 변경되었는지 확인
-        const currentCombinationsString = JSON.stringify(combinations);
-        const previousCombinationsString = JSON.stringify(previousCombinationsRef.current);
+        // 새로운 데이터로 상태 초기화
+        const updatedCombinations = Array.isArray(data)
+            ? data.map(combination => ({
+                ...combination,
+                gameDetails: combination.gameDetails || undefined
+            }))
+            : [];
+        setCombinationsWithDetails(updatedCombinations);
+        setExpandedCards({});
+        setLoadingDetails({});
+    }, [data]);
 
-        if (currentCombinationsString !== previousCombinationsString) {
-            // 상태 초기화
-            setExpandedCards({});
-            setLoadingDetails({});
-
-            // 새로운 조합 데이터로 초기화
-            const resetCombinations = Array.isArray(combinations)
-                ? combinations.map(combination => ({
-                    ...combination,
-                    gameDetails: undefined
-                }))
-                : [];
-
-            setCombinationsWithDetails(resetCombinations);
-            previousCombinationsRef.current = combinations;
-        }
-    }, [combinations]);
-
-    // 🔥 선택된 챔피언이나 필터 변경 시 상태 초기화
+    // 🔥 선택된 챔피언이나 필터 변경 시 상태 초기화 (훅에서 이미 처리됨, 추가 초기화 필요 시)
     useEffect(() => {
         setExpandedCards({});
         setLoadingDetails({});
@@ -121,7 +110,7 @@ const CombinationResults = ({ selectedChampions = [], filters = {}, onBackToSele
         );
     }
 
-    if (isLoading) {
+    if (isLoading && combinationsWithDetails.length === 0) {  // 초기 로딩 시
         return (
             <Paper p="md" withBorder radius="md" style={{ position: 'relative', minHeight: '400px' }}>
                 <LoadingOverlay visible={true} />
@@ -154,8 +143,21 @@ const CombinationResults = ({ selectedChampions = [], filters = {}, onBackToSele
                     </Title>
                     <Group>
                         <Text size="sm" c="dimmed">
-                            {safeSelectedChampions.length}개 챔피언 조합 • {combinationsWithDetails.length}개 결과
+                            {safeSelectedChampions.length}개 챔피언 조합 • 총 {totalCount}개 중 {combinationsWithDetails.length}개 로드
                         </Text>
+                        {/* 🔥 정렬 카테고리 추가: Select 컴포넌트 */}
+                        <Select
+                            size="sm"
+                            placeholder="정렬 기준"
+                            data={[
+                                { value: 'recency', label: '최신순' },
+                                { value: 'frequency', label: '빈도순' },
+                                { value: 'patch', label: '패치순' }
+                            ]}
+                            defaultValue="frequency"
+                            onChange={(value) => setSort(value)}  // 훅의 setSort 호출
+                            styles={{ input: { width: '120px' } }}  // 크기 조정
+                        />
                         <Button
                             size="sm"
                             color="gray"
@@ -229,6 +231,22 @@ const CombinationResults = ({ selectedChampions = [], filters = {}, onBackToSele
                         })
                     )}
                 </Stack>
+
+                {/* 🔥 Load More: 작은 아래 화살표 아이콘 */}
+                {hasMore && (
+                    <Group justify="center" mt="md">
+                        <ActionIcon
+                            variant="subtle"
+                            color="gray"
+                            size="xl"
+                            radius="xl"
+                            onClick={loadMore}
+                            loading={isLoading}
+                        >
+                            <IconChevronDown size={24} />
+                        </ActionIcon>
+                    </Group>
+                )}
             </Stack>
         </Paper>
     );

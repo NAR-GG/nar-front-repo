@@ -4,6 +4,7 @@ import { Stack, Group, Text, Badge, Paper, Avatar } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import { useQueryClient } from '@tanstack/react-query';
 
+
 const MatchHistory = ({ champions, gameDetails }) => {
     const isMobile = useMediaQuery('(max-width: 768px)');
     const queryClient = useQueryClient();

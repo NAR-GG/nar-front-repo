@@ -1,8 +1,11 @@
+// useCombinationResults 훅 (변경됨: sort를 useState로 동적 관리)
 import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 
-const fetchCombinationResults = async (selectedChampions, filters, queryClient) => {
+const fetchCombinationResults = async (selectedChampions, filters, queryClient, page = 0, size = 10, sort = 'frequency') => {
     console.log('🔍 Selected champions:', selectedChampions);
     console.log('🔍 Filters:', filters);
+    console.log('🔍 Pagination:', { page, size, sort });
 
     const params = new URLSearchParams();
 
@@ -54,6 +57,13 @@ const fetchCombinationResults = async (selectedChampions, filters, queryClient) 
         params.append('patch', filters.patch);
     }
 
+    // 🔥 페이징 및 정렬 파라미터 추가
+    params.append('page', page.toString());
+    params.append('size', size.toString());
+    if (sort) {
+        params.append('sort', sort);
+    }
+
     console.log('🔥 Final URL:', `/api/combinations/v2?${params.toString()}`);
 
     try {
@@ -67,10 +77,10 @@ const fetchCombinationResults = async (selectedChampions, filters, queryClient) 
         const data = await response.json();
         console.log('🔍 API Response:', data);
 
-        // 🔥 응답 데이터 검증
-        if (!Array.isArray(data)) {
-            console.warn('API 응답이 배열이 아닙니다:', data);
-            return [];
+        // 🔥 응답 데이터 검증 (PageCombinationResponse 구조)
+        if (!data || typeof data !== 'object' || !Array.isArray(data.content)) {
+            console.warn('API 응답이 예상 구조가 아닙니다:', data);
+            return { content: [], hasNext: false, totalCount: 0 };
         }
 
         // 🔥 캐시된 챔피언 데이터 가져오기
@@ -86,8 +96,8 @@ const fetchCombinationResults = async (selectedChampions, filters, queryClient) 
             });
         }
 
-        // 백엔드 응답 데이터를 프론트엔드 형태로 변환
-        return data.map((item, index) => ({
+        // 백엔드 응답 데이터를 프론트엔드 형태로 변환 (data.content 사용)
+        const transformedData = data.content.map((item, index) => ({
             combinationId: item?.combinationId || `temp-${index}`,
             rank: item?.rank || index + 1,
             champions: (item?.champions || []).map(champName => {
@@ -109,6 +119,13 @@ const fetchCombinationResults = async (selectedChampions, filters, queryClient) 
             frequency: item?.frequency || 0,
             matches: []
         }));
+
+        // PageCombinationResponse의 구조를 반환 (content 변환 후)
+        return {
+            content: transformedData,
+            hasNext: data.hasNext,
+            totalCount: data.totalCount
+        };
     } catch (error) {
         console.error('🔍 API Error:', error);
         throw error;
@@ -117,15 +134,66 @@ const fetchCombinationResults = async (selectedChampions, filters, queryClient) 
 
 export const useCombinationResults = (selectedChampions, filters) => {
     const queryClient = useQueryClient();
+    const [page, setPage] = useState(0);
+    const [size] = useState(10);  // 페이지 크기 고정 (필요 시 동적 변경)
+    const [sort, internalSetSort] = useState('frequency');  // 기본 정렬: 최신순 (UI에서 변경 가능)
+    const [allData, setAllData] = useState([]);  // 누적 데이터
+    const [hasMore, setHasMore] = useState(true);  // 다음 페이지 여부
+    const [totalCount, setTotalCount] = useState(0);  // 총 개수
 
-    return useQuery({
-        queryKey: ['combinations', selectedChampions, filters],
-        queryFn: () => fetchCombinationResults(selectedChampions, filters, queryClient),
+    // 🔥 sort 변경 함수 (UI에서 호출 가능)
+    const setSort = (newSort) => {
+        if (newSort !== sort) {
+            internalSetSort(newSort);
+            setPage(0);  // sort 변경 시 페이지 초기화
+            setAllData([]);  // 데이터 초기화
+            setHasMore(true);
+            setTotalCount(0);
+        }
+    };
+
+    const query = useQuery({
+        queryKey: ['combinations', selectedChampions, filters, page, size, sort],
+        queryFn: () => fetchCombinationResults(selectedChampions, filters, queryClient, page, size, sort),
         enabled: Array.isArray(selectedChampions) && selectedChampions.length > 0,
         staleTime: 5 * 60 * 1000,
         retry: 3,
         retryDelay: 1000,
-        // 🔥 기본값 설정
-        placeholderData: []
+        placeholderData: { content: [], hasNext: false, totalCount: 0 }
     });
+
+    // 데이터 누적 로직 (필터/챔피언/sort 변경 시 초기화)
+    useEffect(() => {
+        setPage(0);  // 필터 변경 시 페이지 초기화
+        setAllData([]);  // 데이터 초기화
+        setHasMore(true);  // hasMore 초기화
+        setTotalCount(0);  // totalCount 초기화
+    }, [selectedChampions, filters, sort]);  // 🔥 sort 추가: 변경 시 재초기화
+
+    useEffect(() => {
+        if (query.data) {
+            setAllData(prev => {
+                // 현재 페이지가 0이면 새 데이터로 덮어쓰기, 아니면 누적
+                return page === 0 ? query.data.content : [...prev, ...query.data.content];
+            });
+            setHasMore(query.data.hasNext);
+            setTotalCount(query.data.totalCount);
+        }
+    }, [query.data, page]);
+
+    // "더 보기" 함수 (다음 페이지 요청)
+    const loadMore = () => {
+        if (hasMore && !query.isFetching) {
+            setPage(prev => prev + 1);  // 다음 페이지로 이동
+        }
+    };
+
+    return {
+        ...query,
+        data: allData,  // 누적된 데이터 반환
+        hasMore,        // 다음 페이지 여부
+        totalCount,     // 총 개수
+        loadMore,       // 더 보기 함수
+        setSort         // 🔥 정렬 변경 함수 반환 (UI에서 사용)
+    };
 };

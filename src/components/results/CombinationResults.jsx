@@ -150,8 +150,8 @@ const CombinationResults = ({ selectedChampions = [], filters = {}, onBackToSele
                 size="sm"
                 placeholder="정렬 기준"
                 data={[
-                    { value: 'recency', label: '최신순' },
                     { value: 'frequency', label: '빈도순' },
+                    { value: 'recency', label: '최신순' },
                     { value: 'patch', label: '패치순' }
                 ]}
                 defaultValue="frequency"

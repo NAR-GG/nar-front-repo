@@ -49,7 +49,7 @@ const Footer = () => (
                     <Text c="#ADB5BD">|</Text>
 
                     <Anchor
-                        href="https://github.com/Timo-GG"
+                        href="https://github.com/NAR-GG"
                         target="_blank"
                         rel="noopener noreferrer"
                         c="#495057"

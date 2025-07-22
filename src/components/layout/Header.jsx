@@ -1,6 +1,6 @@
 import React from 'react';
 import { Title, Paper, Group, Container, Text } from '@mantine/core';
-import { useUpdateInfo } from '../../hooks/useUpdateInfo';  // 🔥 훅 import (이전 제안 기반, 필요 시 생성)
+import { useUpdateInfo } from '../../hooks/useUpdateInfo';
 
 const formatDate = (dateStr) => {
     if (!dateStr) return '-';
@@ -12,7 +12,16 @@ const formatDate = (dateStr) => {
 };
 
 const Header = () => {
-    const { data: updateInfo, isLoading } = useUpdateInfo();  // 🔥 훅 사용: 업데이트 정보 fetch
+    const { data: updateInfo, isLoading, error } = useUpdateInfo();
+
+    let updateText = '로딩 중...';
+    if (!isLoading) {
+        if (error) {
+            updateText = '최근 업데이트: -';
+        } else {
+            updateText = `최근 업데이트: ${formatDate(updateInfo?.lastUpdateTime)}`;
+        }
+    }
 
     return (
         <Paper
@@ -30,11 +39,12 @@ const Header = () => {
             <Container
                 size="xl"
                 px={{ base: 16, sm: 24, md: 32 }}
-                style={{ maxWidth: '1200px' }}  // 본문과 동일한 최대 너비
+                style={{ maxWidth: '1200px' }}
             >
-                <Group justify="space-between" align="center" wrap="nowrap">  {/* 🔥 space-between으로 왼쪽/오른쪽 분리 */}
+                <Group justify="space-between" align="center" wrap="nowrap">
                     {/* 왼쪽: 로고 + 타이틀 */}
-                    <Group gap="xs" align="center" justify="flex-start">
+                    {/* 🔥 이 부분이 핵심입니다! wrap="nowrap" 추가 */}
+                    <Group gap="xs" align="center" justify="flex-start" wrap="nowrap">
                         <img
                             src="/icons/nar-icon.png"
                             alt="NAR.GG 아이콘"
@@ -55,10 +65,9 @@ const Header = () => {
                         </Title>
                     </Group>
 
-                    <Text size="sm" c="white" ta="right" style={{ whiteSpace: 'nowrap' }}>
-                        {isLoading
-                            ? '로딩 중...'
-                            : `최근 업데이트: ${formatDate(updateInfo.lastUpdateTime)}`}
+                    {/* 오른쪽: 최근 업데이트 */}
+                    <Text size="xs" c="white" ta="right" style={{ whiteSpace: 'nowrap' }}>
+                        {updateText}
                     </Text>
                 </Group>
             </Container>

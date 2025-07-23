@@ -1,7 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 const fetchChampions = async () => {
-    const response = await fetch('/api/champions');
+    const response = await fetch(`${API_BASE_URL}/api/champions`);
     if (!response.ok) {
         throw new Error('챔피언 데이터를 가져오는데 실패했습니다');
     }
@@ -17,16 +19,3 @@ export const useChampions = () => {
     });
 };
 
-// 검색용 훅
-export const useChampionSearch = (keyword) => {
-    return useQuery({
-        queryKey: ['champions', 'search', keyword],
-        queryFn: async () => {
-            const response = await fetch(`/api/champions/search?keyword=${keyword}`);
-            if (!response.ok) throw new Error('검색 실패');
-            return response.json();
-        },
-        enabled: !!keyword && keyword.length > 0,
-        staleTime: 2 * 60 * 1000,
-    });
-};

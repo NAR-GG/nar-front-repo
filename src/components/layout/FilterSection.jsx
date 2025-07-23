@@ -3,6 +3,7 @@ import {Paper, Group, Button, Text, Stack, Box, Divider, Checkbox, Popover, Text
 import { IconSearch, IconX, IconChevronDown } from '@tabler/icons-react';
 import { useMediaQuery } from '@mantine/hooks';
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 // 커스텀 MultiSelect 컴포넌트
 const CustomMultiSelect = ({ label, placeholder, data, value = [], onChange, disabled = false }) => {
     const [opened, setOpened] = useState(false);
@@ -171,7 +172,7 @@ const FilterSection = ({ filters, onFiltersChange, selectedChampions, onCombinat
         const fetchCategoryData = async () => {
             try {
                 setIsLoading(true);
-                const response = await fetch('/api/categories/tree');
+                const response = await fetch(`${API_BASE_URL}/api/categories/tree`);
                 if (!response.ok) {
                     throw new Error('Failed to fetch category data');
                 }

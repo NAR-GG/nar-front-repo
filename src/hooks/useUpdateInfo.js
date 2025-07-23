@@ -1,7 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
+
 const fetchUpdateInfo = async () => {
-    const response = await fetch('/api/combinations/stat');
+
+    const response = await fetch(`${API_BASE_URL}/api/combinations/stat`);
     if (!response.ok) {
         throw new Error('업데이트 정보 불러오기 실패');
     }

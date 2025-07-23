@@ -1,6 +1,7 @@
-// useCombinationResults 훅 (변경됨: sort를 useState로 동적 관리)
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
 
 const fetchCombinationResults = async (selectedChampions, filters, queryClient, page = 0, size = 10, sort = 'frequency') => {
     console.log('🔍 Selected champions:', selectedChampions);
@@ -68,7 +69,7 @@ const fetchCombinationResults = async (selectedChampions, filters, queryClient, 
 
     try {
         // v2 API 호출
-        const response = await fetch(`/api/combinations/v2?${params.toString()}`);
+        const response = await fetch(`${API_BASE_URL}/api/combinations/v2?${params.toString()}`);
 
         if (!response.ok) {
             throw new Error(`서버 오류: ${response.status} ${response.statusText}`);
@@ -159,7 +160,7 @@ export const useCombinationResults = (selectedChampions, filters) => {
         staleTime: 5 * 60 * 1000,
         retry: 3,
         retryDelay: 1000,
-        placeholderData: { content: [], hasNext: false, totalCount: 0 }
+        // 🔥 placeholderData 제거: 초기 로딩 중 data가 undefined로 유지되도록 함
     });
 
     // 데이터 누적 로직 (필터/챔피언/sort 변경 시 초기화)

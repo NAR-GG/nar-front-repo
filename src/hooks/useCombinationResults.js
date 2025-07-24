@@ -65,11 +65,11 @@ const fetchCombinationResults = async (selectedChampions, filters, queryClient, 
         params.append('sort', sort);
     }
 
-    console.log('🔥 Final URL:', `/api/combinations/v2?${params.toString()}`);
+    console.log('🔥 Final URL:', `/api/combinations/?${params.toString()}`);
 
     try {
         // v2 API 호출
-        const response = await fetch(`${API_BASE_URL}/api/combinations/v2?${params.toString()}`);
+        const response = await fetch(`${API_BASE_URL}/api/combinations/?${params.toString()}`);
 
         if (!response.ok) {
             throw new Error(`서버 오류: ${response.status} ${response.statusText}`);

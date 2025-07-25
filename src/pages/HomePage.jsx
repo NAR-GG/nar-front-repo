@@ -9,8 +9,16 @@ import CombinationResults from "../components/results/CombinationResults";
 const HomePage = () => {
     const navigate = useNavigate();
     const location = useLocation();
+
+    // 팀 조합용 상태
     const [selectedChampions, setSelectedChampions] = useState([]);
-    const [showChampionGrid, setShowChampionGrid] = useState(false); // 🔥 챔피언 그리드 표시 상태
+    // 1vs1용 상태 추가
+    const [selected1v1Champions, setSelected1v1Champions] = useState([]);
+
+    const [showChampionGrid, setShowChampionGrid] = useState(false);
+    const [currentSlotIndex, setCurrentSlotIndex] = useState(null); // 현재 선택 중인 슬롯
+    const [currentMode, setCurrentMode] = useState('team'); // 'team' 또는 '1v1'
+
     const [filters, setFilters] = useState({
         year: 2025,
         split: null,
@@ -22,13 +30,10 @@ const HomePage = () => {
         teamNames: []
     });
 
-    // URL 파라미터로 결과 화면 여부 판단
     const showResults = location.search.includes('results=true');
 
-    // 브라우저 뒤로가기/앞으로가기 이벤트 처리
     useEffect(() => {
         const handlePopState = () => {
-            // URL 변경 시 챔피언 그리드 숨기기
             setShowChampionGrid(false);
         };
 
@@ -36,7 +41,6 @@ const HomePage = () => {
         return () => window.removeEventListener('popstate', handlePopState);
     }, []);
 
-    // 🔥 결과 화면이 아닐 때 기본적으로 챔피언 그리드 표시
     useEffect(() => {
         if (!showResults) {
             setShowChampionGrid(true);
@@ -46,52 +50,106 @@ const HomePage = () => {
     const handleChampionSelect = (champion) => {
         console.log('Champion clicked:', champion);
 
-        const isAlreadySelected = selectedChampions.some(c => c && c.id === champion.id);
+        if (currentMode === 'team') {
+            // 팀 조합 모드
+            const isAlreadySelected = selectedChampions.some(c => c && c.id === champion.id);
 
-        if (isAlreadySelected) {
-            const newSelected = selectedChampions.filter(c => c && c.id !== champion.id);
-            setSelectedChampions(newSelected);
-        } else {
-            if (selectedChampions.length < 5) {
-                const newSelected = [...selectedChampions, champion];
+            if (isAlreadySelected) {
+                const newSelected = selectedChampions.filter(c => c && c.id !== champion.id);
                 setSelectedChampions(newSelected);
+            } else {
+                if (currentSlotIndex !== null) {
+                    // 특정 슬롯을 클릭했을 때
+                    const newSelected = [...selectedChampions];
+                    newSelected[currentSlotIndex] = champion;
+                    setSelectedChampions(newSelected);
+                    setCurrentSlotIndex(null);
+                } else if (selectedChampions.length < 5) {
+                    // 일반적인 선택
+                    const newSelected = [...selectedChampions, champion];
+                    setSelectedChampions(newSelected);
+                }
+            }
+        } else {
+            // 1vs1 모드
+            const isAlreadySelected = selected1v1Champions.some(c => c && c.id === champion.id);
+
+            if (isAlreadySelected) {
+                const newSelected = selected1v1Champions.filter(c => c && c.id !== champion.id);
+                setSelected1v1Champions(newSelected);
+            } else {
+                if (currentSlotIndex !== null) {
+                    // 특정 슬롯을 클릭했을 때
+                    const newSelected = [...selected1v1Champions];
+                    newSelected[currentSlotIndex] = champion;
+                    setSelected1v1Champions(newSelected);
+                    setCurrentSlotIndex(null);
+                } else if (selected1v1Champions.length < 2) {
+                    // 일반적인 선택
+                    const newSelected = [...selected1v1Champions, champion];
+                    setSelected1v1Champions(newSelected);
+                }
             }
         }
     };
 
+    // 팀 조합 챔피언 제거
     const handleChampionRemove = (championToRemove) => {
-        if (!championToRemove || !championToRemove.id) {
-            return;
-        }
-
+        if (!championToRemove || !championToRemove.id) return;
         const newSelected = selectedChampions.filter(c => c && c.id !== championToRemove.id);
         setSelectedChampions(newSelected);
     };
 
-    // 🔥 빈 슬롯 클릭 핸들러
-    const handleEmptySlotClick = (slotIndex) => {
-        console.log('Empty slot clicked:', slotIndex);
+    // 1vs1 챔피언 제거
+    const handle1v1ChampionRemove = (championToRemove) => {
+        if (!championToRemove || !championToRemove.id) return;
+        const newSelected = selected1v1Champions.filter(c => c && c.id !== championToRemove.id);
+        setSelected1v1Champions(newSelected);
+    };
 
-        // 결과 화면에서 빈 슬롯 클릭 시 챔피언 선택 화면으로 전환
+    // 팀 조합 빈 슬롯 클릭
+    const handleEmptySlotClick = (slotIndex) => {
+        console.log('Team empty slot clicked:', slotIndex);
+        setCurrentMode('team');
+        setCurrentSlotIndex(slotIndex);
+
         if (showResults) {
             setShowChampionGrid(true);
-            navigate('/', { replace: false }); // URL에서 results 파라미터 제거
+            navigate('/', { replace: false });
+        }
+    };
+
+    // 1vs1 빈 슬롯 클릭
+    const handleEmpty1v1SlotClick = (slotIndex) => {
+        console.log('1vs1 empty slot clicked:', slotIndex);
+        setCurrentMode('1v1');
+        setCurrentSlotIndex(slotIndex);
+
+        if (showResults) {
+            setShowChampionGrid(true);
+            navigate('/', { replace: false });
         }
     };
 
     const handleCombinationSearch = () => {
-        if (selectedChampions.length === 0) {
-            alert('최소 1개의 챔피언을 선택해주세요.');
+        const champions = currentMode === 'team' ? selectedChampions : selected1v1Champions;
+        const minRequired = currentMode === 'team' ? 1 : 2;
+
+        if (champions.length < minRequired) {
+            const message = currentMode === 'team'
+                ? '최소 1개의 챔피언을 선택해주세요.'
+                : '1vs1을 위해 2개의 챔피언을 모두 선택해주세요.';
+            alert(message);
             return;
         }
-        // 챔피언 그리드 숨기고 결과 화면 표시
+
         setShowChampionGrid(false);
         navigate('/?results=true', { replace: false });
     };
 
     const handleBackToSelection = () => {
-        // 챔피언 그리드 표시하고 결과 화면 숨기기
         setShowChampionGrid(true);
+        setCurrentSlotIndex(null);
         navigate('/', { replace: false });
     };
 
@@ -100,28 +158,33 @@ const HomePage = () => {
             <Stack gap="xl">
                 <ChampionSelector
                     selectedChampions={selectedChampions}
+                    selected1v1Champions={selected1v1Champions}
                     onChampionRemove={handleChampionRemove}
-                    onEmptySlotClick={handleEmptySlotClick} // 🔥 빈 슬롯 클릭 핸들러 전달
+                    on1v1ChampionRemove={handle1v1ChampionRemove}
+                    onEmptySlotClick={handleEmptySlotClick}
+                    onEmpty1v1SlotClick={handleEmpty1v1SlotClick}
                 />
 
                 <FilterSection
                     filters={filters}
                     onFiltersChange={setFilters}
-                    selectedChampions={selectedChampions}
+                    selectedChampions={currentMode === 'team' ? selectedChampions : selected1v1Champions}
                     onCombinationSearch={handleCombinationSearch}
+                    currentMode={currentMode} // 현재 모드 전달 (필요시)
                 />
 
-                {/* 🔥 조건부 렌더링 개선 */}
                 {showResults ? (
                     <CombinationResults
-                        selectedChampions={selectedChampions}
+                        selectedChampions={currentMode === 'team' ? selectedChampions : selected1v1Champions}
                         filters={filters}
                         onBackToSelection={handleBackToSelection}
+                        mode={currentMode} // 모드 정보 전달
                     />
                 ) : showChampionGrid ? (
                     <ChampionGrid
                         onChampionSelect={handleChampionSelect}
-                        selectedChampions={selectedChampions}
+                        selectedChampions={currentMode === 'team' ? selectedChampions : selected1v1Champions}
+                        highlightSlot={currentSlotIndex} // 현재 선택 중인 슬롯 하이라이트 (필요시)
                     />
                 ) : null}
             </Stack>

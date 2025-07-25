@@ -1,5 +1,6 @@
 import React from 'react';
-import { Title, Paper, Group, Container, Text } from '@mantine/core';
+import { Title, Paper, Group, Container, Text, Tabs } from '@mantine/core';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useUpdateInfo } from '../../hooks/useUpdateInfo';
 
 const formatDate = (dateStr) => {
@@ -13,6 +14,24 @@ const formatDate = (dateStr) => {
 
 const Header = () => {
     const { data: updateInfo, isLoading, error } = useUpdateInfo();
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    // 현재 경로에 따라 활성 탭 결정
+    const getActiveTab = () => {
+        if (location.pathname === '/schedule' || location.pathname.startsWith('/schedule')) {
+            return 'schedule';
+        }
+        return 'combination'; // 기본값은 조합 페이지
+    };
+
+    const handleTabChange = (value) => {
+        if (value === 'combination') {
+            navigate('/');
+        } else if (value === 'schedule') {
+            navigate('/schedule');
+        }
+    };
 
     let updateText = '로딩 중...';
     if (!isLoading) {
@@ -25,7 +44,7 @@ const Header = () => {
 
     return (
         <Paper
-            p="sm"
+            p={0}
             radius={0}
             style={{
                 background: '#5383e8',
@@ -41,9 +60,9 @@ const Header = () => {
                 px={{ base: 16, sm: 24, md: 32 }}
                 style={{ maxWidth: '1200px' }}
             >
-                <Group justify="space-between" align="center" wrap="nowrap">
+                {/* 상단 로고 + 업데이트 정보 */}
+                <Group justify="space-between" align="center" wrap="nowrap" py="sm">
                     {/* 왼쪽: 로고 + 타이틀 */}
-                    {/* 🔥 이 부분이 핵심입니다! wrap="nowrap" 추가 */}
                     <Group gap="xs" align="center" justify="flex-start" wrap="nowrap">
                         <img
                             src="/icons/nar-icon.png"
@@ -70,6 +89,43 @@ const Header = () => {
                         {updateText}
                     </Text>
                 </Group>
+
+                {/* 하단 탭 네비게이션 - 네이버 스포츠 스타일 */}
+                <div style={{ paddingBottom: '12px' }}>
+                    <Group gap="xl" align="center">
+                        <Text
+                            size="sm"
+                            fw={getActiveTab() === 'combination' ? 700 : 400}
+                            style={{
+                                color: getActiveTab() === 'combination' ? '#ffffff' : 'rgba(255, 255, 255, 0.6)',
+                                cursor: 'pointer',
+                                padding: '8px 0',
+                                borderBottom: getActiveTab() === 'combination' ? '2px solid white' : '2px solid transparent',
+                                transition: 'all 0.2s ease',
+                                fontSize: '15px'
+                            }}
+                            onClick={() => handleTabChange('combination')}
+                        >
+                            챔피언 조합
+                        </Text>
+
+                        <Text
+                            size="sm"
+                            fw={getActiveTab() === 'schedule' ? 700 : 400}
+                            style={{
+                                color: getActiveTab() === 'schedule' ? '#ffffff' : 'rgba(255, 255, 255, 0.6)',
+                                cursor: 'pointer',
+                                padding: '8px 0',
+                                borderBottom: getActiveTab() === 'schedule' ? '2px solid white' : '2px solid transparent',
+                                transition: 'all 0.2s ease',
+                                fontSize: '15px'
+                            }}
+                            onClick={() => handleTabChange('schedule')}
+                        >
+                            LCK 일정
+                        </Text>
+                    </Group>
+                </div>
             </Container>
         </Paper>
     );

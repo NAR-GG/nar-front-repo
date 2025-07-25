@@ -6,6 +6,7 @@ import '@mantine/core/styles.css';
 import Layout from './components/layout/Layout';
 import HomePage from './pages/HomePage';
 import CombinationResultPage from "./pages/CombinationResultPage";
+import SchedulePage from "./pages/SchedulePage";
 
 const theme = createTheme({
     breakpoints: {
@@ -38,6 +39,7 @@ function App() {
                         <Routes>
                             <Route path="/" element={<HomePage />} />
                             <Route path="/combinations" element={<CombinationResultPage />} />
+                            <Route path="/schedule" element={<SchedulePage />} />
                         </Routes>
                     </Layout>
                 </BrowserRouter>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // useNavigate 추가
 import {
     Container,
     Stack,
@@ -28,7 +29,8 @@ const mockMatches = [
         games: [
             {
                 id: 1,
-                winnerSide: 'blue', // 'blue' or 'red'
+                gameId: 'T1_vs_GEN_game1', // 기록 페이지로 이동할 때 사용할 고유 ID
+                winnerSide: 'blue',
                 blueTeam: {
                     name: 'T1',
                     players: [
@@ -53,6 +55,7 @@ const mockMatches = [
             },
             {
                 id: 2,
+                gameId: 'T1_vs_GEN_game2',
                 winnerSide: 'red',
                 blueTeam: {
                     name: 'GEN',
@@ -78,6 +81,7 @@ const mockMatches = [
             },
             {
                 id: 3,
+                gameId: 'T1_vs_GEN_game3',
                 winnerSide: 'blue',
                 blueTeam: {
                     name: 'T1',
@@ -111,6 +115,7 @@ const mockMatches = [
         games: [
             {
                 id: 1,
+                gameId: 'DRX_vs_KT_game1',
                 winnerSide: 'red',
                 blueTeam: {
                     name: 'DRX',
@@ -161,17 +166,17 @@ const getChampionImageUrl = (championName) => {
 function SchedulePage() {
     /* 캘린더 관련 상태 --------------------------------------------- */
     const [selectedDate, setSelectedDate] = useState(new Date());
-    const [expandedId, setExpandedId]     = useState(null);      // 펼쳐진 경기 카드
+    const [expandedId, setExpandedId] = useState(null);
+    const navigate = useNavigate(); // navigate 훅 추가
 
-    const dayNames  = ['월', '화', '수', '목', '금', '토', '일']; // 월요일부터 시작
+    const dayNames = ['월', '화', '수', '목', '금', '토', '일'];
 
     // 월요일부터 시작하는 주간 날짜 계산
     const getWeek = (d) => {
         const week = [];
         const tmp = new Date(d);
-        // 월요일(1)부터 시작하도록 계산
         const day = tmp.getDay();
-        const diff = day === 0 ? -6 : 1 - day; // 일요일이면 -6, 그 외는 1-day
+        const diff = day === 0 ? -6 : 1 - day;
         tmp.setDate(tmp.getDate() + diff);
 
         for (let i = 0; i < 7; i++) {
@@ -182,11 +187,19 @@ function SchedulePage() {
 
     const weekDates = getWeek(selectedDate);
 
+    // 기록 페이지로 이동하는 함수
+    const handleNavigateToRecord = (gameId) => {
+        navigate(`/record/${gameId}`);
+    };
+
     /* 렌더 ----------------------------------------------------------- */
     return (
         <Container size="xl" px={{ base: 12, sm: 24, md: 32 }}>
             <Stack gap="lg" mt="md">
                 <Paper p={{ base: 'md', sm: 'xl' }} withBorder bg="white">
+                    <Title order={2} mb="lg" size={{ base: 'h3', sm: 'h2' }}>
+                        LCK 일정
+                    </Title>
 
                     {/* ─── 주간 캘린더 ─── */}
                     <Paper p="sm" mb="md" bg="gray.0" radius="sm">
@@ -204,8 +217,8 @@ function SchedulePage() {
                             <ScrollArea type="never" style={{ width: '100%' }}>
                                 <Flex gap="xs" justify="center" wrap="nowrap" style={{ minWidth: 'max-content' }}>
                                     {weekDates.map((date, idx) => {
-                                        const isSel  = date.toDateString() === selectedDate.toDateString();
-                                        const isToday= date.toDateString() === new Date().toDateString();
+                                        const isSel = date.toDateString() === selectedDate.toDateString();
+                                        const isToday = date.toDateString() === new Date().toDateString();
                                         return (
                                             <Button
                                                 key={idx}
@@ -272,7 +285,12 @@ function SchedulePage() {
                                                             <Text fw={600} size="sm">Game {game.id}</Text>
                                                             <Text size="xs" c="dimmed">{game.gameTime}</Text>
                                                         </Group>
-                                                        <Button size="xs" variant="light" color="gray">
+                                                        <Button
+                                                            size="xs"
+                                                            variant="light"
+                                                            color="gray"
+                                                            onClick={() => handleNavigateToRecord(game.gameId)} // 클릭 이벤트 추가
+                                                        >
                                                             기록
                                                         </Button>
                                                     </Group>

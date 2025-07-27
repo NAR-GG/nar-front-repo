@@ -17,7 +17,8 @@ import {
     Center,
     Avatar
 } from '@mantine/core';
-import { IconChevronLeft, IconChevronRight, IconCalendar } from '@tabler/icons-react';
+import { IconChevronLeft, IconChevronRight, IconCalendar, IconChevronDown } from '@tabler/icons-react';
+import { useMediaQuery } from '@mantine/hooks';
 
 /* ────────────────────────────── MOCK DATA ────────────────────────────── */
 const mockMatches = [
@@ -26,6 +27,7 @@ const mockMatches = [
         time: '17:00',
         team1: { name: 'T1' },
         team2: { name: 'GEN' },
+        series: { team1Wins: 2, team2Wins: 1 },
         games: [
             {
                 id: 1,
@@ -39,7 +41,7 @@ const mockMatches = [
                         { championName: 'Azir', playerName: 'Faker' },
                         { championName: 'Jinx', playerName: 'Gumayusi' },
                         { championName: 'Leona', playerName: 'Keria' }
-                    ]
+                    ],
                 },
                 redTeam: {
                     name: 'GEN',
@@ -112,6 +114,7 @@ const mockMatches = [
         time: '19:00',
         team1: { name: 'DRX' },
         team2: { name: 'KT' },
+        series: { team1Wins: 0, team2Wins: 2 },
         games: [
             {
                 id: 1,
@@ -171,6 +174,8 @@ function SchedulePage() {
 
     const dayNames = ['월', '화', '수', '목', '금', '토', '일'];
 
+    const isMobile = useMediaQuery('(max-width: 768px)');
+
     // 월요일부터 시작하는 주간 날짜 계산
     const getWeek = (d) => {
         const week = [];
@@ -197,9 +202,6 @@ function SchedulePage() {
         <Container size="xl" px={{ base: 12, sm: 24, md: 32 }}>
             <Stack gap="lg" mt="md">
                 <Paper p={{ base: 'md', sm: 'xl' }} withBorder bg="white">
-                    <Title order={2} mb="lg" size={{ base: 'h3', sm: 'h2' }}>
-                        LCK 일정
-                    </Title>
 
                     {/* ─── 주간 캘린더 ─── */}
                     <Paper p="sm" mb="md" bg="gray.0" radius="sm">
@@ -255,23 +257,64 @@ function SchedulePage() {
                             <Card key={m.id} p="sm" withBorder radius="sm" bg="gray.0">
                                 {/* 카드 상단(기본 정보 + 상세정보 버튼) */}
                                 <Group justify="space-between" align="center">
-                                    <Group gap="md" align="center">
-                                        <Text fw={600} size="sm" c="blue.6" w={50}>{m.time}</Text>
-                                        <Group gap="xs" align="center">
-                                            <Text fw={600}>{m.team1.name}</Text>
-                                            <Text c="gray.6" fw={500}>VS</Text>
-                                            <Text fw={600}>{m.team2.name}</Text>
-                                        </Group>
+                                    <Text fw={600} size="sm" c="blue.6" w={50}>{m.time}</Text>
+
+                                    {/* 팀명과 매치 결과를 완전히 가운데 정렬 */}
+                                    <Group gap="xs" align="center" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
+                                        {/* 팀1 이름 - 기본 스타일 유지 */}
+                                        <Text fw={600} size="sm">
+                                            {m.team1.name}
+                                        </Text>
+
+                                        {/* 팀1 점수 - 승부에 따라 스타일 변경 */}
+                                        <Text
+                                            fw={m.series.team1Wins > m.series.team2Wins ? 700 : 400}
+                                            c={m.series.team1Wins > m.series.team2Wins ? "black" : "gray.5"}
+                                            size="sm"
+                                        >
+                                            {m.series.team1Wins}
+                                        </Text>
+
+                                        <Text fw={500} c="gray.6" size="sm">VS</Text>
+
+                                        {/* 팀2 점수 - 승부에 따라 스타일 변경 */}
+                                        <Text
+                                            fw={m.series.team2Wins > m.series.team1Wins ? 700 : 400}
+                                            c={m.series.team2Wins > m.series.team1Wins ? "black" : "gray.5"}
+                                            size="sm"
+                                        >
+                                            {m.series.team2Wins}
+                                        </Text>
+
+                                        {/* 팀2 이름 - 기본 스타일 유지 */}
+                                        <Text fw={600} size="sm">
+                                            {m.team2.name}
+                                        </Text>
                                     </Group>
 
-                                    <Button
-                                        size="xs"
-                                        variant="outline"
-                                        onClick={() => setExpandedId(expandedId === m.id ? null : m.id)}
-                                    >
-                                        상세정보
-                                    </Button>
+                                    {isMobile ? (
+                                        <ActionIcon
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => setExpandedId(expandedId === m.id ? null : m.id)}
+                                            aria-label="상세정보"
+                                            style={{ flexShrink: 0 }}
+                                        >
+                                            <IconChevronDown size={16} />
+                                        </ActionIcon>
+                                    ) : (
+                                        <Button
+                                            size="xs"
+                                            variant="outline"
+                                            onClick={() => setExpandedId(expandedId === m.id ? null : m.id)}
+                                            style={{ flexShrink: 0 }}
+                                        >
+                                            상세정보
+                                        </Button>
+                                    )}
+
                                 </Group>
+
 
                                 {/* 펼쳐지는 상세 정보(게임별 챔피언 조합) */}
                                 <Collapse in={expandedId === m.id}>

@@ -23,8 +23,6 @@ import {
 import { IconTrophy, IconSword, IconEye, IconCoins, IconClock, IconTarget, IconShield } from '@tabler/icons-react';
 import TimelineAnalysisTab from "./tab/TimelineAnalysisTab";
 
-// 실제 데이터 구조에 맞는 샘플 데이터
-// 실제 데이터 구조에 맞는 완전한 샘플 데이터
 const gameData = {
     // 게임 기본 정보
     gameid: "ESPORTSTMNT01_2675894",
@@ -956,106 +954,144 @@ const GameRecordPage = () => {
                     </Tabs.List>
 
                     {/* 경기 개요 탭 - 통일된 스타일 */}
+                    {/* 경기 개요 탭 - OP.GG 스타일로 개선 */}
+                    {/* 경기 개요 탭 - 네이버 스포츠 스타일 */}
+                    {/* 경기 개요 탭 - 간소화된 네이버 스포츠 스타일 */}
+                    {/* 경기 개요 탭 - 사진2 스타일 */}
                     <Tabs.Panel value="overview">
                         <Stack gap="lg" mt="lg">
-                            {/* 기본 스탯 비교 */}
-                            <Paper p="lg" withBorder radius="md" style={{ border: '1px solid #dee2e6' }}>
-                                <Title order={3} mb="md" size={{ base: 'h4', sm: 'h3' }}>팀 스탯 비교</Title>
-                                <SimpleGrid cols={{ base: 2, md: 4 }} spacing="md">
-                                    <Card p="md" bg="blue.0" radius="md" style={{ border: '1px solid #339af0' }}>
-                                        <Stack align="center" gap="xs">
-                                            <IconSword size={24} color="var(--mantine-color-blue-6)" />
-                                            <Text size="xs" c="dimmed">총 킬</Text>
-                                            <Text size={{ base: "lg", md: "xl" }} fw={700}>
-                                                {blueTeamPlayers[0]?.teamkills || 0} : {redTeamPlayers[0]?.teamkills || 0}
-                                            </Text>
-                                        </Stack>
-                                    </Card>
+                            {/* 팀명 VS */}
+                            <Group justify="center" mb="lg" gap="md">
+                                <Text fw={700} c="black" size="xl">{blueTeamName}</Text>
+                                <Text fw={700} c="black" size="xl">VS</Text>
+                                <Text fw={700} c="black" size="xl">{redTeamName}</Text>
+                            </Group>
 
-                                    <Card p="md" bg="yellow.0" radius="md" style={{ border: '1px solid #fab005' }}>
-                                        <Stack align="center" gap="xs">
-                                            <IconCoins size={24} color="var(--mantine-color-yellow-6)" />
-                                            <Text size="xs" c="dimmed">총 골드</Text>
-                                            <Text size={{ base: "lg", md: "xl" }} fw={700}>
-                                                {Math.round(blueTeamPlayers.reduce((sum, p) => sum + (p.totalgold || 0), 0) / 1000)}K : {Math.round(redTeamPlayers.reduce((sum, p) => sum + (p.totalgold || 0), 0) / 1000)}K
-                                            </Text>
-                                        </Stack>
-                                    </Card>
+                            {/* 팀 스탯 비교 */}
+                            <Paper p="lg" withBorder radius="md">
+                                <Title order={3} mb="lg" ta="center">팀 스탯 비교</Title>
+                                <Stack gap="xl">
+                                    {[
+                                        { key: 'teamkills', label: '킬', dataSource: 'first' },
+                                        { key: 'totalgold', label: '총 골드', format: v => `${Math.round(v/1000)}K`, dataSource: 'sum' },
+                                        { key: 'damagetochampions', label: '챔피언 데미지', format: v => `${Math.round(v/1000)}K`, dataSource: 'sum' },
+                                        { key: 'totalcs', label: '총 CS', dataSource: 'sum' },
+                                        { key: 'visionscore', label: '시야 점수', dataSource: 'sum' },
+                                    ].map(({key, label, format, dataSource}) => {
+                                        const b = dataSource === 'first'
+                                            ? (blueTeamPlayers[0]?.[key] || 0)
+                                            : blueTeamPlayers.reduce((s,p) => s + (p[key] || 0), 0);
+                                        const r = dataSource === 'first'
+                                            ? (redTeamPlayers[0]?.[key] || 0)
+                                            : redTeamPlayers.reduce((s,p) => s + (p[key] || 0), 0);
+                                        const total = b + r || 1;
 
-                                    <Card p="md" bg="green.0" radius="md" style={{ border: '1px solid #51cf66' }}>
-                                        <Stack align="center" gap="xs">
-                                            <IconTarget size={24} color="var(--mantine-color-green-6)" />
-                                            <Text size="xs" c="dimmed">총 CS</Text>
-                                            <Text size={{ base: "lg", md: "xl" }} fw={700}>
-                                                {blueTeamPlayers.reduce((sum, p) => sum + (p.totalcs || 0), 0)} : {redTeamPlayers.reduce((sum, p) => sum + (p.totalcs || 0), 0)}
-                                            </Text>
-                                        </Stack>
-                                    </Card>
+                                        return (
+                                            <Group align="center" justify="center" wrap="nowrap" key={key}>
+                                                {/* 왼쪽 숫자 */}
+                                                <Text c="black" fw={700} size="lg">{ format ? format(b) : b }</Text>
 
-                                    <Card p="md" bg="purple.0" radius="md" style={{ border: '1px solid #9775fa' }}>
-                                        <Stack align="center" gap="xs">
-                                            <IconClock size={24} color="var(--mantine-color-purple-6)" />
-                                            <Text size="xs" c="dimmed">게임 시간</Text>
-                                            <Text size={{ base: "lg", md: "xl" }} fw={700}>{formatTime(gameData.gamelength)}</Text>
-                                        </Stack>
-                                    </Card>
-                                </SimpleGrid>
+                                                {/* 왼쪽 막대 */}
+                                                <Box mx="xs" style={{flex:1}}>
+                                                    <Progress
+                                                        value={(b/total)*100}
+                                                        size="sm" radius="xs"
+                                                        color="#0093FF" bg="#F1F3F5"
+                                                        style={{transform:'scaleX(-1)','& .mantine-Progress-bar':{transform:'scaleX(-1)'}}}
+                                                    />
+                                                </Box>
+
+                                                {/* 가운데 제목 */}
+                                                <Text c="black" fw={600} size="sm" maw="80px">{label}</Text>
+
+                                                {/* 오른쪽 막대 */}
+                                                <Box mx="xs" style={{flex:1}}>
+                                                    <Progress
+                                                        value={(r/total)*100}
+                                                        size="sm" radius="xs"
+                                                        color="#FF5353" bg="#F1F3F5"
+                                                    />
+                                                </Box>
+
+                                                {/* 오른쪽 숫자 */}
+                                                <Text c="black" fw={700} size="lg">{ format ? format(r) : r }</Text>
+                                            </Group>
+                                        );
+                                    })}
+                                </Stack>
                             </Paper>
 
-                            {/* 오브젝트 비교 */}
-                            <Paper p="lg" withBorder radius="md" style={{ border: '1px solid #dee2e6' }}>
-                                <Title order={3} mb="md" size={{ base: 'h4', sm: 'h3' }}>주요 오브젝트</Title>
-                                <SimpleGrid cols={{ base: 2, sm: 3, md: 5 }} spacing="md">
-                                    <Stack align="center">
-                                        <Text size="sm" fw={600}>드래곤</Text>
-                                        <Group gap="xs">
-                                            <Text size="lg" fw={700} c="blue">{blueTeamPlayers[0]?.dragons || 0}</Text>
-                                            <Text c="gray.5">:</Text>
-                                            <Text size="lg" fw={700} c="red">{blueTeamPlayers[0]?.opp_dragons || 0}</Text>
-                                        </Group>
-                                    </Stack>
+                            {/* 오브젝트 현황 */}
+                            <Paper p="lg" withBorder radius="md">
+                                <Title order={3} mb="lg" ta="center">오브젝트 현황</Title>
+                                <Stack gap="xl">
+                                    {[
+                                        { key: 'dragons', oppKey: 'opp_dragons', label: '드래곤', firstKey: 'firstdragon' },
+                                        { key: 'barons', oppKey: 'opp_barons', label: '바론', firstKey: 'firstbaron' },
+                                        { key: 'heralds', oppKey: 'opp_heralds', label: '전령', firstKey: 'firstherald' },
+                                        { key: 'towers', oppKey: 'opp_towers', label: '타워', firstKey: 'firsttower' },
+                                        { key: 'elders', oppKey: 'opp_elders', label: '아타칸' },
+                                        { key: 'void_grubs', oppKey: 'opp_void_grubs', label: '공허 유충' },
+                                        { key: 'inhibitors', oppKey: 'opp_inhibitors', label: '억제기' },
+                                    ].map(({key, oppKey, label, firstKey}) => {
+                                        const b = blueTeamPlayers[0]?.[key] || 0;
+                                        const r = blueTeamPlayers[0]?.[oppKey] || 0;
+                                        const total = b + r || 1;
 
-                                    <Stack align="center">
-                                        <Text size="sm" fw={600}>바론</Text>
-                                        <Group gap="xs">
-                                            <Text size="lg" fw={700} c="blue">{blueTeamPlayers[0]?.barons || 0}</Text>
-                                            <Text c="gray.5">:</Text>
-                                            <Text size="lg" fw={700} c="red">{blueTeamPlayers[0]?.opp_barons || 0}</Text>
-                                        </Group>
-                                    </Stack>
+                                        return (
+                                            <Box key={key}>
+                                                <Group align="center" justify="center" wrap="nowrap">
+                                                    {/* 왼쪽 숫자 */}
+                                                    <Text c="black" fw={700} size="lg">{b}</Text>
 
-                                    <Stack align="center">
-                                        <Text size="sm" fw={600}>전령</Text>
-                                        <Group gap="xs">
-                                            <Text size="lg" fw={700} c="blue">{blueTeamPlayers[0]?.heralds || 0}</Text>
-                                            <Text c="gray.5">:</Text>
-                                            <Text size="lg" fw={700} c="red">{blueTeamPlayers[0]?.opp_heralds || 0}</Text>
-                                        </Group>
-                                    </Stack>
+                                                    {/* 왼쪽 막대 */}
+                                                    <Box mx="xs" style={{flex:1}}>
+                                                        <Progress
+                                                            value={(b/total)*100}
+                                                            size="sm" radius="xs"
+                                                            color="#0093FF" bg="#F1F3F5"
+                                                            style={{transform:'scaleX(-1)','& .mantine-Progress-bar':{transform:'scaleX(-1)'}}}
+                                                        />
+                                                    </Box>
 
-                                    <Stack align="center">
-                                        <Text size="sm" fw={600}>타워</Text>
-                                        <Group gap="xs">
-                                            <Text size="lg" fw={700} c="blue">{blueTeamPlayers[0]?.towers || 0}</Text>
-                                            <Text c="gray.5">:</Text>
-                                            <Text size="lg" fw={700} c="red">{blueTeamPlayers[0]?.opp_towers || 0}</Text>
-                                        </Group>
-                                    </Stack>
+                                                    {/* 가운데 제목 */}
+                                                    <Text c="black" fw={600} size="sm" maw="80px">{label}</Text>
 
-                                    <Stack align="center">
-                                        <Text size="sm" fw={600}>억제기</Text>
-                                        <Group gap="xs">
-                                            <Text size="lg" fw={700} c="blue">{blueTeamPlayers[0]?.inhibitors || 0}</Text>
-                                            <Text c="gray.5">:</Text>
-                                            <Text size="lg" fw={700} c="red">{blueTeamPlayers[0]?.opp_inhibitors || 0}</Text>
-                                        </Group>
-                                    </Stack>
-                                </SimpleGrid>
+                                                    {/* 오른쪽 막대 */}
+                                                    <Box mx="xs" style={{flex:1}}>
+                                                        <Progress
+                                                            value={(r/total)*100}
+                                                            size="sm" radius="xs"
+                                                            color="#FF5353" bg="#F1F3F5"
+                                                        />
+                                                    </Box>
+
+                                                    {/* 오른쪽 숫자 */}
+                                                    <Text c="black" fw={700} size="lg">{r}</Text>
+                                                </Group>
+
+                                                {/* 첫 오브젝트 배지 */}
+                                                {firstKey && (
+                                                    <Group justify="center" mt="xs">
+                                                        {blueTeamPlayers[0]?.[firstKey] === 1 && (
+                                                            <Badge size="xs" color="blue" radius="sm">첫 {label}</Badge>
+                                                        )}
+                                                        {blueTeamPlayers[0]?.[firstKey] === 0 && (
+                                                            <Badge size="xs" color="red" radius="sm">첫 {label}</Badge>
+                                                        )}
+                                                    </Group>
+                                                )}
+                                            </Box>
+                                        );
+                                    })}
+                                </Stack>
                             </Paper>
                         </Stack>
                     </Tabs.Panel>
 
-                    {/* 선수 기록 탭 - 통일된 스타일 */}
+
+
+
                     <Tabs.Panel value="players">
                         <Stack gap="lg" mt="lg">
                             {[

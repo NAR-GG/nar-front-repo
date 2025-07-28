@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+// ChampionSelector.jsx
+import React, { useState, useEffect } from 'react';
 import { Group, Paper, Avatar, Text, Button } from '@mantine/core';
 import { IconPlus, IconSwords, IconUsers } from '@tabler/icons-react';
 import { useMediaQuery } from '@mantine/hooks';
 
-const RADIUS = 'sm';          // Mantine 기준 = 6 px  (OP.GG 스타일)
+const RADIUS = 'sm';
 
 const ChampionSelector = ({
                               selectedChampions = [],
@@ -12,9 +13,18 @@ const ChampionSelector = ({
                               on1v1ChampionRemove,
                               onEmptySlotClick,
                               onEmpty1v1SlotClick,
+                              currentMode = 'team',
+                              onModeChange,
                           }) => {
     const isMobile = useMediaQuery('(max-width: 768px)');
-    const [activeTab, setActiveTab] = useState('team'); // 'team' | '1v1'
+
+    const activeTab = currentMode;
+
+    const handleTabChange = (newMode) => {
+        if (onModeChange) {
+            onModeChange(newMode);
+        }
+    };
 
     /* ---------- 공통 슬롯 렌더러 ---------- */
     const renderSlot = (champ, index, slotCount, onRemove, onEmptyClick, slotType) => (
@@ -28,6 +38,8 @@ const ChampionSelector = ({
                 flexDirection: 'column',
                 alignItems: 'center',
                 flexShrink: 0,
+                // 고정된 높이를 설정하여 레이아웃 안정성 확보
+                minHeight: isMobile ? 90 : 110,
             }}
         >
             {champ ? (
@@ -46,27 +58,16 @@ const ChampionSelector = ({
                         truncate="end"
                         style={{
                             maxWidth: isMobile ? 56 : 80,
-                            fontSize: isMobile ? '9px' : '12px',  // 기존처럼 px 단위로 복원
+                            fontSize: isMobile ? '9px' : '12px',
                             lineHeight: '1.2',
                             whiteSpace: 'nowrap',
                             overflow: 'hidden',
-                            textOverflow: 'ellipsis'
+                            textOverflow: 'ellipsis',
+                            textAlign: 'center'
                         }}
                     >
                         {champ.championNameKr}
                     </Text>
-                    {slotType === '1v1' && (
-                        <Text
-                            size={isMobile ? 8 : 10}
-                            c="dimmed"
-                            mt={2}
-                            style={{
-                                fontSize: isMobile ? '7px' : '9px'  // 기존처럼 더 작게
-                            }}
-                        >
-                            {index === 0 ? '플레이어 1' : '플레이어 2'}
-                        </Text>
-                    )}
                 </>
             ) : (
                 <>
@@ -88,10 +89,12 @@ const ChampionSelector = ({
                         c="dimmed"
                         mt={4}
                         style={{
-                            fontSize: isMobile ? '9px' : '12px'  // 기존처럼 작게
+                            fontSize: isMobile ? '9px' : '12px',
+                            textAlign: 'center',
+                            maxWidth: isMobile ? 56 : 80,
                         }}
                     >
-                        챔피언 선택  {/* 1vs1에서도 통일 */}
+                        챔피언 선택
                     </Text>
                 </>
             )}
@@ -104,7 +107,7 @@ const ChampionSelector = ({
             style={{
                 display: 'flex',
                 justifyContent: 'center',
-                alignItems: 'center',
+                alignItems: 'flex-start', // 상단 정렬로 변경
                 gap: isMobile ? 6 : 16,
                 overflowX: 'auto',
                 padding: '0 8px 4px',
@@ -119,15 +122,22 @@ const ChampionSelector = ({
                 '1v1',
             )}
 
-            {/* ▶︎ 가운데 VS 라벨 ◀︎ */}
-            <Text
-                fw={700}
-                c="gray.6"
-                mx={isMobile ? 4 : 8}
-                style={{ userSelect: 'none', fontSize: isMobile ? 14 : 18 }}
-            >
-                VS
-            </Text>
+            {/* VS 부분을 슬롯과 같은 높이에 맞춤 */}
+            <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                height: isMobile ? 56 : 80,
+                paddingTop: 0
+            }}>
+                <Text
+                    fw={700}
+                    c="gray.6"
+                    mx={isMobile ? 4 : 8}
+                    style={{ userSelect: 'none', fontSize: isMobile ? 14 : 18 }}
+                >
+                    VS
+                </Text>
+            </div>
 
             {renderSlot(
                 selected1v1Champions[1],
@@ -166,15 +176,14 @@ const ChampionSelector = ({
 
     return (
         <Paper p={isMobile ? 'xs' : 'md'} withBorder radius={RADIUS}>
-            {/* 탭 버튼 – radius 통일 */}
+            {/* 탭 버튼 */}
             <Group justify="center" mb="md" gap="xs">
                 <Button
                     radius={RADIUS}
                     size={isMobile ? 'xs' : 'sm'}
-                    leftSection={<IconUsers size={isMobile ? 14 : 16} />}
                     variant={activeTab === 'team' ? 'filled' : 'default'}
                     color="blue"
-                    onClick={() => setActiveTab('team')}
+                    onClick={() => handleTabChange('team')}
                 >
                     팀 조합
                 </Button>
@@ -182,10 +191,9 @@ const ChampionSelector = ({
                 <Button
                     radius={RADIUS}
                     size={isMobile ? 'xs' : 'sm'}
-                    leftSection={<IconSwords size={isMobile ? 14 : 16} />}
                     variant={activeTab === '1v1' ? 'filled' : 'default'}
                     color="red"
-                    onClick={() => setActiveTab('1v1')}
+                    onClick={() => handleTabChange('1v1')}
                 >
                     1vs1
                 </Button>
@@ -200,11 +208,11 @@ const ChampionSelector = ({
                 c="dimmed"
                 ta="center"
                 mt="md"
-                style={{ fontSize: isMobile ? '10px' : '12px' }}  // 기존처럼
+                style={{ fontSize: isMobile ? '10px' : '12px' }}
             >
                 {activeTab === 'team'
                     ? '최대 5명의 챔피언으로 팀을 구성하세요'
-                    : '1vs1 대결할 챔피언 2명을 선택하세요'}
+                    : '1vs1 분석할 챔피언 2명을 선택하세요'}
             </Text>
         </Paper>
     );

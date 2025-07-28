@@ -162,10 +162,21 @@ const CustomMultiSelect = ({ label, placeholder, data, value = [], onChange, dis
     );
 };
 
-const FilterSection = ({ filters, onFiltersChange, selectedChampions, onCombinationSearch }) => {
+const FilterSection = ({ filters, onFiltersChange, selectedChampions, onCombinationSearch, currentMode }) => {
     const isMobile = useMediaQuery('(max-width: 768px)');
     const [categoryData, setCategoryData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+
+    const getButtonText = () => {
+        return currentMode === '1v1' ? '매치업 보기' : '조합 보기';
+    };
+
+    const getSelectedCountText = () => {
+        if (currentMode === '1v1') {
+            return `선택된 챔피언: ${selectedChampions.length}/2`;
+        }
+        return `선택된 챔피언: ${selectedChampions.length}/5`;
+    };
 
     // 카테고리 데이터 로드
     useEffect(() => {
@@ -441,14 +452,14 @@ const FilterSection = ({ filters, onFiltersChange, selectedChampions, onCombinat
 
                     <Group justify="flex-end" gap="md" align="center">
                         <Text size="sm" c="dimmed">
-                            선택된 챔피언: {selectedChampions.length}/5
+                            {getSelectedCountText()}
                         </Text>
                         <Button
                             leftSection={<IconSearch size={16} />}
                             onClick={onCombinationSearch}
                             disabled={selectedChampions.length === 0}
                         >
-                            조합 보기
+                            {getButtonText()}
                         </Button>
                     </Group>
                 </Stack>
@@ -500,14 +511,14 @@ const FilterSection = ({ filters, onFiltersChange, selectedChampions, onCombinat
 
                     <Group gap="md" align="center">
                         <Text size="sm" c="dimmed">
-                            선택된 챔피언: {selectedChampions.length}/5
+                            {getSelectedCountText()}
                         </Text>
                         <Button
                             leftSection={<IconSearch size={16} />}
                             onClick={onCombinationSearch}
                             disabled={selectedChampions.length === 0}
                         >
-                            조합 보기
+                            {getButtonText()}
                         </Button>
                     </Group>
                 </Group>

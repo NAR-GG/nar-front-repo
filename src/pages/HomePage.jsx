@@ -1,3 +1,4 @@
+// HomePage.jsx
 import React, { useState, useEffect } from 'react';
 import { Container, Stack } from '@mantine/core';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -5,6 +6,7 @@ import ChampionSelector from '../components/layout/ChampionSelector';
 import FilterSection from '../components/layout/FilterSection';
 import ChampionGrid from '../components/list/ChampionGrid';
 import CombinationResults from "../components/results/CombinationResults";
+import MatchupResults from "../components/results/MatchupResults";
 
 const HomePage = () => {
     const navigate = useNavigate();
@@ -131,21 +133,39 @@ const HomePage = () => {
         }
     };
 
-    const handleCombinationSearch = () => {
-        const champions = currentMode === 'team' ? selectedChampions : selected1v1Champions;
-        const minRequired = currentMode === 'team' ? 1 : 2;
+    // 모드 변경 핸들러 추가
+    const handleModeChange = (mode) => {
+        setCurrentMode(mode);
+        setCurrentSlotIndex(null);
 
-        if (champions.length < minRequired) {
-            const message = currentMode === 'team'
-                ? '최소 1개의 챔피언을 선택해주세요.'
-                : '1vs1을 위해 2개의 챔피언을 모두 선택해주세요.';
-            alert(message);
-            return;
+        // 결과 페이지에서 모드 변경 시 홈으로 돌아가기
+        if (showResults) {
+            setShowChampionGrid(true);
+            navigate('/', { replace: false });
+        }
+    };
+
+    // HomePage.jsx 수정
+    const handleCombinationSearch = () => {
+        if (currentMode === 'team') {
+            // 팀 조합 검색
+            if (selectedChampions.length < 1) {
+                alert('최소 1개의 챔피언을 선택해주세요.');
+                return;
+            }
+        } else {
+            // 1vs1 매치업 검색
+            if (selected1v1Champions.length < 2) {
+                alert('1vs1을 위해 2개의 챔피언을 모두 선택해주세요.');
+                return;
+            }
         }
 
+        // 두 모드 모두 동일하게 결과 페이지로 이동
         setShowChampionGrid(false);
         navigate('/?results=true', { replace: false });
     };
+
 
     const handleBackToSelection = () => {
         setShowChampionGrid(true);
@@ -163,6 +183,8 @@ const HomePage = () => {
                     on1v1ChampionRemove={handle1v1ChampionRemove}
                     onEmptySlotClick={handleEmptySlotClick}
                     onEmpty1v1SlotClick={handleEmpty1v1SlotClick}
+                    currentMode={currentMode}
+                    onModeChange={handleModeChange} // 모드 변경 핸들러 전달
                 />
 
                 <FilterSection
@@ -170,21 +192,30 @@ const HomePage = () => {
                     onFiltersChange={setFilters}
                     selectedChampions={currentMode === 'team' ? selectedChampions : selected1v1Champions}
                     onCombinationSearch={handleCombinationSearch}
-                    currentMode={currentMode} // 현재 모드 전달 (필요시)
+                    currentMode={currentMode}
                 />
 
                 {showResults ? (
-                    <CombinationResults
-                        selectedChampions={currentMode === 'team' ? selectedChampions : selected1v1Champions}
-                        filters={filters}
-                        onBackToSelection={handleBackToSelection}
-                        mode={currentMode} // 모드 정보 전달
-                    />
+                    currentMode === 'team' ? (
+                        <CombinationResults
+                            selectedChampions={selectedChampions}
+                            filters={filters}
+                            onBackToSelection={handleBackToSelection}
+                            mode={currentMode}
+                        />
+                    ) : (
+                        <MatchupResults
+                            champion1={selected1v1Champions[0]?.championNameEn}
+                            champion2={selected1v1Champions[1]?.championNameEn}
+                            filters={filters}
+                            onBackToSelection={handleBackToSelection}
+                        />
+                    )
                 ) : showChampionGrid ? (
                     <ChampionGrid
                         onChampionSelect={handleChampionSelect}
                         selectedChampions={currentMode === 'team' ? selectedChampions : selected1v1Champions}
-                        highlightSlot={currentSlotIndex} // 현재 선택 중인 슬롯 하이라이트 (필요시)
+                        highlightSlot={currentSlotIndex}
                     />
                 ) : null}
             </Stack>

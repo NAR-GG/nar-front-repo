@@ -1,10 +1,9 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // useNavigate 추가
+import React, {useMemo, useState} from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Container,
     Stack,
     Paper,
-    Title,
     Group,
     Text,
     ActionIcon,
@@ -15,189 +14,93 @@ import {
     Flex,
     ScrollArea,
     Center,
-    Avatar
+    Avatar,
+    Loader
 } from '@mantine/core';
 import { IconChevronLeft, IconChevronRight, IconCalendar, IconChevronDown } from '@tabler/icons-react';
 import { useMediaQuery } from '@mantine/hooks';
+import { useSchedule } from '../hooks/useSchedule';
+import { useChampions } from '../hooks/useChampions';
 
-/* ────────────────────────────── MOCK DATA ────────────────────────────── */
-const mockMatches = [
-    {
-        id: 1,
-        time: '17:00',
-        team1: { name: 'T1' },
-        team2: { name: 'GEN' },
-        series: { team1Wins: 2, team2Wins: 1 },
-        games: [
-            {
-                id: 1,
-                gameId: 'T1_vs_GEN_game1', // 기록 페이지로 이동할 때 사용할 고유 ID
-                winnerSide: 'blue',
-                blueTeam: {
-                    name: 'T1',
-                    players: [
-                        { championName: 'Gnar', playerName: 'Zeus' },
-                        { championName: 'Viego', playerName: 'Oner' },
-                        { championName: 'Azir', playerName: 'Faker' },
-                        { championName: 'Jinx', playerName: 'Gumayusi' },
-                        { championName: 'Leona', playerName: 'Keria' }
-                    ],
-                },
-                redTeam: {
-                    name: 'GEN',
-                    players: [
-                        { championName: 'Aatrox', playerName: 'Kiin' },
-                        { championName: 'Graves', playerName: 'Canyon' },
-                        { championName: 'Orianna', playerName: 'Chovy' },
-                        { championName: 'Aphelios', playerName: 'Peyz' },
-                        { championName: 'Alistar', playerName: 'Lehends' }
-                    ]
-                },
-                gameTime: '28:45'
-            },
-            {
-                id: 2,
-                gameId: 'T1_vs_GEN_game2',
-                winnerSide: 'red',
-                blueTeam: {
-                    name: 'GEN',
-                    players: [
-                        { championName: 'Renekton', playerName: 'Kiin' },
-                        { championName: 'Nidalee', playerName: 'Canyon' },
-                        { championName: 'Galio', playerName: 'Chovy' },
-                        { championName: 'Kalista', playerName: 'Peyz' },
-                        { championName: 'Nautilus', playerName: 'Lehends' }
-                    ]
-                },
-                redTeam: {
-                    name: 'T1',
-                    players: [
-                        { championName: 'Jayce', playerName: 'Zeus' },
-                        { championName: 'Kindred', playerName: 'Oner' },
-                        { championName: 'Sylas', playerName: 'Faker' },
-                        { championName: 'Xayah', playerName: 'Gumayusi' },
-                        { championName: 'Rakan', playerName: 'Keria' }
-                    ]
-                },
-                gameTime: '35:12'
-            },
-            {
-                id: 3,
-                gameId: 'T1_vs_GEN_game3',
-                winnerSide: 'blue',
-                blueTeam: {
-                    name: 'T1',
-                    players: [
-                        { championName: 'Ornn', playerName: 'Zeus' },
-                        { championName: 'Sejuani', playerName: 'Oner' },
-                        { championName: 'Galio', playerName: 'Faker' },
-                        { championName: 'Sivir', playerName: 'Gumayusi' },
-                        { championName: 'Yuumi', playerName: 'Keria' }
-                    ]
-                },
-                redTeam: {
-                    name: 'GEN',
-                    players: [
-                        { championName: 'Fiora', playerName: 'Kiin' },
-                        { championName: 'Elise', playerName: 'Canyon' },
-                        { championName: 'Yasuo', playerName: 'Chovy' },
-                        { championName: 'Zeri', playerName: 'Peyz' },
-                        { championName: 'Lulu', playerName: 'Lehends' }
-                    ]
-                },
-                gameTime: '42:33'
-            }
-        ]
-    },
-    {
-        id: 2,
-        time: '19:00',
-        team1: { name: 'DRX' },
-        team2: { name: 'KT' },
-        series: { team1Wins: 0, team2Wins: 2 },
-        games: [
-            {
-                id: 1,
-                gameId: 'DRX_vs_KT_game1',
-                winnerSide: 'red',
-                blueTeam: {
-                    name: 'DRX',
-                    players: [
-                        { championName: 'Camille', playerName: 'Kingen' },
-                        { championName: 'Hecarim', playerName: 'Juhan' },
-                        { championName: 'Corki', playerName: 'FATE' },
-                        { championName: 'Ezreal', playerName: 'Teddy' },
-                        { championName: 'Thresh', playerName: 'BeryL' }
-                    ]
-                },
-                redTeam: {
-                    name: 'KT',
-                    players: [
-                        { championName: 'Kennen', playerName: 'Kiin' },
-                        { championName: 'Nocturne', playerName: 'Pyosik' },
-                        { championName: 'Viktor', playerName: 'Bdd' },
-                        { championName: 'Lucian', playerName: 'Aiming' },
-                        { championName: 'Braum', playerName: 'Effort' }
-                    ]
-                },
-                gameTime: '31:22'
-            }
-        ]
-    }
-];
+const teamNameMap = {
+    'Bnk Fearx': 'BFX',
+    'Dplus Kia': 'DK',
+    'Kt Rolster': 'KT',
+    'Nongshim Redforce': 'NS',
+    'Hanwha Life Esports': 'HLE',
+    'Gen.g': 'GEN',
+    'T1': 'T1',
+    'Oksavingsbank Brion': 'BRO',
+    'Drx': 'DRX',
+    'Dn Freecs': 'DNF',
+};
 
-// 챔피언 이미지 URL 생성 함수
-const getChampionImageUrl = (championName) => {
-    const imageNameMap = {
-        'Drmundo': 'DrMundo',
-        'Jarvaniv': 'JarvanIV',
-        'Kogmaw': 'KogMaw',
-        'Leesin': 'LeeSin',
-        'Masteryi': 'MasterYi',
-        'Missfortune': 'MissFortune',
-        'Monkeyking': 'MonkeyKing',
-        'Twistedfate': 'TwistedFate',
-        'Velkoz': 'Velkoz',
-        'Xinzhao': 'XinZhao'
-    };
-
-    const imageName = imageNameMap[championName] || championName;
-    return `https://ddragon.leagueoflegends.com/cdn/15.13.1/img/champion/${imageName}.png`;
+// 헬퍼 함수: 초를 '분:초' 형식으로 변환
+const formatGameTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${String(remainingSeconds).padStart(2, '0')}`;
 };
 
 /* ────────────────────────────── COMPONENT ────────────────────────────── */
 function SchedulePage() {
-    /* 캘린더 관련 상태 --------------------------------------------- */
+    // UI 관련 상태는 컴포넌트에 유지
     const [selectedDate, setSelectedDate] = useState(new Date());
     const [expandedId, setExpandedId] = useState(null);
-    const navigate = useNavigate(); // navigate 훅 추가
 
-    const dayNames = ['월', '화', '수', '목', '금', '토', '일'];
+    // ✅ 데이터 관련 로직은 커스텀 훅에 위임
+    const {
+        scheduleData,
+        matchDetails,
+        loading,
+        detailLoading,
+        error,
+        fetchMatchDetail
+    } = useSchedule(selectedDate);
 
+    const navigate = useNavigate();
     const isMobile = useMediaQuery('(max-width: 768px)');
+    const dayNames = ['월', '화', '수', '목', '금', '토', '일'];
+    const { data: champions = [], isLoading: championsLoading } = useChampions();
 
-    // 월요일부터 시작하는 주간 날짜 계산
+    const championImageMap = useMemo(() => {
+        if (!champions || champions.length === 0) return new Map();
+        // 백엔드에서 정규화된 영문 이름을 키로 사용
+        return new Map(champions.map(c => [c.championNameEn, c.imageUrl]));
+    }, [champions]);
+
+    const getChampionImageUrl = (championName) => {
+        // Map에서 직접 이미지를 찾고, 없으면 기본 이미지 경로 반환 (안전장치)
+        return championImageMap.get(championName) || 'path/to/default/image.png';
+    };
+
+
+    // 주간 날짜 계산 로직
     const getWeek = (d) => {
         const week = [];
         const tmp = new Date(d);
         const day = tmp.getDay();
         const diff = day === 0 ? -6 : 1 - day;
         tmp.setDate(tmp.getDate() + diff);
-
         for (let i = 0; i < 7; i++) {
             week.push(new Date(tmp.getFullYear(), tmp.getMonth(), tmp.getDate() + i));
         }
         return week;
     };
-
     const weekDates = getWeek(selectedDate);
 
-    // 기록 페이지로 이동하는 함수
-    const handleNavigateToRecord = (gameId) => {
-        navigate(`/record/${gameId}`);
+    // 상세 정보 펼치기/접기 핸들러
+    const handleToggleExpand = (matchId) => {
+        const isCurrentlyExpanded = expandedId === matchId;
+        if (!isCurrentlyExpanded) {
+            fetchMatchDetail(matchId);
+        }
+        setExpandedId(isCurrentlyExpanded ? null : matchId);
     };
 
-    /* 렌더 ----------------------------------------------------------- */
+    const handleNavigateToRecord = (gameId) => { navigate(`/record/${gameId}`); };
+
+    /* 렌더링 ----------------------------------------------------------- */
     return (
         <Container size="xl" px={{ base: 12, sm: 24, md: 32 }}>
             <Stack gap="lg" mt="md">
@@ -213,8 +116,6 @@ function SchedulePage() {
                             </Group>
                             <ActionIcon variant="light" onClick={() => setSelectedDate(new Date(selectedDate.setDate(selectedDate.getDate() + 7)))}><IconChevronRight size={18} /></ActionIcon>
                         </Group>
-
-                        {/* 가운데 정렬된 요일·일수 */}
                         <Center>
                             <ScrollArea type="never" style={{ width: '100%' }}>
                                 <Flex gap="xs" justify="center" wrap="nowrap" style={{ minWidth: 'max-content' }}>
@@ -222,25 +123,10 @@ function SchedulePage() {
                                         const isSel = date.toDateString() === selectedDate.toDateString();
                                         const isToday = date.toDateString() === new Date().toDateString();
                                         return (
-                                            <Button
-                                                key={idx}
-                                                size="sm"
-                                                variant={isSel ? 'filled' : 'light'}
-                                                color={isSel ? 'blue' : isToday ? 'blue' : 'gray'}
-                                                onClick={() => setSelectedDate(date)}
-                                                style={{ minWidth: 50, height: 60, flexDirection: 'column', padding: 8 }}
-                                            >
+                                            <Button key={idx} size="sm" variant={isSel ? 'filled' : 'light'} color={isSel ? 'blue' : isToday ? 'blue' : 'gray'} onClick={() => setSelectedDate(date)} style={{ minWidth: 50, height: 60, flexDirection: 'column', padding: 8 }}>
                                                 <div style={{ textAlign: 'center', lineHeight: 1.2 }}>
-                                                    <div>
-                                                        <Text size="xs" fw={500} c={isSel ? 'white' : isToday ? 'blue' : 'dimmed'} style={{ marginBottom: '2px' }}>
-                                                            {dayNames[idx]}
-                                                        </Text>
-                                                    </div>
-                                                    <div>
-                                                        <Text size="sm" fw={700} c={isSel ? 'white' : isToday ? 'blue' : 'dark'}>
-                                                            {date.getDate()}
-                                                        </Text>
-                                                    </div>
+                                                    <Text size="xs" fw={500} c={isSel ? 'white' : isToday ? 'blue' : 'dimmed'} style={{ marginBottom: '2px' }}>{dayNames[idx]}</Text>
+                                                    <Text size="sm" fw={700} c={isSel ? 'white' : isToday ? 'blue' : 'dark'}>{date.getDate()}</Text>
                                                     {isToday && !isSel && <Box w={4} h={4} bg="blue" style={{ borderRadius: '50%', margin: '2px auto 0' }} />}
                                                 </div>
                                             </Button>
@@ -253,198 +139,166 @@ function SchedulePage() {
 
                     {/* ─── 경기 카드 목록 ─── */}
                     <Stack gap="sm">
-                        {mockMatches.map((m) => (
-                            <Card key={m.id} p="sm" withBorder radius="sm" bg="gray.0">
-                                {/* 카드 상단(기본 정보 + 상세정보 버튼) */}
-                                <Group justify="space-between" align="center">
-                                    <Text fw={600} size="sm" c="blue.6" w={50}>{m.time}</Text>
-
-                                    {/* 팀명과 매치 결과를 완전히 가운데 정렬 */}
-                                    <Group gap="xs" align="center" style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)' }}>
-                                        {/* 팀1 이름 - 기본 스타일 유지 */}
-                                        <Text fw={600} size="sm">
-                                            {m.team1.name}
+                        {loading ? (
+                            <Center p="xl"><Loader /></Center>
+                        ) : error ? (
+                            <Center p="xl"><Text c="red">{error}</Text></Center>
+                        ) : scheduleData.matches.length === 0 ? (
+                            <Center p="xl"><Text c="dimmed">해당 날짜에 경기 일정이 없습니다.</Text></Center>
+                        ) : (
+                            scheduleData.matches.map((m) => (
+                                <Card key={m.matchId} p="sm" withBorder radius="sm" bg="gray.0">
+                                    <Group justify="space-between" align="center">
+                                        <Text fw={600} size="sm" c="blue.6" w={{ base: 45, sm: 50 }}>
+                                            {m.scheduledTime}
                                         </Text>
 
-                                        {/* 팀1 점수 - 승부에 따라 스타일 변경 */}
-                                        <Text
-                                            fw={m.series.team1Wins > m.series.team2Wins ? 700 : 400}
-                                            c={m.series.team1Wins > m.series.team2Wins ? "black" : "gray.5"}
-                                            size="sm"
+                                        {/* 중앙 매치 정보 */}
+                                        {/* Flex 컨테이너 조정 및 내부 Group들의 유연성 확보 */}
+                                        <Flex
+                                            style={{ flex: 1, minWidth: 0, overflow: 'hidden' }} // overflow: 'hidden' 추가하여 내용이 넘칠 때 처리
+                                            justify="center"
+                                            align="center"
+                                            direction="row"
+                                            gap={{ base: 4, sm: 'md' }} // 모바일 간격은 4px로 유지 (팀 이름-스코어)
                                         >
-                                            {m.series.team1Wins}
-                                        </Text>
+                                            {/* 팀 A */}
+                                            <Group
+                                                gap={{ base: 4, sm: 'sm' }} // 팀 이름과 스코어 사이 간격. 모바일에서는 4px, 데스크톱에서는 'sm'
+                                                justify='flex-end'
+                                                // Flex 아이템의 핵심 조정: flex-grow와 flex-shrink는 유지하고, min-width를 auto로 설정하여 유연하게 축소되도록 함
+                                                // 텍스트가 줄바꿈되지 않도록 내부 Text에 whiteSpace: 'nowrap' 유지
+                                                style={{
+                                                    flex: '1 1 auto', // flex-grow 1, flex-shrink 1, flex-basis auto
+                                                    minWidth: 0, // Flex 아이템이 내용물보다 작아질 수 있도록 허용 (overflow: hidden과 함께 사용)
+                                                    overflow: 'hidden' // 내용이 넘치면 잘라내기
+                                                }}
+                                            >
+                                                <Text
+                                                    fw={700}
+                                                    size={{ base: 'md', sm: 'lg' }}
+                                                    style={{
+                                                        whiteSpace: 'nowrap',
+                                                        overflow: 'hidden',
+                                                        textOverflow: 'ellipsis', // 텍스트가 넘치면 ... 표시
+                                                        textAlign: 'right' // 팀 이름이 왼쪽에 붙도록
+                                                    }}
+                                                >
+                                                    {teamNameMap[m.teamA.teamName] || m.teamA.teamName}
+                                                </Text>
+                                                <Text
+                                                    fw={700}
+                                                    size={{ base: 'md', sm: 'lg' }}
+                                                    c={m.teamA.score > m.teamB.score ? 'black' : 'gray.5'}
+                                                    style={{ whiteSpace: 'nowrap', flexShrink: 0 }} // 스코어는 절대 줄어들지 않음
+                                                >
+                                                    {m.teamA.score}
+                                                </Text>
+                                            </Group>
 
-                                        <Text fw={500} c="gray.6" size="sm">VS</Text>
+                                            <Text fw={500} c="gray.6" size="xs" px="xs" style={{ whiteSpace: 'nowrap', flexShrink: 0 }}>VS</Text>
 
-                                        {/* 팀2 점수 - 승부에 따라 스타일 변경 */}
-                                        <Text
-                                            fw={m.series.team2Wins > m.series.team1Wins ? 700 : 400}
-                                            c={m.series.team2Wins > m.series.team1Wins ? "black" : "gray.5"}
-                                            size="sm"
-                                        >
-                                            {m.series.team2Wins}
-                                        </Text>
+                                            {/* 팀 B */}
+                                            <Group
+                                                gap={{ base: 4, sm: 'sm' }} // 팀 이름과 스코어 사이 간격
+                                                justify='flex-start'
+                                                style={{
+                                                    flex: '1 1 auto', // flex-grow 1, flex-shrink 1, flex-basis auto
+                                                    minWidth: 0,
+                                                    overflow: 'hidden'
+                                                }}
+                                            >
+                                                <Text
+                                                    fw={700}
+                                                    size={{ base: 'md', sm: 'lg' }}
+                                                    c={m.teamB.score > m.teamA.score ? 'black' : 'gray.5'}
+                                                    style={{ whiteSpace: 'nowrap', flexShrink: 0 }} // 스코어는 절대 줄어들지 않음
+                                                >
+                                                    {m.teamB.score}
+                                                </Text>
+                                                <Text
+                                                    fw={700}
+                                                    size={{ base: 'md', sm: 'lg' }}
+                                                    style={{
+                                                        whiteSpace: 'nowrap',
+                                                        overflow: 'hidden',
+                                                        textOverflow: 'ellipsis', // 텍스트가 넘치면 ... 표시
+                                                        textAlign: 'left' // 팀 이름이 오른쪽에 붙도록
+                                                    }}
+                                                >
+                                                    {teamNameMap[m.teamB.teamName] || m.teamB.teamName}
+                                                </Text>
+                                            </Group>
+                                        </Flex>
 
-                                        {/* 팀2 이름 - 기본 스타일 유지 */}
-                                        <Text fw={600} size="sm">
-                                            {m.team2.name}
-                                        </Text>
+                                        {/* ✨ isMobile 값에 따라 버튼 또는 아이콘을 조건부 렌더링 */}
+                                        {isMobile ? (
+                                            <ActionIcon variant="light" color="gray" onClick={() => handleToggleExpand(m.matchId)}>
+                                                <IconChevronDown size={18} />
+                                            </ActionIcon>
+                                        ) : (
+                                            <Button size="xs" variant="outline" onClick={() => handleToggleExpand(m.matchId)}>
+                                                상세정보
+                                            </Button>
+                                        )}
                                     </Group>
 
-                                    {isMobile ? (
-                                        <ActionIcon
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => setExpandedId(expandedId === m.id ? null : m.id)}
-                                            aria-label="상세정보"
-                                            style={{ flexShrink: 0 }}
-                                        >
-                                            <IconChevronDown size={16} />
-                                        </ActionIcon>
-                                    ) : (
-                                        <Button
-                                            size="xs"
-                                            variant="outline"
-                                            onClick={() => setExpandedId(expandedId === m.id ? null : m.id)}
-                                            style={{ flexShrink: 0 }}
-                                        >
-                                            상세정보
-                                        </Button>
-                                    )}
-
-                                </Group>
-
-
-                                {/* 펼쳐지는 상세 정보(게임별 챔피언 조합) */}
-                                <Collapse in={expandedId === m.id}>
-                                    <Stack mt="sm" gap="md">
-                                        {m.games.map((game) => (
-                                            <Paper key={game.id} p="md" bg="white" radius="md" withBorder>
-                                                <Stack gap="sm">
-                                                    {/* 게임 헤더 */}
-                                                    <Group justify="space-between" align="center">
-                                                        <Group gap="sm">
-                                                            <Text fw={600} size="sm">Game {game.id}</Text>
-                                                            <Text size="xs" c="dimmed">{game.gameTime}</Text>
-                                                        </Group>
-                                                        <Button
-                                                            size="xs"
-                                                            variant="light"
-                                                            color="gray"
-                                                            onClick={() => handleNavigateToRecord(game.gameId)} // 클릭 이벤트 추가
-                                                        >
-                                                            기록
-                                                        </Button>
-                                                    </Group>
-
-                                                    {/* 챔피언 조합 vs 구도 */}
-                                                    <Group justify="center" align="flex-start" gap="md">
-                                                        {/* 블루사이드 (왼쪽) */}
-                                                        <Stack gap="xs" align="center">
-                                                            <Group gap="xs" align="center">
-                                                                <Text size="xs" fw={600}>
-                                                                    {game.blueTeam.name}
-                                                                    {game.winnerSide === 'blue' ? (
-                                                                        <Text component="span" c="blue" fw={700} ml={4}>(승)</Text>
-                                                                    ) : (
-                                                                        <Text component="span" c="gray.6" fw={700} ml={4}>(패)</Text>
-                                                                    )}
-                                                                </Text>
-                                                            </Group>
-                                                            <div style={{ display: 'flex', gap: '4px' }}>
-                                                                {game.blueTeam.players.map((player, idx) => (
-                                                                    <div key={idx} style={{
-                                                                        display: 'flex',
-                                                                        flexDirection: 'column',
-                                                                        alignItems: 'center',
-                                                                        width: '40px'
-                                                                    }}>
-                                                                        <Avatar
-                                                                            src={getChampionImageUrl(player.championName)}
-                                                                            size={32}
-                                                                            radius="md"
-                                                                        />
-                                                                        <Text
-                                                                            size="xs"
-                                                                            mt={2}
-                                                                            style={{
-                                                                                textAlign: 'center',
-                                                                                width: '100%',
-                                                                                whiteSpace: 'nowrap',
-                                                                                overflow: 'hidden',
-                                                                                textOverflow: 'ellipsis'
-                                                                            }}
-                                                                        >
-                                                                            {player.playerName}
-                                                                        </Text>
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        </Stack>
-
-                                                        {/* VS */}
-                                                        <div style={{
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            height: '32px',
-                                                            paddingTop: '16px'
-                                                        }}>
-                                                            <Text size="sm" fw={600} c="dimmed">
-                                                                vs
-                                                            </Text>
-                                                        </div>
-
-                                                        {/* 레드사이드 (오른쪽) */}
-                                                        <Stack gap="xs" align="center">
-                                                            <Group gap="xs" align="center">
-                                                                <Text size="xs" fw={600}>
-                                                                    {game.redTeam.name}
-                                                                    {game.winnerSide === 'red' ? (
-                                                                        <Text component="span" c="blue" fw={700} ml={4}>(승)</Text>
-                                                                    ) : (
-                                                                        <Text component="span" c="gray.6" fw={700} ml={4}>(패)</Text>
-                                                                    )}
-                                                                </Text>
-                                                            </Group>
-                                                            <div style={{ display: 'flex', gap: '4px' }}>
-                                                                {game.redTeam.players.map((player, idx) => (
-                                                                    <div key={idx} style={{
-                                                                        display: 'flex',
-                                                                        flexDirection: 'column',
-                                                                        alignItems: 'center',
-                                                                        width: '40px'
-                                                                    }}>
-                                                                        <Avatar
-                                                                            src={getChampionImageUrl(player.championName)}
-                                                                            size={32}
-                                                                            radius="md"
-                                                                        />
-                                                                        <Text
-                                                                            size="xs"
-                                                                            mt={2}
-                                                                            style={{
-                                                                                textAlign: 'center',
-                                                                                width: '100%',
-                                                                                whiteSpace: 'nowrap',
-                                                                                overflow: 'hidden',
-                                                                                textOverflow: 'ellipsis'
-                                                                            }}
-                                                                        >
-                                                                            {player.playerName}
-                                                                        </Text>
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        </Stack>
-                                                    </Group>
-                                                </Stack>
-                                            </Paper>
-                                        ))}
-                                    </Stack>
-                                </Collapse>
-                            </Card>
-                        ))}
+                                    <Collapse in={expandedId === m.matchId}>
+                                        {detailLoading[m.matchId] ? (
+                                            <Center p="md"><Loader size="sm" /></Center>
+                                        ) : matchDetails[m.matchId] ? (
+                                            <Stack mt="sm" gap="md">
+                                                {matchDetails[m.matchId].gameDetails.map((game) => {
+                                                    const winnerSide = game.blueTeam.isWin ? 'blue' : 'red';
+                                                    return (
+                                                        <Paper key={game.gameNumber} p="md" bg="white" radius="md" withBorder>
+                                                            <Stack gap="sm">
+                                                                <Group justify="space-between" align="center">
+                                                                    <Group gap="sm">
+                                                                        <Text fw={600} size="sm">Game {game.gameNumber}</Text>
+                                                                        <Text size="xs" c="dimmed">{formatGameTime(game.gameLengthSeconds)}</Text>
+                                                                    </Group>
+                                                                    {/*<Button size="xs" variant="light" color="gray" onClick={() => handleNavigateToRecord(game.gameId)}>기록</Button>*/}
+                                                                </Group>
+                                                                <Group justify="center" align="flex-start" gap="md">
+                                                                    <Stack gap="xs" align="center">
+                                                                        <Group gap="xs" align="center">
+                                                                            <Text size="xs" fw={600}>{teamNameMap[game.blueTeam.teamName] || game.blueTeam.teamName} <Text component="span" c={winnerSide === 'blue' ? "blue" : "gray.6"} fw={700}>({winnerSide === 'blue' ? '승' : '패'})</Text></Text>
+                                                                        </Group>
+                                                                        <div style={{ display: 'flex', gap: '4px' }}>
+                                                                            {game.blueTeam.players.map((player) => (
+                                                                                <div key={player.playerName} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '40px' }}>
+                                                                                    <Avatar src={getChampionImageUrl(player.championName)} size={32} radius="md" />
+                                                                                    <Text size="xs" mt={2} style={{ textAlign: 'center', width: '100%', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{player.playerName}</Text>
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                    </Stack>
+                                                                    <div style={{ display: 'flex', alignItems: 'center', height: '32px', paddingTop: '16px' }}><Text size="sm" fw={600} c="dimmed">vs</Text></div>
+                                                                    <Stack gap="xs" align="center">
+                                                                        <Group gap="xs" align="center">
+                                                                            <Text size="xs" fw={600}>{teamNameMap[game.redTeam.teamName] || game.redTeam.teamName} <Text component="span" c={winnerSide === 'red' ? "red" : "gray.6"} fw={700}>({winnerSide === 'red' ? '승' : '패'})</Text></Text>
+                                                                        </Group>
+                                                                        <div style={{ display: 'flex', gap: '4px' }}>
+                                                                            {game.redTeam.players.map((player) => (
+                                                                                <div key={player.playerName} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', width: '40px' }}>
+                                                                                    <Avatar src={getChampionImageUrl(player.championName)} size={32} radius="md" />
+                                                                                    <Text size="xs" mt={2} style={{ textAlign: 'center', width: '100%', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{player.playerName}</Text>
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                    </Stack>
+                                                                </Group>
+                                                            </Stack>
+                                                        </Paper>
+                                                    );
+                                                })}
+                                            </Stack>
+                                        ) : null}
+                                    </Collapse>
+                                </Card>
+                            ))
+                        )}
                     </Stack>
                 </Paper>
             </Stack>

@@ -1,24 +1,23 @@
 import React, { useState } from 'react';
 import {
-    Stack,
-    Paper,
-    Title,
-    Group,
-    Text,
-    Card,
-    SimpleGrid,
-    Table,
-    ScrollArea,
-    Select,
-    Badge,
-    Avatar, Box
+    Stack, Paper, Title, Group, Text, Card, SimpleGrid, Table,
+    ScrollArea, Select, Badge, Avatar, Box, SegmentedControl
 } from '@mantine/core';
 import { LineChart } from '@mantine/charts';
 import { IconTrendingUp, IconTrendingDown } from '@tabler/icons-react';
 
+const TIME_SELECTOR_DATA = [
+    { label: '10분', value: '10' },
+    { label: '15분', value: '15' },
+    { label: '20분', value: '20' },
+    { label: '25분', value: '25' },
+];
+
+
 const TimelineAnalysisTab = ({ gameData }) => {
     const [selectedPosition, setSelectedPosition] = useState('전체');
     const [selectedMetric, setSelectedMetric] = useState('gold');
+    const [selectedTime, setSelectedTime] = useState('25');
 
     const positions = ['전체', 'top', 'jungle', 'mid', 'bot', 'support'];
     const metrics = [
@@ -267,26 +266,23 @@ const TimelineAnalysisTab = ({ gameData }) => {
                     <Table striped highlightOnHover>
                         <Table.Thead>
                             <Table.Tr>
-                                <Table.Th>시간</Table.Th>
-                                <Table.Th>팀</Table.Th>
-                                <Table.Th>골드</Table.Th>
-                                <Table.Th>경험치</Table.Th>
-                                <Table.Th>CS</Table.Th>
-                                <Table.Th>킬</Table.Th>
-                                <Table.Th>데스</Table.Th>
-                                <Table.Th>어시스트</Table.Th>
+                                {/* ✨ whiteSpace 스타일 추가 */}
+                                <Table.Th style={{ whiteSpace: 'nowrap' }}>시간</Table.Th>
+                                <Table.Th style={{ whiteSpace: 'nowrap' }}>팀</Table.Th>
+                                <Table.Th style={{ whiteSpace: 'nowrap' }}>골드</Table.Th>
+                                <Table.Th style={{ whiteSpace: 'nowrap' }}>경험치</Table.Th>
+                                <Table.Th style={{ whiteSpace: 'nowrap' }}>CS</Table.Th>
+                                <Table.Th style={{ whiteSpace: 'nowrap' }}>킬</Table.Th>
+                                <Table.Th style={{ whiteSpace: 'nowrap' }}>데스</Table.Th>
+                                <Table.Th style={{ whiteSpace: 'nowrap' }}>어시스트</Table.Th>
                             </Table.Tr>
                         </Table.Thead>
                         <Table.Tbody>
                             {timePoints.map(time => (
                                 <React.Fragment key={time}>
                                     <Table.Tr>
-                                        <Table.Td rowSpan={2} style={{ verticalAlign: 'middle' }}>
-                                            <Text fw={600}>{time}분</Text>
-                                        </Table.Td>
-                                        <Table.Td>
-                                            <Badge color="blue" size="sm">{blueTeamName}</Badge>
-                                        </Table.Td>
+                                        <Table.Td rowSpan={2} style={{ verticalAlign: 'middle' }}><Text fw={600}>{time}분</Text></Table.Td>
+                                        <Table.Td><Badge color="blue" size="sm">{blueTeamName}</Badge></Table.Td>
                                         <Table.Td>{calculateTimelineData(filteredData.blue, 'gold', time).toLocaleString()}</Table.Td>
                                         <Table.Td>{calculateTimelineData(filteredData.blue, 'xp', time).toLocaleString()}</Table.Td>
                                         <Table.Td>{calculateTimelineData(filteredData.blue, 'cs', time)}</Table.Td>
@@ -295,9 +291,7 @@ const TimelineAnalysisTab = ({ gameData }) => {
                                         <Table.Td>{calculateTimelineData(filteredData.blue, 'assists', time)}</Table.Td>
                                     </Table.Tr>
                                     <Table.Tr>
-                                        <Table.Td>
-                                            <Badge color="red" size="sm">{redTeamName}</Badge>
-                                        </Table.Td>
+                                        <Table.Td><Badge color="red" size="sm">{redTeamName}</Badge></Table.Td>
                                         <Table.Td>{calculateTimelineData(filteredData.red, 'gold', time).toLocaleString()}</Table.Td>
                                         <Table.Td>{calculateTimelineData(filteredData.red, 'xp', time).toLocaleString()}</Table.Td>
                                         <Table.Td>{calculateTimelineData(filteredData.red, 'cs', time)}</Table.Td>
@@ -312,20 +306,22 @@ const TimelineAnalysisTab = ({ gameData }) => {
                 </ScrollArea>
             </Paper>
 
-            {/* 포지션별 비교 (전체 선택 시만 표시) */}
+
             {safeSelectedPosition === '전체' && (
                 <Paper p="lg" withBorder>
-                    <Title order={3} mb="md" size={{ base: 'h4', sm: 'h3' }}>포지션별 25분 지표 비교</Title>
-                    <ScrollArea>
+                    <Stack gap="md">
+                        <Title order={3} size={{ base: 'h4', sm: 'h3' }}>포지션별 지표 비교</Title>
+                        <SegmentedControl value={selectedTime} onChange={setSelectedTime} data={TIME_SELECTOR_DATA} color="blue" fullWidth />
+                    </Stack>
+                    <ScrollArea mt="md">
                         <Table striped highlightOnHover>
                             <Table.Thead>
                                 <Table.Tr>
                                     <Table.Th>포지션</Table.Th>
-                                    <Table.Th>선수</Table.Th>
+                                    {/* ✅ '선수' 컬럼 헤더에 최소 너비를 지정합니다. */}
+                                    <Table.Th style={{ minWidth: 130 }}>선수</Table.Th>
                                     <Table.Th>골드</Table.Th>
-                                    <Table.Th>골드 차이</Table.Th>
                                     <Table.Th>CS</Table.Th>
-                                    <Table.Th>CS 차이</Table.Th>
                                     <Table.Th>K/D/A</Table.Th>
                                 </Table.Tr>
                             </Table.Thead>
@@ -333,62 +329,48 @@ const TimelineAnalysisTab = ({ gameData }) => {
                                 {['top', 'jungle', 'mid', 'bot', 'support'].map(pos => {
                                     const bluePlayer = blueTeamPlayers.find(p => p.position === pos);
                                     const redPlayer = redTeamPlayers.find(p => p.position === pos);
+                                    if (!bluePlayer || !redPlayer) return null;
 
-                                    if (!bluePlayer) return null;
+                                    // ... (데이터 키 생성 로직) ...
+                                    const goldKey = `goldat${selectedTime}`;
+                                    const goldDiffKey = `golddiffat${selectedTime}`;
+                                    const csKey = `csat${selectedTime}`;
+                                    const csDiffKey = `csdiffat${selectedTime}`;
+                                    const killsKey = `killsat${selectedTime}`;
+                                    const deathsKey = `deathsat${selectedTime}`;
+                                    const assistsKey = `assistsat${selectedTime}`;
+                                    const blueGoldDiff = bluePlayer[goldDiffKey] || 0;
+                                    const blueCsDiff = bluePlayer[csDiffKey] || 0;
 
                                     return (
                                         <React.Fragment key={pos}>
                                             <Table.Tr>
-                                                <Table.Td rowSpan={2} style={{ verticalAlign: 'middle' }}>
-                                                    <Text fw={600} tt="uppercase">{pos}</Text>
-                                                </Table.Td>
-                                                <Table.Td>
-                                                    <Group gap="xs">
+                                                <Table.Td rowSpan={2} style={{ verticalAlign: 'middle' }}><Text fw={600} tt="uppercase">{pos}</Text></Table.Td>
+
+                                                {/* ✅ white-space 스타일을 유지하여 확실하게 처리합니다. */}
+                                                <Table.Td style={{ whiteSpace: 'nowrap' }}>
+                                                    <Group gap="xs" wrap="nowrap">
                                                         <Avatar src={`https://ddragon.leagueoflegends.com/cdn/14.14.1/img/champion/${bluePlayer.champion}.png`} size={24} />
                                                         <Text size="sm">{bluePlayer.playername}</Text>
                                                     </Group>
                                                 </Table.Td>
-                                                <Table.Td>{(bluePlayer.goldat25 || 0).toLocaleString()}</Table.Td>
-                                                <Table.Td>
-                                                    <Text c={bluePlayer.golddiffat25 > 0 ? "blue" : "red"} fw={600}>
-                                                        {bluePlayer.golddiffat25 > 0 ? '+' : ''}{bluePlayer.golddiffat25 || 0}
-                                                    </Text>
-                                                </Table.Td>
-                                                <Table.Td>{bluePlayer.csat25 || 0}</Table.Td>
-                                                <Table.Td>
-                                                    <Text c={bluePlayer.csdiffat25 > 0 ? "blue" : "red"} fw={600}>
-                                                        {bluePlayer.csdiffat25 > 0 ? '+' : ''}{bluePlayer.csdiffat25 || 0}
-                                                    </Text>
-                                                </Table.Td>
-                                                <Table.Td>
-                                                    {bluePlayer.killsat25 || 0}/{bluePlayer.deathsat25 || 0}/{bluePlayer.assistsat25 || 0}
-                                                </Table.Td>
+
+                                                <Table.Td>{(bluePlayer[goldKey] || 0).toLocaleString()}<Text c={blueGoldDiff >= 0 ? "blue" : "red"} size="xs">({blueGoldDiff >= 0 ? '+' : ''}{blueGoldDiff})</Text></Table.Td>
+                                                <Table.Td>{bluePlayer[csKey] || 0}<Text c={blueCsDiff >= 0 ? "blue" : "red"} size="xs">({blueCsDiff >= 0 ? '+' : ''}{blueCsDiff})</Text></Table.Td>
+                                                <Table.Td>{bluePlayer[killsKey] || 0}/{bluePlayer[deathsKey] || 0}/{bluePlayer[assistsKey] || 0}</Table.Td>
                                             </Table.Tr>
-                                            {redPlayer && (
-                                                <Table.Tr>
-                                                    <Table.Td>
-                                                        <Group gap="xs">
-                                                            <Avatar src={`https://ddragon.leagueoflegends.com/cdn/14.14.1/img/champion/${redPlayer.champion}.png`} size={24} />
-                                                            <Text size="sm">{redPlayer.playername}</Text>
-                                                        </Group>
-                                                    </Table.Td>
-                                                    <Table.Td>{(redPlayer.goldat25 || 0).toLocaleString()}</Table.Td>
-                                                    <Table.Td>
-                                                        <Text c={redPlayer.golddiffat25 < 0 ? "red" : "blue"} fw={600}>
-                                                            {redPlayer.golddiffat25 || 0}
-                                                        </Text>
-                                                    </Table.Td>
-                                                    <Table.Td>{redPlayer.csat25 || 0}</Table.Td>
-                                                    <Table.Td>
-                                                        <Text c={redPlayer.csdiffat25 < 0 ? "red" : "blue"} fw={600}>
-                                                            {redPlayer.csdiffat25 || 0}
-                                                        </Text>
-                                                    </Table.Td>
-                                                    <Table.Td>
-                                                        {redPlayer.killsat25 || 0}/{redPlayer.deathsat25 || 0}/{redPlayer.assistsat25 || 0}
-                                                    </Table.Td>
-                                                </Table.Tr>
-                                            )}
+                                            <Table.Tr>
+                                                <Table.Td style={{ whiteSpace: 'nowrap' }}>
+                                                    <Group gap="xs" wrap="nowrap">
+                                                        <Avatar src={`https://ddragon.leagueoflegends.com/cdn/14.14.1/img/champion/${redPlayer.champion}.png`} size={24} />
+                                                        <Text size="sm">{redPlayer.playername}</Text>
+                                                    </Group>
+                                                </Table.Td>
+
+                                                <Table.Td>{(redPlayer[goldKey] || 0).toLocaleString()}</Table.Td>
+                                                <Table.Td>{redPlayer[csKey] || 0}</Table.Td>
+                                                <Table.Td>{redPlayer[killsKey] || 0}/{redPlayer[deathsKey] || 0}/{redPlayer[assistsKey] || 0}</Table.Td>
+                                            </Table.Tr>
                                         </React.Fragment>
                                     );
                                 })}

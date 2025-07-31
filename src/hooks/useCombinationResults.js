@@ -112,11 +112,11 @@ const fetchCombinationResults = async (selectedChampions, filters, queryClient, 
                     imageUrl: championInfo?.imageUrl || `https://ddragon.leagueoflegends.com/cdn/15.13.1/img/champion/${champName}.png`
                 };
             }).filter(Boolean), // null 값 제거
-            winRate: Math.round((item?.winRate || 0) * 100) / 100,
+            winRate: Math.round((item?.winRate || 0)) / 100,
             wins: item?.winCount || 0,
             losses: item?.lossCount || 0,
             recentGame: item?.latestGameDate || '날짜 없음',
-            recentPatch: (Array.isArray(item?.recentPatches) ? item.recentPatches[0] : null) || '알 수 없음',
+            latestPatch: item.latestPatch || '알 수 없음',
             frequency: item?.frequency || 0,
             matches: []
         }));

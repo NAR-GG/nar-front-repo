@@ -1,5 +1,5 @@
-import React, {useMemo, useState} from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useMemo, useState, useEffect } from 'react'; // ✅ useEffect 추가
+import { useNavigate, useSearchParams } from 'react-router-dom'; // ✅ useSearchParams 추가
 import {
     Container,
     Stack,
@@ -35,20 +35,29 @@ const teamNameMap = {
     'Dn Freecs': 'DNF',
 };
 
-// 헬퍼 함수: 초를 '분:초' 형식으로 변환
 const formatGameTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes}:${String(remainingSeconds).padStart(2, '0')}`;
 };
 
-/* ────────────────────────────── COMPONENT ────────────────────────────── */
 function SchedulePage() {
-    // UI 관련 상태는 컴포넌트에 유지
-    const [selectedDate, setSelectedDate] = useState(new Date());
+    // ✅ 1. URL의 쿼리 파라미터를 읽고 쓸 수 있는 훅을 선언합니다.
+    const [searchParams, setSearchParams] = useSearchParams();
+
+    // ✅ 2. 페이지가 처음 로드될 때 URL에서 날짜를 읽어 초기 상태를 설정합니다.
+    const initializeDate = () => {
+        const dateParam = searchParams.get('date');
+        // URL에 유효한 날짜 값이 있으면 그 날짜로, 없으면 오늘 날짜로 시작합니다.
+        if (dateParam && !isNaN(new Date(dateParam))) {
+            return new Date(dateParam);
+        }
+        return new Date();
+    };
+
+    const [selectedDate, setSelectedDate] = useState(initializeDate);
     const [expandedId, setExpandedId] = useState(null);
 
-    // ✅ 데이터 관련 로직은 커스텀 훅에 위임
     const {
         scheduleData,
         matchDetails,
@@ -61,21 +70,31 @@ function SchedulePage() {
     const navigate = useNavigate();
     const isMobile = useMediaQuery('(max-width: 768px)');
     const dayNames = ['월', '화', '수', '목', '금', '토', '일'];
-    const { data: champions = [], isLoading: championsLoading } = useChampions();
+    const { data: champions = [] } = useChampions();
+
+    // ✅ 3. selectedDate 상태가 변경될 때마다 URL의 쿼리 파라미터를 업데이트합니다.
+    useEffect(() => {
+        // 년, 월, 일을 로컬 시간대 기준으로 가져옵니다.
+        const year = selectedDate.getFullYear();
+        const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+        const day = String(selectedDate.getDate()).padStart(2, '0');
+        const dateString = `${year}-${month}-${day}`; // 'YYYY-MM-DD' 형식 완성
+
+        if (searchParams.get('date') !== dateString) {
+            setSearchParams({ date: dateString });
+        }
+    }, [selectedDate, searchParams, setSearchParams]);
+
 
     const championImageMap = useMemo(() => {
         if (!champions || champions.length === 0) return new Map();
-        // 백엔드에서 정규화된 영문 이름을 키로 사용
         return new Map(champions.map(c => [c.championNameEn, c.imageUrl]));
     }, [champions]);
 
     const getChampionImageUrl = (championName) => {
-        // Map에서 직접 이미지를 찾고, 없으면 기본 이미지 경로 반환 (안전장치)
-        return championImageMap.get(championName) || 'path/to/default/image.png';
+        return championImageMap.get(championName) || `path/to/default/image.png`;
     };
 
-
-    // 주간 날짜 계산 로직
     const getWeek = (d) => {
         const week = [];
         const tmp = new Date(d);
@@ -89,7 +108,6 @@ function SchedulePage() {
     };
     const weekDates = getWeek(selectedDate);
 
-    // 상세 정보 펼치기/접기 핸들러
     const handleToggleExpand = (matchId) => {
         const isCurrentlyExpanded = expandedId === matchId;
         if (!isCurrentlyExpanded) {
@@ -100,15 +118,13 @@ function SchedulePage() {
 
     const handleNavigateToRecord = (gameId) => { navigate(`/record/${gameId}`); };
 
-    /* 렌더링 ----------------------------------------------------------- */
     return (
         <Container size="xl" px={{ base: 12, sm: 24, md: 32 }}>
             <Stack gap="lg" mt="md">
                 <Paper p={{ base: 'md', sm: 'xl' }} withBorder bg="white">
-
-                    {/* ─── 주간 캘린더 ─── */}
                     <Paper p="sm" mb="md" bg="gray.0" radius="sm">
                         <Group justify="space-between" mb="sm">
+                            {/* 날짜 변경 버튼들은 기존과 동일하게 setSelectedDate만 호출하면 됩니다. */}
                             <ActionIcon variant="light" onClick={() => setSelectedDate(new Date(selectedDate.setDate(selectedDate.getDate() - 7)))}><IconChevronLeft size={18} /></ActionIcon>
                             <Group gap="xs">
                                 <IconCalendar size={16} color="var(--mantine-color-blue-6)" />
@@ -135,9 +151,12 @@ function SchedulePage() {
                                 </Flex>
                             </ScrollArea>
                         </Center>
+                        <Text c="dimmed" size="xs" ta="center" mt="xs">
+                            경기 데이터는 실제 경기 종료 후 약 24시간 내에 업데이트됩니다.
+                        </Text>
                     </Paper>
 
-                    {/* ─── 경기 카드 목록 ─── */}
+                    {/* ... (이하 경기 카드 목록 렌더링 코드는 변경 없음) ... */}
                     <Stack gap="sm">
                         {loading ? (
                             <Center p="xl"><Loader /></Center>
@@ -152,86 +171,25 @@ function SchedulePage() {
                                         <Text fw={600} size="sm" c="blue.6" w={{ base: 45, sm: 50 }}>
                                             {m.scheduledTime}
                                         </Text>
-
-                                        {/* 중앙 매치 정보 */}
-                                        {/* Flex 컨테이너 조정 및 내부 Group들의 유연성 확보 */}
-                                        <Flex
-                                            style={{ flex: 1, minWidth: 0, overflow: 'hidden' }} // overflow: 'hidden' 추가하여 내용이 넘칠 때 처리
-                                            justify="center"
-                                            align="center"
-                                            direction="row"
-                                            gap={{ base: 4, sm: 'md' }} // 모바일 간격은 4px로 유지 (팀 이름-스코어)
-                                        >
-                                            {/* 팀 A */}
-                                            <Group
-                                                gap={{ base: 4, sm: 'sm' }} // 팀 이름과 스코어 사이 간격. 모바일에서는 4px, 데스크톱에서는 'sm'
-                                                justify='flex-end'
-                                                // Flex 아이템의 핵심 조정: flex-grow와 flex-shrink는 유지하고, min-width를 auto로 설정하여 유연하게 축소되도록 함
-                                                // 텍스트가 줄바꿈되지 않도록 내부 Text에 whiteSpace: 'nowrap' 유지
-                                                style={{
-                                                    flex: '1 1 auto', // flex-grow 1, flex-shrink 1, flex-basis auto
-                                                    minWidth: 0, // Flex 아이템이 내용물보다 작아질 수 있도록 허용 (overflow: hidden과 함께 사용)
-                                                    overflow: 'hidden' // 내용이 넘치면 잘라내기
-                                                }}
-                                            >
-                                                <Text
-                                                    fw={700}
-                                                    size={{ base: 'md', sm: 'lg' }}
-                                                    style={{
-                                                        whiteSpace: 'nowrap',
-                                                        overflow: 'hidden',
-                                                        textOverflow: 'ellipsis', // 텍스트가 넘치면 ... 표시
-                                                        textAlign: 'right' // 팀 이름이 왼쪽에 붙도록
-                                                    }}
-                                                >
+                                        <Flex style={{ flex: 1, minWidth: 0, overflow: 'hidden' }} justify="center" align="center" direction="row" gap={{ base: 4, sm: 'md' }}>
+                                            <Group gap={{ base: 4, sm: 'sm' }} justify='flex-end' style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden' }}>
+                                                <Text fw={700} size={{ base: 'md', sm: 'lg' }} style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'right' }}>
                                                     {teamNameMap[m.teamA.teamName] || m.teamA.teamName}
                                                 </Text>
-                                                <Text
-                                                    fw={700}
-                                                    size={{ base: 'md', sm: 'lg' }}
-                                                    c={m.teamA.score > m.teamB.score ? 'black' : 'gray.5'}
-                                                    style={{ whiteSpace: 'nowrap', flexShrink: 0 }} // 스코어는 절대 줄어들지 않음
-                                                >
+                                                <Text fw={700} size={{ base: 'md', sm: 'lg' }} c={m.teamA.score > m.teamB.score ? 'black' : 'gray.5'} style={{ whiteSpace: 'nowrap', flexShrink: 0 }}>
                                                     {m.teamA.score}
                                                 </Text>
                                             </Group>
-
                                             <Text fw={500} c="gray.6" size="xs" px="xs" style={{ whiteSpace: 'nowrap', flexShrink: 0 }}>VS</Text>
-
-                                            {/* 팀 B */}
-                                            <Group
-                                                gap={{ base: 4, sm: 'sm' }} // 팀 이름과 스코어 사이 간격
-                                                justify='flex-start'
-                                                style={{
-                                                    flex: '1 1 auto', // flex-grow 1, flex-shrink 1, flex-basis auto
-                                                    minWidth: 0,
-                                                    overflow: 'hidden'
-                                                }}
-                                            >
-                                                <Text
-                                                    fw={700}
-                                                    size={{ base: 'md', sm: 'lg' }}
-                                                    c={m.teamB.score > m.teamA.score ? 'black' : 'gray.5'}
-                                                    style={{ whiteSpace: 'nowrap', flexShrink: 0 }} // 스코어는 절대 줄어들지 않음
-                                                >
+                                            <Group gap={{ base: 4, sm: 'sm' }} justify='flex-start' style={{ flex: '1 1 auto', minWidth: 0, overflow: 'hidden' }}>
+                                                <Text fw={700} size={{ base: 'md', sm: 'lg' }} c={m.teamB.score > m.teamA.score ? 'black' : 'gray.5'} style={{ whiteSpace: 'nowrap', flexShrink: 0 }}>
                                                     {m.teamB.score}
                                                 </Text>
-                                                <Text
-                                                    fw={700}
-                                                    size={{ base: 'md', sm: 'lg' }}
-                                                    style={{
-                                                        whiteSpace: 'nowrap',
-                                                        overflow: 'hidden',
-                                                        textOverflow: 'ellipsis', // 텍스트가 넘치면 ... 표시
-                                                        textAlign: 'left' // 팀 이름이 오른쪽에 붙도록
-                                                    }}
-                                                >
+                                                <Text fw={700} size={{ base: 'md', sm: 'lg' }} style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', textAlign: 'left' }}>
                                                     {teamNameMap[m.teamB.teamName] || m.teamB.teamName}
                                                 </Text>
                                             </Group>
                                         </Flex>
-
-                                        {/* ✨ isMobile 값에 따라 버튼 또는 아이콘을 조건부 렌더링 */}
                                         {isMobile ? (
                                             <ActionIcon variant="light" color="gray" onClick={() => handleToggleExpand(m.matchId)}>
                                                 <IconChevronDown size={18} />
@@ -242,7 +200,6 @@ function SchedulePage() {
                                             </Button>
                                         )}
                                     </Group>
-
                                     <Collapse in={expandedId === m.matchId}>
                                         {detailLoading[m.matchId] ? (
                                             <Center p="md"><Loader size="sm" /></Center>

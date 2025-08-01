@@ -1,9 +1,6 @@
 // src/components/game-record/PlayerStatsTable.jsx
 import { Table, ScrollArea, Group, Avatar, Stack, Text, Badge } from '@mantine/core';
 
-// --- 헬퍼 함수들 (기존과 동일) ---
-const getChampionImageUrl = (championName) => `https://ddragon.leagueoflegends.com/cdn/14.14.1/img/champion/${championName}.png`;
-
 const calculateKP = (kills, assists, teamKills) => {
     if (teamKills === 0) return '0%';
     return `${Math.round(((kills + assists) / teamKills) * 100)}%`;
@@ -15,25 +12,25 @@ const renderKeyRecords = (player) => {
     const badgeProps = { variant: "light", size: "sm", radius: "xs" };
 
     // '퍼블 당함' 기록 (부정적 지표이므로 다른 스타일 적용)
-    if (player.firstbloodvictim) {
+    if (player.isFirstBloodVictim) {
         records.push(<Badge key="fbv" color="gray" variant="filled" {...badgeProps}>퍼블 당함</Badge>);
     }
     // '퍼블' 기록
-    if (player.firstbloodkill) {
+    if (player.isFirstBloodKill) {
         records.push(<Badge key="fbk" color="gray" {...badgeProps}>퍼블</Badge>);
     }
     // 멀티킬 기록 (x2, x3 형식으로 변경)
-    if (player.doublekills > 0) {
-        records.push(<Badge key="double" color="gray" {...badgeProps}>더블킬 x{player.doublekills}</Badge>);
+    if (player.doubleKills > 0) {
+        records.push(<Badge key="double" color="gray" {...badgeProps}>더블킬 x{player.doubleKills}</Badge>);
     }
-    if (player.triplekills > 0) {
-        records.push(<Badge key="triple" color="gray" {...badgeProps}>트리플킬 x{player.triplekills}</Badge>);
+    if (player.tripleKills > 0) {
+        records.push(<Badge key="triple" color="gray" {...badgeProps}>트리플킬 x{player.tripleKills}</Badge>);
     }
-    if (player.quadrakills > 0) {
-        records.push(<Badge key="quadra" color="gray" {...badgeProps}>쿼드라킬 x{player.quadrakills}</Badge>);
+    if (player.quadraKills > 0) {
+        records.push(<Badge key="quadra" color="gray" {...badgeProps}>쿼드라킬 x{player.quadraKills}</Badge>);
     }
-    if (player.pentakills > 0) {
-        records.push(<Badge key="penta" color="gray" {...badgeProps}>펜타킬 x{player.pentakills}</Badge>);
+    if (player.pentaKills > 0) {
+        records.push(<Badge key="penta" color="gray" {...badgeProps}>펜타킬 x{player.pentaKills}</Badge>);
     }
 
     if (records.length === 0) {
@@ -45,7 +42,7 @@ const renderKeyRecords = (player) => {
 
 
 // --- PlayerStatsTable 컴포넌트 (기존과 동일) ---
-const PlayerStatsTable = ({ players, teamKills, gameLengthInMin }) => (
+const PlayerStatsTable = ({ players, teamKills, gameLengthInMin, getChampionImageUrl }) => (
     <ScrollArea>
         <Table striped highlightOnHover miw={700}>
             <Table.Thead>
@@ -80,22 +77,22 @@ const PlayerStatsTable = ({ players, teamKills, gameLengthInMin }) => (
                         </Table.Td>
                         <Table.Td>
                             <Stack gap={0}>
-                                <Text size="sm">{(p.damagetochampions / 1000).toFixed(1)}K</Text>
+                                <Text size="sm">{(p.damageToChampions / 1000).toFixed(1)}K</Text>
                                 <Text size="xs" c="dimmed">{p.dpm}</Text>
                             </Stack>
                         </Table.Td>
                         <Table.Td>
                             <Stack gap={0}>
-                                <Text size="sm">{p.totalcs}</Text>
+                                <Text size="sm">{p.totalCs}</Text>
                                 <Text size="xs" c="dimmed">{p.cspm.toFixed(1)}</Text>
                             </Stack>
                         </Table.Td>
                         <Table.Td visibleFrom="sm">
-                            <Text size="sm">{(p.totalgold / 1000).toFixed(1)}K</Text>
+                            <Text size="sm">{(p.totalGold / 1000).toFixed(1)}K</Text>
                         </Table.Td>
                         <Table.Td visibleFrom="sm">
                             <Stack gap={0}>
-                                <Text size="sm">{p.visionscore}</Text>
+                                <Text size="sm">{p.visionScore}</Text>
                                 <Text size="xs" c="dimmed">{p.vspm.toFixed(1)}</Text>
                             </Stack>
                         </Table.Td>

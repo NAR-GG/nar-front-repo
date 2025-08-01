@@ -258,7 +258,7 @@ function SchedulePage() {
                                                                         <Text fw={600} size="sm">Game {game.gameNumber}</Text>
                                                                         <Text size="xs" c="dimmed">{formatGameTime(game.gameLengthSeconds)}</Text>
                                                                     </Group>
-                                                                    {/*<Button size="xs" variant="light" color="gray" onClick={() => handleNavigateToRecord(game.gameId)}>기록</Button>*/}
+                                                                    <Button size="xs" variant="light" color="gray" onClick={() => handleNavigateToRecord(game.id)}>기록</Button>
                                                                 </Group>
                                                                 <Group justify="center" align="flex-start" gap="md">
                                                                     <Stack gap="xs" align="center">

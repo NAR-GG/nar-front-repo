@@ -19,10 +19,12 @@ const Header = () => {
 
     // 현재 경로에 따라 활성 탭 결정
     const getActiveTab = () => {
-        if (location.pathname === '/schedule' || location.pathname.startsWith('/schedule')) {
+        const { pathname } = location;
+        // '/schedule' 또는 '/record'로 시작하는 모든 경로를 'schedule' 탭으로 인식
+        if (pathname.startsWith('/schedule') || pathname.startsWith('/record')) {
             return 'schedule';
         }
-        return 'combination'; // 기본값은 조합 페이지
+        return 'combination';
     };
 
     const handleTabChange = (value) => {

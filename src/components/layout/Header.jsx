@@ -20,9 +20,11 @@ const Header = () => {
     // 현재 경로에 따라 활성 탭 결정
     const getActiveTab = () => {
         const { pathname } = location;
-        // '/schedule' 또는 '/record'로 시작하는 모든 경로를 'schedule' 탭으로 인식
         if (pathname.startsWith('/schedule') || pathname.startsWith('/record')) {
             return 'schedule';
+        }
+        if (pathname.startsWith('/games')) {
+            return 'games';
         }
         return 'combination';
     };
@@ -32,6 +34,8 @@ const Header = () => {
             navigate('/');
         } else if (value === 'schedule') {
             navigate('/schedule');
+        } else if (value === 'games'){
+            navigate('/games');
         }
     };
 
@@ -125,6 +129,21 @@ const Header = () => {
                             onClick={() => handleTabChange('schedule')}
                         >
                             LCK 일정
+                        </Text>
+                        <Text
+                            size="sm"
+                            fw={getActiveTab() === 'games' ? 700 : 400}
+                            style={{
+                                color: getActiveTab() === 'games' ? '#ffffff' : 'rgba(255, 255, 255, 0.6)',
+                                cursor: 'pointer',
+                                padding: '8px 0',
+                                borderBottom: getActiveTab() === 'games' ? '2px solid white' : '2px solid transparent',
+                                transition: 'all 0.2s ease',
+                                fontSize: '15px'
+                            }}
+                            onClick={() => handleTabChange('games')}
+                        >
+                            경기 리스트
                         </Text>
                     </Group>
                 </div>

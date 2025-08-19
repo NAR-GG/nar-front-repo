@@ -9,6 +9,7 @@ import CombinationResultPage from "./pages/CombinationResultPage";
 import SchedulePage from "./pages/SchedulePage";
 import GameRecordPage from "./pages/GameRecordPage";
 import MatchupPage from "./pages/MatchupPage";
+import MatchListPage from "./pages/MatchListPage";
 
 const theme = createTheme({
     breakpoints: {
@@ -44,6 +45,7 @@ function App() {
                             <Route path="/schedule" element={<SchedulePage />} />
                             <Route path="/matchup" element={<MatchupPage />} />
                             <Route path="/record/:gameId" element={<GameRecordPage />} />
+                            <Route path="/games" element={<MatchListPage />} />
                         </Routes>
                     </Layout>
                 </BrowserRouter>

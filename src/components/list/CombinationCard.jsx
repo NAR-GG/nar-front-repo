@@ -13,7 +13,7 @@ const CombinationCard = ({ combination, isExpanded, onToggle, selectedChampions 
         wins = 0,
         losses = 0,
         recentGame = '',
-        recentPatch = ''
+        latestPatch = ''
     } = combination;
 
     const totalGames = wins + losses;
@@ -130,7 +130,7 @@ const CombinationCard = ({ combination, isExpanded, onToggle, selectedChampions 
                             최근: {recentGame}
                         </Text>
                         <Text size="xs" c="dimmed">
-                            패치: {recentPatch}
+                            패치: {latestPatch}
                         </Text>
                     </Group>
                 </>
@@ -211,7 +211,7 @@ const CombinationCard = ({ combination, isExpanded, onToggle, selectedChampions 
                                 최근: {recentGame}
                             </Text>
                             <Text size="xs" c="dimmed">
-                                패치: {recentPatch}
+                                패치: {latestPatch}
                             </Text>
                         </Group>
                     </Group>

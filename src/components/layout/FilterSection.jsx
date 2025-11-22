@@ -1,10 +1,24 @@
 import React, {useState, useEffect, useMemo, useCallback} from 'react';
-import {Paper, Group, Button, Text, Stack, Box, Divider, Checkbox, Popover, TextInput, ScrollArea} from '@mantine/core';
-import { IconSearch, IconX, IconChevronDown } from '@tabler/icons-react';
+import {
+    Paper,
+    Group,
+    Button,
+    Text,
+    Stack,
+    Box,
+    Divider,
+    Checkbox,
+    Popover,
+    TextInput,
+    ScrollArea,
+    SegmentedControl, // 추가
+    Flex // 추가
+} from '@mantine/core';
+import { IconSearch, IconX, IconChevronDown } from '@tabler/icons-react'; // 아이콘 추가
 import { useMediaQuery } from '@mantine/hooks';
 
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL;
-// 커스텀 MultiSelect 컴포넌트
+
 const CustomMultiSelect = ({ label, placeholder, data, value = [], onChange, disabled = false }) => {
     const [opened, setOpened] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
@@ -162,11 +176,24 @@ const CustomMultiSelect = ({ label, placeholder, data, value = [], onChange, dis
     );
 };
 
-const FilterSection = ({ filters, onFiltersChange, selectedChampions, onCombinationSearch, currentMode }) => {
+
+const FilterSection = ({
+                           filters,
+                           onFiltersChange,
+                           // 조합 검색 페이지용 props
+                           selectedChampions,
+                           onCombinationSearch,
+                           currentMode,
+                           // 재사용성을 위한 props
+                           isSearchable = true, // 검색 버튼/챔피언 수 표시 여부 (기본값 true)
+                           sort,                 // 정렬 상태 ('DESC' 또는 'ASC')
+                           onSortChange          // 정렬 상태 변경 함수
+                       }) => {
     const isMobile = useMediaQuery('(max-width: 768px)');
     const [categoryData, setCategoryData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
 
+    // ... (내부 함수 getButtonText, getSelectedCountText, useEffect, useMemo, useCallback 등은 모두 기존 코드와 동일) ...
     const getButtonText = () => {
         return currentMode === '1v1' ? '매치업 보기' : '조합 보기';
     };
@@ -199,7 +226,6 @@ const FilterSection = ({ filters, onFiltersChange, selectedChampions, onCombinat
         fetchCategoryData();
     }, []);
 
-    // 🔥 리그 옵션 생성
     const leagueOptions = useMemo(() => {
         if (!categoryData) return [];
 
@@ -212,7 +238,6 @@ const FilterSection = ({ filters, onFiltersChange, selectedChampions, onCombinat
         }));
     }, [categoryData]);
 
-    // 🔥 스플릿 옵션 생성 (선택된 리그들의 스플릿 합집합)
     const splitOptions = useMemo(() => {
         if (!categoryData || !filters.leagueNames || filters.leagueNames.length === 0) {
             return [];
@@ -253,7 +278,6 @@ const FilterSection = ({ filters, onFiltersChange, selectedChampions, onCombinat
             filters.leagueNames.includes(l.name)
         );
 
-        // 🔥 빈 스플릿 이름 제외 조건 제거
         const relevantSplits = selectedLeagues.flatMap(league =>
             league.splits.filter(split => {
                 // 스플릿 필터가 없으면 모든 스플릿 포함
@@ -285,7 +309,6 @@ const FilterSection = ({ filters, onFiltersChange, selectedChampions, onCombinat
     const handleFilterChange = useCallback((field, value) => {
         const newFilters = { ...filters, [field]: value };
 
-        // 🔥 리그 변경 시 유효하지 않은 스플릿과 팀 필터 정리
         if (field === 'leagueNames') {
             // 현재 선택된 리그들에 없는 스플릿 제거
             if (newFilters.splitNames && newFilters.splitNames.length > 0) {
@@ -332,7 +355,6 @@ const FilterSection = ({ filters, onFiltersChange, selectedChampions, onCombinat
             }
         }
 
-        // 🔥 스플릿 변경 시 유효하지 않은 팀 필터 정리
         if (field === 'splitNames') {
             if (newFilters.teamNames && newFilters.teamNames.length > 0) {
                 const season2025 = categoryData?.seasons.find(s => s.year === 2025);
@@ -376,6 +398,18 @@ const FilterSection = ({ filters, onFiltersChange, selectedChampions, onCombinat
         }
     }, [filters, handleFilterChange]);
 
+    const sortControl = (
+        <SegmentedControl
+            value={sort}
+            onChange={onSortChange}
+            data={[
+                { label: <Group gap="xs" wrap="nowrap"><Text size="sm">최신순</Text></Group>, value: 'DESC' },
+                { label: <Group gap="xs" wrap="nowrap"><Text size="sm">오래된순</Text></Group>, value: 'ASC' },
+            ]}
+        />
+    );
+
+
     const tagStyle = {
         display: 'inline-flex',
         alignItems: 'center',
@@ -398,8 +432,6 @@ const FilterSection = ({ filters, onFiltersChange, selectedChampions, onCombinat
             default: return { backgroundColor: '#f5f5f5', color: '#666' };
         }
     };
-
-    // 로딩 중일 때
     if (isLoading) {
         return (
             <Paper p="md" withBorder radius="md">
@@ -413,199 +445,92 @@ const FilterSection = ({ filters, onFiltersChange, selectedChampions, onCombinat
     return (
         <Paper p="md" withBorder radius="md">
             {isMobile ? (
+                // 모바일 레이아웃
                 <Stack gap="md">
                     <Group grow>
-                        <CustomMultiSelect
-                            label="시즌"
-                            placeholder="시즌"
-                            data={[]}
-                            value={[]}
-                            disabled
-                        />
-                        <CustomMultiSelect
-                            label="리그"
-                            placeholder="리그를 선택하세요"
-                            data={leagueOptions}
-                            value={filters.leagueNames || []}
-                            onChange={(value) => handleFilterChange('leagueNames', value)}
-                        />
+                        <CustomMultiSelect label="시즌" placeholder="시즌" data={[]} value={[]} disabled />
+                        <CustomMultiSelect label="리그" placeholder="리그를 선택하세요" data={leagueOptions} value={filters.leagueNames || []} onChange={(value) => handleFilterChange('leagueNames', value)} />
                     </Group>
-
                     <Group grow>
-                        <CustomMultiSelect
-                            label="스플릿"
-                            placeholder="스플릿을 선택하세요"
-                            data={splitOptions}
-                            value={filters.splitNames || []}
-                            onChange={(value) => handleFilterChange('splitNames', value)}
-                            disabled={!filters.leagueNames || filters.leagueNames.length === 0}
-                        />
-                        <CustomMultiSelect
-                            label="팀"
-                            placeholder="팀을 선택하세요"
-                            data={teamOptions}
-                            value={filters.teamNames || []}
-                            onChange={(value) => handleFilterChange('teamNames', value)}
-                            disabled={!filters.leagueNames || filters.leagueNames.length === 0}
-                        />
+                        <CustomMultiSelect label="스플릿" placeholder="스플릿을 선택하세요" data={splitOptions} value={filters.splitNames || []} onChange={(value) => handleFilterChange('splitNames', value)} disabled={!filters.leagueNames || filters.leagueNames.length === 0} />
+                        <CustomMultiSelect label="팀" placeholder="팀을 선택하세요" data={teamOptions} value={filters.teamNames || []} onChange={(value) => handleFilterChange('teamNames', value)} disabled={!filters.leagueNames || filters.leagueNames.length === 0} />
                     </Group>
 
-                    <Group justify="flex-end" gap="md" align="center">
-                        <Text size="sm" c="dimmed">
-                            {getSelectedCountText()}
-                        </Text>
-                        <Button
-                            leftSection={<IconSearch size={16} />}
-                            onClick={onCombinationSearch}
-                            disabled={selectedChampions.length === 0}
-                        >
-                            {getButtonText()}
-                        </Button>
-                    </Group>
+                    <Flex justify="flex-end">
+                        {isSearchable ? (
+                            <Group gap="md" align="center">
+                                <Text size="sm" c="dimmed">{getSelectedCountText()}</Text>
+                                <Button leftSection={<IconSearch size={16} />} onClick={onCombinationSearch} disabled={selectedChampions.length === 0}>
+                                    {getButtonText()}
+                                </Button>
+                            </Group>
+                        ) : (
+                            sortControl
+                        )}
+                    </Flex>
                 </Stack>
             ) : (
+                // 데스크탑 레이아웃
                 <Group justify="space-between" align="end">
                     <Group gap="md">
-                        <Box style={{ width: 120 }}>
-                            <CustomMultiSelect
-                                label="시즌"
-                                placeholder="시즌"
-                                data={[]}
-                                value={[]}
-                                disabled
-                            />
-                        </Box>
-
-                        <Box style={{ width: 150 }}>
-                            <CustomMultiSelect
-                                label="리그"
-                                placeholder="리그를 선택하세요"
-                                data={leagueOptions}
-                                value={filters.leagueNames || []}
-                                onChange={(value) => handleFilterChange('leagueNames', value)}
-                            />
-                        </Box>
-
-                        <Box style={{ width: 150 }}>
-                            <CustomMultiSelect
-                                label="스플릿"
-                                placeholder="스플릿을 선택하세요"
-                                data={splitOptions}
-                                value={filters.splitNames || []}
-                                onChange={(value) => handleFilterChange('splitNames', value)}
-                                disabled={!filters.leagueNames || filters.leagueNames.length === 0}
-                            />
-                        </Box>
-
-                        <Box style={{ width: 150 }}>
-                            <CustomMultiSelect
-                                label="팀"
-                                placeholder="팀을 선택하세요"
-                                data={teamOptions}
-                                value={filters.teamNames || []}
-                                onChange={(value) => handleFilterChange('teamNames', value)}
-                                disabled={!filters.leagueNames || filters.leagueNames.length === 0}
-                            />
-                        </Box>
+                        <Box style={{ width: 120 }}><CustomMultiSelect label="시즌" placeholder="시즌" data={[]} value={[]} disabled /></Box>
+                        <Box style={{ width: 150 }}><CustomMultiSelect label="리그" placeholder="리그를 선택하세요" data={leagueOptions} value={filters.leagueNames || []} onChange={(value) => handleFilterChange('leagueNames', value)} /></Box>
+                        <Box style={{ width: 150 }}><CustomMultiSelect label="스플릿" placeholder="스플릿을 선택하세요" data={splitOptions} value={filters.splitNames || []} onChange={(value) => handleFilterChange('splitNames', value)} disabled={!filters.leagueNames || filters.leagueNames.length === 0} /></Box>
+                        <Box style={{ width: 150 }}><CustomMultiSelect label="팀" placeholder="팀을 선택하세요" data={teamOptions} value={filters.teamNames || []} onChange={(value) => handleFilterChange('teamNames', value)} disabled={!filters.leagueNames || filters.leagueNames.length === 0} /></Box>
                     </Group>
 
-                    <Group gap="md" align="center">
-                        <Text size="sm" c="dimmed">
-                            {getSelectedCountText()}
-                        </Text>
-                        <Button
-                            leftSection={<IconSearch size={16} />}
-                            onClick={onCombinationSearch}
-                            disabled={selectedChampions.length === 0}
-                        >
-                            {getButtonText()}
-                        </Button>
-                    </Group>
+                    {isSearchable ? (
+                        <Group gap="md" align="center">
+                            <Text size="sm" c="dimmed">{getSelectedCountText()}</Text>
+                            <Button leftSection={<IconSearch size={16} />} onClick={onCombinationSearch} disabled={selectedChampions.length === 0}>
+                                {getButtonText()}
+                            </Button>
+                        </Group>
+                    ) : (
+                        sortControl
+                    )}
                 </Group>
             )}
 
             {/* 선택된 필터 태그 표시 */}
-            {((filters.leagueNames && filters.leagueNames.length > 0) ||
-                (filters.splitNames && filters.splitNames.length > 0) ||
-                (filters.teamNames && filters.teamNames.length > 0)) && (
+            {((filters.leagueNames?.length > 0) || (filters.splitNames?.length > 0) || (filters.teamNames?.length > 0)) && (
                 <>
                     <Divider my="md" />
                     <Group gap="xs" style={{ flexWrap: 'wrap' }}>
                         {filters.leagueNames?.map(league => (
                             <Box
                                 key={`league-${league}`}
-                                style={{
-                                    ...tagStyle,
-                                    ...getTagColor('league'),
-                                    '&:hover': {
-                                        opacity: 0.8
-                                    }
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.target.style.opacity = '0.8';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.target.style.opacity = '1';
-                                }}
+                                component="button"
+                                style={{ ...tagStyle, ...getTagColor('league') }}
+                                sx={{ '&:hover': { opacity: 0.8 } }}
+                                onClick={() => removeTag('league', league)}
                             >
                                 <Text size="xs">리그: {league}</Text>
-                                <IconX
-                                    size={14}
-                                    style={{ cursor: 'pointer' }}
-                                    onClick={() => removeTag('league', league)}
-                                />
+                                <IconX size={14} style={{ pointerEvents: 'none' }}/>
                             </Box>
                         ))}
-
                         {filters.splitNames?.map(split => (
                             <Box
                                 key={`split-${split}`}
-                                style={{
-                                    ...tagStyle,
-                                    ...getTagColor('split'),
-                                    '&:hover': {
-                                        opacity: 0.8
-                                    }
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.target.style.opacity = '0.8';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.target.style.opacity = '1';
-                                }}
+                                component="button"
+                                style={{ ...tagStyle, ...getTagColor('split') }}
+                                sx={{ '&:hover': { opacity: 0.8 } }}
+                                onClick={() => removeTag('split', split)}
                             >
                                 <Text size="xs">스플릿: {split}</Text>
-                                <IconX
-                                    size={14}
-                                    style={{ cursor: 'pointer' }}
-                                    onClick={() => removeTag('split', split)}
-                                />
+                                <IconX size={14} style={{ pointerEvents: 'none' }}/>
                             </Box>
                         ))}
-
                         {filters.teamNames?.map(team => (
                             <Box
                                 key={`team-${team}`}
-                                style={{
-                                    ...tagStyle,
-                                    ...getTagColor('team'),
-                                    '&:hover': {
-                                        opacity: 0.8
-                                    }
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.target.style.opacity = '0.8';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.target.style.opacity = '1';
-                                }}
+                                component="button"
+                                style={{ ...tagStyle, ...getTagColor('team') }}
+                                sx={{ '&:hover': { opacity: 0.8 } }}
+                                onClick={() => removeTag('team', team)}
                             >
                                 <Text size="xs">팀: {team}</Text>
-                                <IconX
-                                    size={14}
-                                    style={{ cursor: 'pointer' }}
-                                    onClick={() => removeTag('team', team)}
-                                />
+                                <IconX size={14} style={{ pointerEvents: 'none' }}/>
                             </Box>
                         ))}
                     </Group>

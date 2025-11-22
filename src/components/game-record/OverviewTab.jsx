@@ -3,7 +3,10 @@ import { Stack, Paper, Title } from '@mantine/core';
 import StatComparisonBar from './StatComparisonBar';
 
 const OverviewTab = ({ blueTeam, redTeam }) => {
-    const formatK = (v) => `${(v / 1000).toFixed(1)}K`;
+    // 데이터가 없는 경우를 대비한 방어 코드
+    if (!blueTeam?.stats || !redTeam?.stats) return null;
+
+    const formatK = (v) => `${((v || 0) / 1000).toFixed(1)}K`;
 
     const teamStats = [
         { label: '킬', blue: blueTeam.stats.kills, red: redTeam.stats.kills },
@@ -13,20 +16,19 @@ const OverviewTab = ({ blueTeam, redTeam }) => {
     ];
 
     const objectiveStats = [
-        // ✅ BUG FIX: 레드팀 조건을 올바르게 수정 (blueTeam -> redTeam)
         { label: '드래곤', blue: blueTeam.stats.dragons, red: redTeam.stats.dragons, first: blueTeam.stats.firstDragon ? 'blue' : (redTeam.stats.firstDragon ? 'red' : null) },
         { label: '바론', blue: blueTeam.stats.barons, red: redTeam.stats.barons, first: blueTeam.stats.firstBaron ? 'blue' : (redTeam.stats.firstBaron ? 'red' : null) },
         { label: '전령', blue: blueTeam.stats.heralds, red: redTeam.stats.heralds, first: blueTeam.stats.firstHerald ? 'blue' : (redTeam.stats.firstHerald ? 'red' : null) },
         { label: '타워', blue: blueTeam.stats.towers, red: redTeam.stats.towers, first: blueTeam.stats.firstTower ? 'blue' : (redTeam.stats.firstTower ? 'red' : null) },
         { label: '억제기', blue: blueTeam.stats.inhibitors, red: redTeam.stats.inhibitors },
-        { label: '공허 유충', blue: blueTeam.stats.void_grubs, red: redTeam.stats.void_grubs },
+        { label: '공허 유충', blue: blueTeam.stats.voidGrubs, red: redTeam.stats.voidGrubs },
     ];
 
     return (
         <Stack gap="lg" mt="lg">
-            <Paper p="lg" withBorder radius="md">
+            <Paper p={{ base: 'md', sm: 'lg' }} withBorder radius="sm">
                 <Title order={3} mb="lg" ta="center">팀 스탯 비교</Title>
-                <Stack gap="xl">
+                <Stack gap={{ base: 'md', sm: 'xl' }}>
                     {teamStats.map(stat => (
                         <StatComparisonBar
                             key={stat.label}
@@ -39,9 +41,9 @@ const OverviewTab = ({ blueTeam, redTeam }) => {
                 </Stack>
             </Paper>
 
-            <Paper p="lg" withBorder radius="md">
-                <Title order={3} mb="lg" ta="center">오브젝트 현황</Title>
-                <Stack gap="xl">
+            <Paper p={{ base: 'md', sm: 'lg' }} withBorder radius="sm">
+                <Title order={3} mb="lg" ta="center">오브젝트 관리</Title>
+                <Stack gap={{ base: 'md', sm: 'xl' }}>
                     {objectiveStats.map(obj => (
                         <StatComparisonBar
                             key={obj.label}

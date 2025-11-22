@@ -2,6 +2,7 @@ import React from 'react';
 import { Stack, Container } from '@mantine/core';
 import Header from './Header';
 import Footer from './Footer';
+import KakaoAdFit from '../ads/KakaoAdFit'; // 1. 광고 컴포넌트 불러오기
 
 const Layout = ({ children }) => {
     return (
@@ -11,17 +12,23 @@ const Layout = ({ children }) => {
         >
             <Header />
 
+            {/* ===== 2. 여기에 광고 컴포넌트 추가 ===== */}
+            <KakaoAdFit
+                adUnit="DAN-S0LZlpjW3VDOjjia" // 본인의 광고 단위 ID
+                adWidth="728"
+                adHeight="90"
+            />
+
             <main style={{
                 flex: 1,
                 backgroundColor: '#f8f9fa',
                 paddingTop: '2rem',
                 paddingBottom: '2rem'
             }}>
-                {/* 전체 프로젝트 최대 너비 통일 */}
                 <Container
-                    size="lg"  // xl에서 lg로 변경
+                    size="lg"
                     px={{ base: 16, sm: 24, md: 32 }}
-                    style={{ maxWidth: '1200px' }}  // 최대 너비 제한
+                    style={{ maxWidth: '1200px' }}
                 >
                     {children}
                 </Container>

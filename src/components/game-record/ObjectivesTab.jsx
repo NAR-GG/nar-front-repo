@@ -26,7 +26,7 @@ const ObjectivesTab = ({ blueTeam, redTeam }) => {
         { label: '전령', blue: blueTeam.stats.heralds, red: redTeam.stats.heralds },
         { label: '바론', blue: blueTeam.stats.barons, red: redTeam.stats.barons },
         { label: '장로', blue: blueTeam.stats.elders, red: redTeam.stats.elders },
-        { label: '공허 유충', blue: blueTeam.stats.void_grubs, red: redTeam.stats.void_grubs },
+        { label: '공허 유충', blue: blueTeam.stats.voidGrubs, red: redTeam.stats.voidGrubs },
     ];
 
     const elementalDrakes = [

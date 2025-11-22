@@ -2,8 +2,14 @@
 import React from 'react';
 import { Paper, Stack, Group, Text, Divider, Flex, Avatar, Center, Box } from '@mantine/core';
 
+// 헬퍼 함수들은 그대로 둡니다.
+const getChampionImageUrl = (championName) => {
+    const nameMap = { 'Wukong': 'MonkeyKing' };
+    const finalName = nameMap[championName] || championName;
+    return `https://ddragon.leagueoflegends.com/cdn/14.14.1/img/champion/${finalName}.png`;
+};
+
 const formatTime = (seconds) => {
-    if (typeof seconds !== 'number' || isNaN(seconds)) return '0:00';
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;

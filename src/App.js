@@ -11,10 +11,7 @@ import GameRecordPage from "./pages/GameRecordPage";
 import MatchupPage from "./pages/MatchupPage";
 import MatchListPage from "./pages/MatchListPage";
 import YoutubeStories from "./pages/YoutubeStoriesPage";
-<<<<<<< HEAD
 import { DiscordFloatingButton } from "./components/discord/DiscordFloatingButton";
-=======
->>>>>>> 5eb8202 (feat: 유튜브 스토리 페이지 마크업 추가)
 
 const theme = createTheme({
   breakpoints: {
@@ -54,10 +51,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <MantineProvider theme={theme}>
         <BrowserRouter>
-<<<<<<< HEAD
           <DiscordFloatingButton />
-=======
->>>>>>> 5eb8202 (feat: 유튜브 스토리 페이지 마크업 추가)
           <Layout>
             <Routes>
               <Route path="/" element={<HomePage />} />

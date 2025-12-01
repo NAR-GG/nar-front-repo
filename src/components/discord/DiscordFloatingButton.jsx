@@ -60,8 +60,12 @@ export function DiscordFloatingButton() {
         size={60}
         radius="xl"
         variant="filled"
+<<<<<<< HEAD
         component="a"
         href="https://discord.gg/VRFD73Hnza"
+=======
+        onClick={() => navigate("https://discord.gg/VRFD73Hnza ")}
+>>>>>>> 6377340 (feat: 유튜브 스토리 페이지 마크업 및 디스코드 플로팅 버튼 추가 (#3))
         onMouseEnter={() => setOpen(true)}
         onMouseLeave={() => setOpen(false)}
         css={css({

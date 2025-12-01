@@ -11,6 +11,7 @@ import GameRecordPage from "./pages/GameRecordPage";
 import MatchupPage from "./pages/MatchupPage";
 import MatchListPage from "./pages/MatchListPage";
 import YoutubeStories from "./pages/YoutubeStoriesPage";
+import { DiscordFloatingButton } from "./components/discord/DiscordFloatingButton";
 
 const theme = createTheme({
   breakpoints: {
@@ -50,6 +51,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <MantineProvider theme={theme}>
         <BrowserRouter>
+          <DiscordFloatingButton />
           <Layout>
             <Routes>
               <Route path="/" element={<HomePage />} />

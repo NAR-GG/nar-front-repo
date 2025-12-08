@@ -4,21 +4,81 @@ import {
   Container,
   Flex,
   Group,
-  List,
   Paper,
   Stack,
   Text,
 } from "@mantine/core";
 import StoryCard from "../components/stories/StoryCard";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useGetYoutubeList } from "../hooks/useGetYoutubeList";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import "dayjs/locale/ko";
+
+dayjs.extend(relativeTime);
+dayjs.locale("ko");
+
+const CATEGORY_ITEMS = [
+  { key: "all", label: "전체", type: null, badgeLabel: "Youtube" },
+  { key: "pro", label: "프로팀 Youtube", type: "pro", badgeLabel: "PRO" },
+  {
+    key: "shorts",
+    label: "롤 쇼츠 Youtube",
+    type: "shorts",
+    badgeLabel: "Shorts",
+  },
+];
 
 function YoutubeStories() {
-  const [active, setActive] = useState("all");
-  const items = [
-    { key: "all", label: "전체" },
-    { key: "pro", label: "프로팀 Youtube" },
-    { key: "shorts", label: "롤 쇼츠 Youtube" },
-  ];
+  const [selectedItem, setSelectedItem] = useState(CATEGORY_ITEMS[0]); // 기본: all
+
+  const {
+    data,
+    isLoading,
+    isError,
+    isFetchingNextPage,
+    hasNextPage,
+    fetchNextPage,
+    isRefetching,
+  } = useGetYoutubeList({
+    category: selectedItem.key,
+    size: 20,
+    sort: "publishedAt,desc",
+  });
+
+  // pages -> content 평탄화
+  const stories = useMemo(() => {
+    if (!data?.pages) return [];
+    return data.pages.flatMap((page) => page.content ?? []);
+  }, [data]);
+
+  const handleChangeCategory = (item) => {
+    setSelectedItem(item);
+  };
+
+  const handleLoadMore = () => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  };
+
+  const getTimeAgo = (publishedAt) =>
+    publishedAt ? dayjs(publishedAt).fromNow() : "";
+
+  const getTypeAndBadge = () => {
+    if (selectedItem.key === "all") {
+      return {
+        type: null,
+      };
+    }
+
+    return {
+      type: selectedItem.type,
+    };
+  };
+
+  const { type } = getTypeAndBadge();
+
   return (
     <Container size="xl" px={{ base: 12, sm: 24, md: 32 }}>
       <Stack gap="lg" mt="md">
@@ -42,18 +102,16 @@ function YoutubeStories() {
         <Flex gap="lg" align="stretch">
           <Paper radius="md" p="0.85rem" withBorder w={200} h={160}>
             <Stack gap={10}>
-              {items.map((item) => {
-                const selected = active === item.key;
+              {CATEGORY_ITEMS.map((item) => {
+                const selected = selectedItem.key === item.key;
 
                 return (
                   <Flex
                     key={item.key}
                     align="center"
                     gap={8}
-                    onClick={() => setActive(item.key)}
-                    style={{
-                      cursor: "pointer",
-                    }}
+                    onClick={() => handleChangeCategory(item)}
+                    style={{ cursor: "pointer" }}
                   >
                     <Box
                       w={8}
@@ -81,18 +139,45 @@ function YoutubeStories() {
             <Paper radius="md" p="lg" withBorder>
               <Paper radius="md" p="lg" withBorder bg="#F7F7F9">
                 <Stack gap="md">
-                  <StoryCard
-                    type="pro"
-                    badgeLabel="PRO"
-                    channelName="T1"
-                    timeAgo="25분 전"
-                  />
-                  <StoryCard
-                    type="shorts"
-                    badgeLabel="Shorts"
-                    channelName="롤뻔뻔"
-                    timeAgo="2시간 전"
-                  />
+                  {(isLoading || isRefetching) && stories.length === 0 && (
+                    <Text size="sm" c="dimmed">
+                      불러오는 중입니다...
+                    </Text>
+                  )}
+
+                  {isError && (
+                    <Text size="sm" c="red">
+                      유튜브 스토리를 불러오는 데 실패했습니다.
+                    </Text>
+                  )}
+
+                  {!isLoading && !isError && stories.length === 0 && (
+                    <Text size="sm" c="dimmed">
+                      아직 등록된 스토리가 없습니다.
+                    </Text>
+                  )}
+
+                  {!isError &&
+                    stories.length > 0 &&
+                    stories.map((story) => (
+                      <StoryCard
+                        key={story.videoId}
+                        type={type}
+                        badgeLabel={story.channelType}
+                        channelName={story.channelName}
+                        timeAgo={getTimeAgo(story.publishedAt)}
+                        title={story.title}
+                        thumbnailUrl={story.thumbnailUrl}
+                        videoUrl={story.videoUrl}
+                        channelProfileUrl={story.channelProfileUrl}
+                      />
+                    ))}
+
+                  {isFetchingNextPage && (
+                    <Text size="xs" c="dimmed">
+                      더 불러오는 중...
+                    </Text>
+                  )}
                 </Stack>
               </Paper>
             </Paper>
@@ -104,8 +189,11 @@ function YoutubeStories() {
               variant="default"
               size="md"
               fullWidth
+              onClick={handleLoadMore}
+              loading={isFetchingNextPage}
+              disabled={!hasNextPage || isError}
             >
-              20게임 추가 검색
+              {!hasNextPage ? "마지막 페이지입니다" : "동영상 20개 추가 검색"}
             </Button>
           </Stack>
         </Flex>

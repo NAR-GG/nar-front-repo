@@ -60,7 +60,8 @@ export function DiscordFloatingButton() {
         size={60}
         radius="xl"
         variant="filled"
-        onClick={() => navigate("https://discord.gg/VRFD73Hnza ")}
+        component="a"
+        href="https://discord.gg/VRFD73Hnza"
         onMouseEnter={() => setOpen(true)}
         onMouseLeave={() => setOpen(false)}
         css={css({

@@ -29,6 +29,7 @@ function StoryCard({ type, badgeLabel, channelName, timeAgo }) {
           <Paper
             radius="md"
             p={8}
+            w={267}
             withBorder
             css={{
               border: "1px solid #D9D9D9",
@@ -45,16 +46,21 @@ function StoryCard({ type, badgeLabel, channelName, timeAgo }) {
                   새로운 동영상이 업로드 되었습니다.
                 </Text>
                 <Flex gap={5}>
-                  <Text fz={11} fw={600} c="hsl(0, 0%, 51%)">
+                  <Text
+                    fz={12}
+                    fw={600}
+                    c="hsl(0, 0%, 51%)"
+                    style={{ flexShrink: 0 }}
+                  >
                     제목
                   </Text>
                   <Divider orientation="vertical" />
-                  <Text fz={11} fw={600}>
+                  <Text fz={12} fw={600} truncate="end" w="100%">
                     끝이 아닌 도란이란 드라마의 시작점이 되길
                   </Text>
                 </Flex>
               </Stack>
-              <Box mt="xs" h={125} w={221} bg="#D9D9D9" />
+              <Box mt="xs" h={125} w="100%" bg="#D9D9D9" />
             </Stack>
           </Paper>
           <Text size="xs" c="hsl(0, 0%, 51%)">

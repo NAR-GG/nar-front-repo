@@ -2,20 +2,29 @@
 import {
   Avatar,
   Badge,
-  Box,
   Divider,
   Flex,
   Group,
+  Image,
   Paper,
   Stack,
   Text,
 } from "@mantine/core";
-function StoryCard({ type, badgeLabel, channelName, timeAgo }) {
+function StoryCard({
+  type,
+  badgeLabel,
+  channelName,
+  timeAgo,
+  title,
+  thumbnailUrl,
+  videoUrl,
+  channelProfileUrl,
+}) {
   const badgeColor = type === "pro" ? "#8775FB" : "#EE6787";
 
   return (
     <Flex gap="xs">
-      <Avatar radius="xl" size={48} />
+      <Avatar radius="xl" size={48} src={channelProfileUrl} alt={channelName} />
       <Stack gap={3}>
         <Group gap={5}>
           <Badge size="xs" radius="sm" color={badgeColor} fw={700}>
@@ -31,6 +40,10 @@ function StoryCard({ type, badgeLabel, channelName, timeAgo }) {
             p={8}
             w={267}
             withBorder
+            component="a"
+            href={videoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
             css={{
               border: "1px solid #D9D9D9",
               borderRadius: 8,
@@ -55,12 +68,20 @@ function StoryCard({ type, badgeLabel, channelName, timeAgo }) {
                     제목
                   </Text>
                   <Divider orientation="vertical" />
-                  <Text fz={12} fw={600} truncate="end" w="100%">
-                    끝이 아닌 도란이란 드라마의 시작점이 되길
+                  <Text fz={12} fw={600} truncate="end" w="100%" c="#000">
+                    {title}
                   </Text>
                 </Flex>
               </Stack>
-              <Box mt="xs" h={125} w="100%" bg="#D9D9D9" />
+              <Image
+                src={thumbnailUrl}
+                alt={title}
+                radius={6}
+                h={125}
+                w="100%"
+                fit="cover"
+                withPlaceholder
+              />
             </Stack>
           </Paper>
           <Text size="xs" c="hsl(0, 0%, 51%)">

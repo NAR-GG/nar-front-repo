@@ -100,7 +100,7 @@ function YoutubeStories() {
         </Stack>
 
         <Flex gap="lg" align="stretch">
-          <Paper radius="md" p="lg" withBorder w={200}>
+          <Paper radius="md" p="lg" withBorder w={200} h={160}>
             <Stack gap={10}>
               {CATEGORY_ITEMS.map((item) => {
                 const selected = selectedItem.key === item.key;

@@ -82,7 +82,7 @@ export function DiscordFloatingButton() {
         })}
       >
         <img
-          src="/icons/discord.png"
+          src="/icons/discord.svg"
           alt="디스코드"
           style={{
             width: "100%",

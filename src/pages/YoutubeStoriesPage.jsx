@@ -137,7 +137,17 @@ function YoutubeStories() {
 
           <Stack style={{ flex: 1 }} gap="md">
             <Paper radius="md" p="lg" withBorder>
-              <Paper radius="md" p="lg" withBorder bg="#F7F7F9">
+              <Paper
+                radius="md"
+                p="lg"
+                withBorder
+                bg="#F7F7F9"
+                style={{
+                  height: "600px", // 원하는 높이로 변경 가능!
+                  overflowY: "auto",
+                  overflowX: "hidden", // 가로 스크롤 방지 옵션
+                }}
+              >
                 <Stack gap="md">
                   {(isLoading || isRefetching) && stories.length === 0 && (
                     <Text size="sm" c="dimmed">

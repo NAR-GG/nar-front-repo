@@ -14,7 +14,7 @@ const KakaoAdFit = ({ adUnit, adWidth, adHeight }) => {
     // (React가 아니라 JS가 직접 만들기 때문에 충돌이 없습니다)
     const ins = document.createElement("ins");
     ins.className = "kakao_ad_area";
-    ins.style.display = "none";
+    ins.style.display = "block";
     ins.style.width = "100%";
     ins.setAttribute("data-ad-unit", adUnit);
     ins.setAttribute("data-ad-width", adWidth);

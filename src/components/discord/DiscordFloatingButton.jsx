@@ -2,10 +2,8 @@ import { useState } from "react";
 import { ActionIcon, Text } from "@mantine/core";
 /** @jsxImportSource @emotion/react */
 import { css } from "@emotion/react";
-import { useNavigate } from "react-router-dom";
 
 export function DiscordFloatingButton() {
-  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
 
   return (

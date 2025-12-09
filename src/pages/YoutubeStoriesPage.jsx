@@ -85,7 +85,7 @@ function YoutubeStories() {
         <Stack gap={4}>
           <Group gap="xs">
             <img
-              src="/icons/youtube.png"
+              src="/icons/youtube.svg"
               alt="유튜브 아이콘"
               width="53px"
               height="37px"

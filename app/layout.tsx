@@ -11,7 +11,21 @@ import { combinationsQueries } from "@/entities/combinations/model/combinations.
 export const metadata: Metadata = {
   title: "나르지지 NAR.GG - 롤 프로 경기 챔피언 조합 분석",
   description:
-    "나르지지(NAR.GG)에서 리그 오브 레전드 프로 팀과 선수들의 상세한 챔피언 통계 및 경기 데이터를 확인하세요.",
+    "LCK, LPL, LEC 프로 경기의 챔피언 조합, 1v1 매치업, 승률 통계를 분석합니다. 롤 프로 경기 메타 분석 사이트.",
+  keywords: [
+    "나르지지",
+    "nar.gg",
+    "롤",
+    "리그오브레전드",
+    "프로경기",
+    "LCK",
+    "LPL",
+    "LEC",
+    "챔피언 조합",
+    "매치업",
+    "승률",
+    "메타 분석",
+  ],
   icons: {
     icon: "/images/nar-browser-icon.png",
   },

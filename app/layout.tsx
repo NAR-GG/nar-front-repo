@@ -9,7 +9,7 @@ import {
 import { combinationsQueries } from "@/entities/combinations/model/combinations.queries";
 
 export const metadata: Metadata = {
-  title: "나르지지 NAR.GG - LOL 프로 경기 챔피언 조합 분석",
+  title: "나르지지 NAR.GG - 롤 프로 경기 챔피언 조합 분석",
   description:
     "LCK, LPL, LEC 프로 경기의 챔피언 조합, 1v1 매치업, 승률 통계를 분석합니다. 롤 프로 경기 메타 분석 사이트.",
   keywords: [
@@ -28,32 +28,6 @@ export const metadata: Metadata = {
   ],
   icons: {
     icon: "/images/nar-browser-icon.png",
-  },
-  openGraph: {
-    title: "나르지지 NAR.GG - LOL 프로 경기 챔피언 조합 분석",
-    description:
-      "LCK, LPL, LEC 프로 경기의 챔피언 조합, 1v1 매치업, 승률 통계를 분석합니다.",
-    url: "https://nar.gg",
-    siteName: "나르지지 NAR.GG",
-    locale: "ko_KR",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "나르지지 NAR.GG - LOL 프로 경기 챔피언 조합 분석",
-    description:
-      "LCK, LPL, LEC 프로 경기의 챔피언 조합, 1v1 매치업, 승률 통계를 분석합니다.",
-  },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-    },
-  },
-  alternates: {
-    canonical: "https://nar.kr",
   },
 };
 

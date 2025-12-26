@@ -32,7 +32,8 @@ export function CombinationCard({
   const totalGames = wins + losses;
   const winPercentage = totalGames > 0 ? (wins / totalGames) * 100 : 0;
   const lossPercentage = totalGames > 0 ? (losses / totalGames) * 100 : 0;
-  const displayWinRate = Math.round(winRate * 100);
+  // API에서 winRate가 100.0 형태(이미 퍼센트)로 오면 그대로 사용, 0~1 사이면 *100
+  const displayWinRate = winRate > 1 ? Math.round(winRate) : Math.round(winRate * 100);
 
   const orderedChampions = useMemo(() => {
     if (!selectedChampions || selectedChampions.length === 0) {
@@ -127,7 +128,7 @@ export function CombinationCard({
               </Progress.Section>
             </Progress.Root>
 
-            <Text size="sm" fw={600} c={winRate >= 50 ? "#5383e8" : "#e84057"}>
+            <Text size="sm" fw={600} c={displayWinRate >= 50 ? "#5383e8" : "#e84057"}>
               {displayWinRate}%
             </Text>
           </Group>
@@ -211,7 +212,7 @@ export function CombinationCard({
               <Text
                 size="sm"
                 fw={600}
-                c={winRate >= 50 ? "#5383e8" : "#e84057"}
+                c={displayWinRate >= 50 ? "#5383e8" : "#e84057"}
               >
                 {displayWinRate}%
               </Text>

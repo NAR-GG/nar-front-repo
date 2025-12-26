@@ -25,6 +25,12 @@ export const combinationsQueries = {
       queryFn: () => combinationsApi.getCombinationDetail(params),
       enabled: params.champions.length > 0,
     }),
+  gameDetails: (combinationId: string) =>
+    queryOptions({
+      queryKey: [...combinationsQueries.all(), "gameDetails", combinationId] as const,
+      queryFn: () => combinationsApi.getCombinationGameDetails(combinationId),
+      enabled: !!combinationId,
+    }),
   matchUp1v1: (params: {
     champion1: string;
     champion2: string;

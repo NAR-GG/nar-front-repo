@@ -16,6 +16,14 @@ export const getCombinationDetail = async (params: Record<string, unknown>) => {
   return { data: response.data };
 };
 
+export const getCombinationGameDetails = async (combinationId: string) => {
+  // combinationId를 디코딩해서 숫자로 변환하거나, 그대로 사용
+  const response = await publicApi.get(
+    `${combinationsApiEndPoint.getCombinations()}${combinationId}/detail`
+  );
+  return { data: response.data };
+};
+
 export const get1v1MatchUp = async (params: Record<string, unknown>) => {
   const response = await publicApi.get(
     combinationsApiEndPoint.get1v1MatchUp(),

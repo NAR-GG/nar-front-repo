@@ -27,7 +27,10 @@ export const metadata: Metadata = {
     "메타 분석",
   ],
   icons: {
-    icon: "/images/nar-browser-icon.png",
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/images/nar-browser-icon.png", sizes: "32x32", type: "image/png" },
+    ]
   },
   openGraph: {
     title: "나르지지 NAR.GG - 롤 프로 경기 챔피언 조합 분석",

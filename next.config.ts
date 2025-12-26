@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
         destination: "/champions-meta",
         permanent: false,
       },
+      {
+        source: "/pro-matches",
+        destination: "/pro-matches/schedule",
+        permanent: false,
+      },
     ];
   },
 };

@@ -9,9 +9,9 @@ import {
 import { combinationsQueries } from "@/entities/combinations/model/combinations.queries";
 
 export const metadata: Metadata = {
-  title: "NAR.GG - LOL 프로 경기 챔피언 조합 분석",
+  title: "나르지지 NAR.GG - 롤 프로 경기 챔피언 조합 분석",
   description:
-    "LCK 프로 경기의 챔피언 조합, 1v1 매치업, 승률 통계를 분석합니다.",
+    "나르지지(NAR.GG)에서 리그 오브 레전드 프로 팀과 선수들의 상세한 챔피언 통계 및 경기 데이터를 확인하세요.",
   icons: {
     icon: "/images/nar-browser-icon.png",
   },

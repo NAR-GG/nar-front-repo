@@ -58,13 +58,13 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     key: "team-players",
-    label: "팀·경기",
+    label: "팀/선수",
     href: "/team-players",
     match: (p) => p.startsWith("/team-players"),
   },
   {
     key: "champions-meta",
-    label: "챔피언·메타",
+    label: "챔피언/메타",
     href: "/champions-meta",
     match: (p) => p.startsWith("/champions-meta"),
   },

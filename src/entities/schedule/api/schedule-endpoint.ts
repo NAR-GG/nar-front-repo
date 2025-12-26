@@ -3,7 +3,7 @@ const SCHEDULE_PREFIX = {
 };
 
 export const scheduleApiEndPoint = {
-  getDateSchedule: () => `${SCHEDULE_PREFIX.schedule}`,
-  getMatchDetail: ({ matchId }: { matchId: string }) =>
+  getDateSchedule: (date: string) => `${SCHEDULE_PREFIX.schedule}?date=${date}`,
+  getMatchDetail: (matchId: string) =>
     `${SCHEDULE_PREFIX.schedule}/matches/${matchId}/record`,
 };

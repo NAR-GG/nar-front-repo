@@ -56,24 +56,24 @@ const NAV_ITEMS: NavItem[] = [
       },
     ],
   },
-  {
-    key: "team-players",
-    label: "팀/선수",
-    href: "/team-players",
-    match: (p) => p.startsWith("/team-players"),
-  },
+  // {
+  //   key: "team-players",
+  //   label: "팀/선수",
+  //   href: "/team-players",
+  //   match: (p) => p.startsWith("/team-players"),
+  // },
   {
     key: "champions-meta",
     label: "챔피언/메타",
     href: "/champions-meta",
     match: (p) => p.startsWith("/champions-meta"),
   },
-  {
-    key: "analysis-lab",
-    label: "분석 랩",
-    href: "/analysis-lab",
-    match: (p) => p.startsWith("/analysis-lab"),
-  },
+  // {
+  //   key: "analysis-lab",
+  //   label: "분석 랩",
+  //   href: "/analysis-lab",
+  //   match: (p) => p.startsWith("/analysis-lab"),
+  // },
   {
     key: "youtube-stories",
     label: "YOUTUBE 스토리",

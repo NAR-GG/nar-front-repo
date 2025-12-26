@@ -53,7 +53,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: "https://nar.gg",
+    canonical: "https://nar.kr",
   },
 };
 

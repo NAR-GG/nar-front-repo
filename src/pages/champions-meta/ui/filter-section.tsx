@@ -233,10 +233,9 @@ export function FilterSection({
 }: FilterSectionProps) {
   const isMobile = useMediaQuery("(max-width: 768px)");
 
-  const { data: categoryResponse, isLoading } = useQuery(
+  const { data: categoryData, isLoading } = useQuery(
     categoriesQueries.tree()
   );
-  const categoryData = categoryResponse?.data;
 
   const getButtonText = () => {
     return currentMode === "1v1" ? "매치업 보기" : "조합 보기";

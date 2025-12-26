@@ -1,10 +1,10 @@
 import { publicApi } from "@/shared/lib/api-client";
 import { championsApiEndPoint } from "./champions-endpoint";
-import { ChampionListResponseDTO } from "../model/champions.dto";
+import type { ChampionData } from "../model/champions.dto";
 
-export const getChampionList = async () => {
-  const response = await publicApi.get<ChampionListResponseDTO>(
+export const getChampionList = async (): Promise<ChampionData[]> => {
+  const response = await publicApi.get<ChampionData[]>(
     championsApiEndPoint.getChampoionList()
   );
-  return { data: response.data };
+  return response.data;
 };

@@ -27,9 +27,7 @@ export function ChampionGrid({
 }: ChampionGridProps) {
   const [searchQuery, setSearchQuery] = useState("");
 
-  const { data, isLoading, isError, error } = useQuery(championsQueries.list());
-
-  const champions = data?.data ?? [];
+  const { data: champions = [], isLoading, isError, error } = useQuery(championsQueries.list());
 
   const filteredChampions = useMemo(() => {
     if (!searchQuery.trim()) return champions;

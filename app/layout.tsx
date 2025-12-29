@@ -15,6 +15,7 @@ export const metadata: Metadata = {
   keywords: [
     "나르지지",
     "nar.gg",
+    "nar.kr",
     "롤",
     "리그오브레전드",
     "프로경기",

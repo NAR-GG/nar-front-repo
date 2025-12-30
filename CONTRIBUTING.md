@@ -6,13 +6,13 @@ NAR.GG 프로젝트의 코드 컨벤션과 아키텍처 가이드입니다.
 
 ### 네이밍
 
-| 대상 | 규칙 | 예시 |
-|------|------|------|
-| 폴더/파일 | `kebab-case` | `champion-card.tsx` |
-| 변수/함수 | `camelCase` | `getChampionList` |
-| 컴포넌트 | `PascalCase` | `ChampionCard` |
-| 타입/인터페이스 | `PascalCase` | `ChampionData` |
-| 상수 | `UPPER_SNAKE_CASE` | `API_BASE_URL` |
+| 대상            | 규칙               | 예시                |
+| --------------- | ------------------ | ------------------- |
+| 폴더/파일       | `kebab-case`       | `champion-card.tsx` |
+| 변수/함수       | `camelCase`        | `getChampionList`   |
+| 컴포넌트        | `PascalCase`       | `ChampionCard`      |
+| 타입/인터페이스 | `PascalCase`       | `ChampionData`      |
+| 상수            | `UPPER_SNAKE_CASE` | `API_BASE_URL`      |
 
 ### 코드 스타일
 
@@ -56,12 +56,12 @@ import { ChampionCard } from "./champion-card";
 
 ### 레이어 계층
 
-| 레이어 | 역할 | 예시 |
-|--------|------|------|
-| `app/` | Next.js 라우팅 | `app/champions-meta/page.tsx` |
-| `pages/` | 페이지 UI 컴포넌트 | `src/pages/champions-meta/ui/` |
-| `entities/` | 비즈니스 엔티티 | `src/entities/champions/` |
-| `shared/` | 공유 유틸리티 | `src/shared/lib/api-client.ts` |
+| 레이어      | 역할               | 예시                           |
+| ----------- | ------------------ | ------------------------------ |
+| `app/`      | Next.js 라우팅     | `app/champions-meta/page.tsx`  |
+| `pages/`    | 페이지 UI 컴포넌트 | `src/pages/champions-meta/ui/` |
+| `entities/` | 비즈니스 엔티티    | `src/entities/champions/`      |
+| `shared/`   | 공유 유틸리티      | `src/shared/lib/api-client.ts` |
 
 ### 의존성 규칙
 
@@ -154,9 +154,7 @@ import { useQuery } from "@tanstack/react-query";
 import { championsQueries } from "@/entities/champions/model/champions.queries";
 
 export const ChampionGrid = () => {
-  const { data: champions = [], isLoading } = useQuery(
-    championsQueries.list()
-  );
+  const { data: champions = [], isLoading } = useQuery(championsQueries.list());
 
   if (isLoading) return <LoadingSpinner />;
 
@@ -180,10 +178,12 @@ import { Button, Stack, Text, Paper } from "@mantine/core";
 
 <Paper p="md" withBorder>
   <Stack gap="md">
-    <Text size="lg" fw={600}>제목</Text>
+    <Text size="lg" fw={600}>
+      제목
+    </Text>
     <Button variant="filled">버튼</Button>
   </Stack>
-</Paper>
+</Paper>;
 ```
 
 ### Tailwind CSS 보조 사용
@@ -237,13 +237,13 @@ docs/[scope]              # 문서 수정
 <type>(<scope>): <subject>
 ```
 
-| Type | 설명 |
-|------|------|
-| `feat` | 새로운 기능 |
-| `fix` | 버그 수정 |
-| `docs` | 문서 수정 |
-| `refactor` | 리팩토링 |
-| `chore` | 빌드, 설정 변경 |
+| Type       | 설명            |
+| ---------- | --------------- |
+| `feat`     | 새로운 기능     |
+| `fix`      | 버그 수정       |
+| `docs`     | 문서 수정       |
+| `refactor` | 리팩토링        |
+| `chore`    | 빌드, 설정 변경 |
 
 ```bash
 feat(champions): add champion filter by position
@@ -262,17 +262,27 @@ refactor(entities): simplify query patterns
 
 ### PR 템플릿
 
-```markdown
+> `.github/pull_request_template.md`에 템플릿이 설정되어 있어 PR 생성 시 자동으로 적용됩니다.
+
+````markdown
 ## Summary
-변경 사항 요약
+
+<!-- 변경 사항을 간단히 요약해주세요 -->
 
 ## Changes
-- 변경 1
-- 변경 2
 
-## Screenshots (선택)
-UI 변경 시 스크린샷 첨부
+## <!-- 구체적인 변경 내용을 적어주세요 -->
+
+### 이슈 연결
+
+PR에서 이슈를 자동으로 닫으려면 본문에 다음 키워드를 사용하세요:
+
+```markdown
+Closes #이슈번호
+Fixes #이슈번호
+Resolves #이슈번호
 ```
+````
 
 ### PR 크기
 

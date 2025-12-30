@@ -130,7 +130,7 @@ export const SchedulePageComponent = () => {
   };
 
   const handleNavigateToRecord = (gameId: number) => {
-    router.push(`/pro-matches/record/${gameId}`);
+    router.push(`/pro-matches/${gameId}/record`);
   };
 
   const handlePrevWeek = () => {
@@ -158,7 +158,10 @@ export const SchedulePageComponent = () => {
               <Popover position="bottom" withArrow shadow="md">
                 <Popover.Target>
                   <Group gap="xs" style={{ cursor: "pointer" }}>
-                    <IconCalendar size={16} color="var(--mantine-color-blue-6)" />
+                    <IconCalendar
+                      size={16}
+                      color="var(--mantine-color-blue-6)"
+                    />
                     <Text fw={600}>
                       {selectedDate.getFullYear()}.
                       {String(selectedDate.getMonth() + 1).padStart(2, "0")}

@@ -1,12 +1,20 @@
 "use client";
 
+import Image from "next/image";
 import { Avatar, Button, Group, Paper, Text } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
-import { IconPlus } from "@tabler/icons-react";
 import type { ChampionData } from "@/entities/champions/model/champions.dto";
 import type { Mode } from "../model/types";
 
 const RADIUS = "sm";
+
+const POSITION_IMAGES = [
+  { name: "탑", image: "/images/top-dark.svg" },
+  { name: "정글", image: "/images/jungle-dark.svg" },
+  { name: "미드", image: "/images/mid-dark.svg" },
+  { name: "원딜", image: "/images/bottom-dark.svg" },
+  { name: "서폿", image: "/images/support-dark.svg" },
+];
 
 interface ChampionSelectorProps {
   selectedChampions: (ChampionData | null)[];
@@ -84,19 +92,31 @@ export function ChampionSelector({
         </>
       ) : (
         <>
-          <Avatar
-            size={isMobile ? 56 : 80}
-            radius={RADIUS}
+          <div
             style={{
+              width: isMobile ? 56 : 80,
+              height: isMobile ? 56 : 80,
+              borderRadius: "var(--mantine-radius-sm)",
               backgroundColor: "#f8f9fa",
               border: "1px dashed #ced4da",
               cursor: "pointer",
               transition: "all .15s ease",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
             onClick={() => onEmptyClick?.(index)}
           >
-            <IconPlus size={isMobile ? 16 : 24} color="#868e96" stroke={2} />
-          </Avatar>
+            {slotType === "team" && (
+              <Image
+                src={POSITION_IMAGES[index].image}
+                alt={POSITION_IMAGES[index].name}
+                width={isMobile ? 36 : 50}
+                height={isMobile ? 36 : 50}
+                style={{ opacity: 0.6 }}
+              />
+            )}
+          </div>
           <Text
             size="xs"
             c="dimmed"
@@ -107,7 +127,7 @@ export function ChampionSelector({
               maxWidth: isMobile ? 56 : 80,
             }}
           >
-            챔피언 선택
+            {slotType === "team" ? POSITION_IMAGES[index].name : "챔피언 선택"}
           </Text>
         </>
       )}

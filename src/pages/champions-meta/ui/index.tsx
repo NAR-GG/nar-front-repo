@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Container, Stack } from "@mantine/core";
 import type { ChampionData } from "@/entities/champions/model/champions.dto";
@@ -14,6 +14,7 @@ import { ChampionGrid } from "./champion-grid";
 export function ChampionsMetaComponent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const championGridRef = useRef<HTMLDivElement>(null);
 
   const [selectedChampions, setSelectedChampions] = useState<
     (ChampionData | null)[]
@@ -98,12 +99,19 @@ export function ChampionsMetaComponent() {
     setSelected1v1Champions(newSelected);
   };
 
+  const scrollToChampionGrid = () => {
+    setTimeout(() => {
+      championGridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 100);
+  };
+
   const handleEmptySlotClick = (slotIndex: number) => {
     setCurrentMode("team");
     setCurrentSlotIndex(slotIndex);
     if (showResults) {
       router.push("/champions-meta");
     }
+    scrollToChampionGrid();
   };
 
   const handleEmpty1v1SlotClick = (slotIndex: number) => {
@@ -112,6 +120,7 @@ export function ChampionsMetaComponent() {
     if (showResults) {
       router.push("/champions-meta");
     }
+    scrollToChampionGrid();
   };
 
   const handleModeChange = (mode: Mode) => {
@@ -181,13 +190,15 @@ export function ChampionsMetaComponent() {
             />
           )
         ) : (
-          <ChampionGrid
-            onChampionSelect={handleChampionSelect}
-            selectedChampions={
-              currentMode === "team" ? selectedChampions : selected1v1Champions
-            }
-            highlightSlot={currentSlotIndex}
-          />
+          <div ref={championGridRef}>
+            <ChampionGrid
+              onChampionSelect={handleChampionSelect}
+              selectedChampions={
+                currentMode === "team" ? selectedChampions : selected1v1Champions
+              }
+              highlightSlot={currentSlotIndex}
+            />
+          </div>
         )}
       </Stack>
     </Container>

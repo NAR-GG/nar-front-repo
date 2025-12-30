@@ -18,7 +18,10 @@ import {
   Center,
   Avatar,
   Loader,
+  Popover,
 } from "@mantine/core";
+import { DatePicker } from "@mantine/dates";
+import "dayjs/locale/ko";
 import {
   IconChevronLeft,
   IconChevronRight,
@@ -152,13 +155,24 @@ export const SchedulePageComponent = () => {
               <ActionIcon variant="light" onClick={handlePrevWeek}>
                 <IconChevronLeft size={18} />
               </ActionIcon>
-              <Group gap="xs">
-                <IconCalendar size={16} color="var(--mantine-color-blue-6)" />
-                <Text fw={600}>
-                  {selectedDate.getFullYear()}.
-                  {String(selectedDate.getMonth() + 1).padStart(2, "0")}
-                </Text>
-              </Group>
+              <Popover position="bottom" withArrow shadow="md">
+                <Popover.Target>
+                  <Group gap="xs" style={{ cursor: "pointer" }}>
+                    <IconCalendar size={16} color="var(--mantine-color-blue-6)" />
+                    <Text fw={600}>
+                      {selectedDate.getFullYear()}.
+                      {String(selectedDate.getMonth() + 1).padStart(2, "0")}
+                    </Text>
+                  </Group>
+                </Popover.Target>
+                <Popover.Dropdown>
+                  <DatePicker
+                    value={selectedDate}
+                    onChange={(date) => date && setSelectedDate(new Date(date))}
+                    locale="ko"
+                  />
+                </Popover.Dropdown>
+              </Popover>
               <ActionIcon variant="light" onClick={handleNextWeek}>
                 <IconChevronRight size={18} />
               </ActionIcon>

@@ -1,10 +1,12 @@
 "use client";
 
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import type {
   GameDetailData,
   GameDetailPlayer,
 } from "@/entities/games/model/games.dto";
+import { useQuery } from "@tanstack/react-query";
+import { championsQueries } from "@/src/entities/champions/model/champions.queries";
 
 interface TeamStats {
   kills: number;
@@ -51,28 +53,28 @@ interface GameInfo {
   gamelength: number;
 }
 
-const getChampionImageUrl = (championName: string): string => {
-  const nameMap: Record<string, string> = {
-    Wukong: "MonkeyKing",
-    Drmundo: "DrMundo",
-    Jarvaniv: "JarvanIV",
-    Kogmaw: "KogMaw",
-    Leesin: "LeeSin",
-    Masteryi: "MasterYi",
-    Missfortune: "MissFortune",
-    Monkeyking: "MonkeyKing",
-    Twistedfate: "TwistedFate",
-    Xinzhao: "XinZhao",
-    Aurelionsol: "AurelionSol",
-    Reksai: "RekSai",
-    Tahmkench: "TahmKench",
-    Ksante: "KSante",
-  };
-  const finalName = nameMap[championName] || championName;
-  return `https://ddragon.leagueoflegends.com/cdn/15.13.1/img/champion/${finalName}.png`;
-};
+export function useGameDataProcessor(
+  gameData: GameDetailData | null | undefined
+) {
+  const { data: champions = [] } = useQuery(championsQueries.list());
 
-export function useGameDataProcessor(gameData: GameDetailData | null | undefined) {
+  const championImageMap = useMemo(() => {
+    if (!champions || champions.length === 0) return new Map<string, string>();
+    return new Map(
+      champions.map((c) => [c.championNameEn.toLowerCase(), c.imageUrl])
+    );
+  }, [champions]);
+
+  const getChampionImageUrl = useCallback(
+    (championName: string) => {
+      return (
+        championImageMap.get(championName.toLowerCase()) ||
+        `https://ddragon.leagueoflegends.com/cdn/15.1.1/img/champion/${championName}.png`
+      );
+    },
+    [championImageMap]
+  );
+
   return useMemo(() => {
     if (!gameData) {
       return {
@@ -152,5 +154,5 @@ export function useGameDataProcessor(gameData: GameDetailData | null | undefined
       redTeam,
       getChampionImageUrl,
     };
-  }, [gameData]);
+  }, [gameData, getChampionImageUrl]);
 }

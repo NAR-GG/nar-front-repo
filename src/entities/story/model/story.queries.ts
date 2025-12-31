@@ -22,11 +22,11 @@ export const storyQueries = {
       },
     }),
 
-  comments: (videoId: number) =>
-    [...storyQueries.all(), "videos", videoId, "comments"] as const,
-  commentList: (videoId: number) =>
+  comments: (youtubeVideoId: string) =>
+    [...storyQueries.all(), "videos", youtubeVideoId, "comments"] as const,
+  commentList: (youtubeVideoId: string) =>
     queryOptions({
-      queryKey: storyQueries.comments(videoId),
-      queryFn: () => getStoryVideoComments({ videoId }),
+      queryKey: storyQueries.comments(youtubeVideoId),
+      queryFn: () => getStoryVideoComments({ youtubeVideoId: youtubeVideoId }),
     }),
 };

@@ -6,10 +6,13 @@ export const useGetStoryVideoComments = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ videoId }: { videoId: number }) =>
-      getStoryVideoComments({ videoId }),
+    mutationFn: ({ youtubeVideoId }: { youtubeVideoId: string }) =>
+      getStoryVideoComments({ youtubeVideoId }),
     onSuccess: (_data, variables) => {
-      queryClient.setQueryData(storyQueries.comments(variables.videoId), _data);
+      queryClient.setQueryData(
+        storyQueries.comments(variables.youtubeVideoId),
+        _data
+      );
     },
   });
 };

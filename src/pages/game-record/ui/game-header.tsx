@@ -12,6 +12,7 @@ import {
   Box,
 } from "@mantine/core";
 import type { GameDetailPlayer } from "@/entities/games/model/games.dto";
+import { sortByPosition } from "@/shared/lib/sort-by-position";
 
 interface TeamData {
   name: string;
@@ -87,7 +88,7 @@ export function GameHeader({
         )}
       </Group>
       <Flex gap="md" justify="center">
-        {team.players.map((player) => (
+        {sortByPosition(team.players).map((player) => (
           <Stack key={player.participantid} align="center" gap="xs">
             <Avatar
               src={getChampionImageUrl(player.champion)}
@@ -129,7 +130,7 @@ export function GameHeader({
         )}
       </Group>
       <Flex gap="xs" justify="center">
-        {team.players.map((player) => (
+        {sortByPosition(team.players).map((player) => (
           <Stack key={player.participantid} align="center" gap={2}>
             <Avatar
               src={getChampionImageUrl(player.champion)}

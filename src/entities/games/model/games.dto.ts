@@ -4,6 +4,7 @@ import type { Pageable } from "@/shared/types/common";
 export interface GamePlayer {
   playerName: string;
   championName: string;
+  position: string;
 }
 
 export interface GameTeam {

@@ -1,12 +1,11 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
+import { useMemo } from "react";
 import type {
   GameDetailData,
   GameDetailPlayer,
 } from "@/entities/games/model/games.dto";
-import { useQuery } from "@tanstack/react-query";
-import { championsQueries } from "@/src/entities/champions/model/champions.queries";
+import { useChampionImage } from "@/shared/lib/use-champion-image";
 
 interface TeamStats {
   kills: number;
@@ -56,24 +55,7 @@ interface GameInfo {
 export function useGameDataProcessor(
   gameData: GameDetailData | null | undefined
 ) {
-  const { data: champions = [] } = useQuery(championsQueries.list());
-
-  const championImageMap = useMemo(() => {
-    if (!champions || champions.length === 0) return new Map<string, string>();
-    return new Map(
-      champions.map((c) => [c.championNameEn.toLowerCase(), c.imageUrl])
-    );
-  }, [champions]);
-
-  const getChampionImageUrl = useCallback(
-    (championName: string) => {
-      return (
-        championImageMap.get(championName.toLowerCase()) ||
-        `https://ddragon.leagueoflegends.com/cdn/15.1.1/img/champion/${championName}.png`
-      );
-    },
-    [championImageMap]
-  );
+  const { getChampionImageUrl } = useChampionImage();
 
   return useMemo(() => {
     if (!gameData) {

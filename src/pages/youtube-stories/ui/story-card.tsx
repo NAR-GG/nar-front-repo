@@ -16,10 +16,14 @@ interface StoryCardProps {
   channelName: string;
   timeAgo: string;
   title: string;
+  youtubeVideoId: string;
   thumbnailUrl: string;
   videoUrl: string;
   channelProfileUrl: string;
   isMobile: boolean;
+  likeCount: number;
+  commentCount: number;
+  onMessage: (value: string) => void;
 }
 
 export function StoryCard({
@@ -27,10 +31,14 @@ export function StoryCard({
   channelName,
   timeAgo,
   title,
+  youtubeVideoId,
   thumbnailUrl,
   videoUrl,
   channelProfileUrl,
   isMobile,
+  likeCount,
+  commentCount,
+  onMessage,
 }: StoryCardProps) {
   const badgeColor = badgeLabel === "SHORTS" ? "#EE6787" : "#8775FB";
 
@@ -124,6 +132,29 @@ export function StoryCard({
                   style={isMobile ? { aspectRatio: "16/9" } : undefined}
                 />
               </Stack>
+              <Flex gap={24} mt={8} align="center">
+                <Flex gap={4} align="center">
+                  <Image src="/icons/thumb-up.svg" alt="좋아요" h={24} w={24} />
+                  <Text fz={14} c="dark.9">
+                    {likeCount}
+                  </Text>
+                </Flex>
+                <Flex
+                  gap={4}
+                  align="center"
+                  style={{ cursor: "pointer" }}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onMessage(youtubeVideoId);
+                  }}
+                >
+                  <Image src="/icons/messages.svg" alt="채팅" h={24} w={24} />
+                  <Text fz={14} c="dark.9">
+                    {commentCount}
+                  </Text>
+                </Flex>
+              </Flex>
             </Paper>
           </Anchor>
           {!isMobile && (

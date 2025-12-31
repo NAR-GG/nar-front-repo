@@ -14,12 +14,19 @@ export const getStoryVideos = async (params: Record<string, unknown>) => {
 };
 
 export const getStoryVideoComments = async ({
-  videoId,
+  youtubeVideoId,
+  sort = "recent",
+  page = 0,
+  size = 20,
 }: {
-  videoId: number;
+  youtubeVideoId: string;
+  sort?: string;
+  page?: number;
+  size?: number;
 }) => {
   const response = await publicApi.get<StoryCommentListData>(
-    storyApiEndPoint.getVideoComments({ videoId })
+    storyApiEndPoint.getVideoComments({ youtubeVideoId }),
+    { params: { sort, page, size } }
   );
   return response.data;
 };

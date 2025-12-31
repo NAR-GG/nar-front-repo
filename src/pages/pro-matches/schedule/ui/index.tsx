@@ -32,6 +32,7 @@ import { useMediaQuery } from "@mantine/hooks";
 import { useQuery } from "@tanstack/react-query";
 import { scheduleQueries } from "@/entities/schedule/model/schedule.queries";
 import { championsQueries } from "@/entities/champions/model/champions.queries";
+import { sortByPosition } from "@/shared/lib/sort-by-position";
 
 const TEAM_NAME_MAP: Record<string, string> = {
   "Bnk Fearx": "BFX",
@@ -458,7 +459,9 @@ export const SchedulePageComponent = () => {
                                     <div
                                       style={{ display: "flex", gap: "4px" }}
                                     >
-                                      {game.blueTeam.players.map((player) => (
+                                      {sortByPosition(
+                                        game.blueTeam.players
+                                      ).map((player) => (
                                         <div
                                           key={player.playerName}
                                           style={{
@@ -528,38 +531,40 @@ export const SchedulePageComponent = () => {
                                     <div
                                       style={{ display: "flex", gap: "4px" }}
                                     >
-                                      {game.redTeam.players.map((player) => (
-                                        <div
-                                          key={player.playerName}
-                                          style={{
-                                            display: "flex",
-                                            flexDirection: "column",
-                                            alignItems: "center",
-                                            width: "40px",
-                                          }}
-                                        >
-                                          <Avatar
-                                            src={getChampionImageUrl(
-                                              player.championName
-                                            )}
-                                            size={32}
-                                            radius="md"
-                                          />
-                                          <Text
-                                            size="xs"
-                                            mt={2}
+                                      {sortByPosition(game.redTeam.players).map(
+                                        (player) => (
+                                          <div
+                                            key={player.playerName}
                                             style={{
-                                              textAlign: "center",
-                                              width: "100%",
-                                              whiteSpace: "nowrap",
-                                              overflow: "hidden",
-                                              textOverflow: "ellipsis",
+                                              display: "flex",
+                                              flexDirection: "column",
+                                              alignItems: "center",
+                                              width: "40px",
                                             }}
                                           >
-                                            {player.playerName}
-                                          </Text>
-                                        </div>
-                                      ))}
+                                            <Avatar
+                                              src={getChampionImageUrl(
+                                                player.championName
+                                              )}
+                                              size={32}
+                                              radius="md"
+                                            />
+                                            <Text
+                                              size="xs"
+                                              mt={2}
+                                              style={{
+                                                textAlign: "center",
+                                                width: "100%",
+                                                whiteSpace: "nowrap",
+                                                overflow: "hidden",
+                                                textOverflow: "ellipsis",
+                                              }}
+                                            >
+                                              {player.playerName}
+                                            </Text>
+                                          </div>
+                                        )
+                                      )}
                                     </div>
                                   </Stack>
                                 </Group>

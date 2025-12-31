@@ -6,6 +6,7 @@ import { useMediaQuery } from "@mantine/hooks";
 import { useQueryClient } from "@tanstack/react-query";
 import type { ChampionInfo } from "../model/types";
 import type { ChampionData } from "@/entities/champions/model/champions.dto";
+import { sortByPosition } from "@/shared/lib/sort-by-position";
 
 interface GameDetailFromApi {
   gameId: number;
@@ -78,7 +79,6 @@ export function MatchHistory({ gameDetails }: MatchHistoryProps) {
     return `https://ddragon.leagueoflegends.com/cdn/15.13.1/img/champion/${imageName}.png`;
   };
 
-  // 게임 시간 포맷팅 함수
   const formatGameTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
@@ -243,19 +243,16 @@ export function MatchHistory({ gameDetails }: MatchHistoryProps) {
           return (
             <Paper key={index} p="sm" bg="#f8f9fa" radius="md">
               <Stack gap="xs">
-                {/* 첫 번째 행: 경기 헤더 */}
                 {renderHeader()}
 
-                {/* 두 번째 행: 블루사이드(왼쪽) vs 레드사이드(오른쪽) */}
                 <Group justify="center" align="flex-start" gap="md">
-                  {/* 블루사이드 (왼쪽) */}
                   <Stack gap="xs" align="center">
                     <Text size="xs" fw={600}>
                       {blueTeamName}
                     </Text>
                     <div style={{ display: "flex", gap: "8px" }}>
                       {(blueTeam?.players || []).length > 0 ? (
-                        blueTeam.players.map((player, idx) => (
+                        sortByPosition(blueTeam.players).map((player, idx) => (
                           <div
                             key={idx}
                             style={{
@@ -295,7 +292,6 @@ export function MatchHistory({ gameDetails }: MatchHistoryProps) {
                     </div>
                   </Stack>
 
-                  {/* VS */}
                   <div
                     style={{
                       display: "flex",
@@ -309,14 +305,13 @@ export function MatchHistory({ gameDetails }: MatchHistoryProps) {
                     </Text>
                   </div>
 
-                  {/* 레드사이드 (오른쪽) */}
                   <Stack gap="xs" align="center">
                     <Text size="xs" fw={600}>
                       {redTeamName}
                     </Text>
                     <div style={{ display: "flex", gap: "8px" }}>
                       {(redTeam?.players || []).length > 0 ? (
-                        redTeam.players.map((player, idx) => (
+                        sortByPosition(redTeam.players).map((player, idx) => (
                           <div
                             key={idx}
                             style={{

@@ -1,12 +1,10 @@
 "use client";
 
-import { useMemo } from "react";
 import { Stack, Group, Text, Badge, Paper, Avatar } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
-import { useQueryClient } from "@tanstack/react-query";
 import type { ChampionInfo } from "../model/types";
-import type { ChampionData } from "@/entities/champions/model/champions.dto";
 import { sortByPosition } from "@/shared/lib/sort-by-position";
+import { useChampionImage } from "@/shared/lib/use-champion-image";
 
 interface GameDetailFromApi {
   gameId: number;
@@ -44,40 +42,7 @@ interface MatchHistoryProps {
 
 export function MatchHistory({ gameDetails }: MatchHistoryProps) {
   const isMobile = useMediaQuery("(max-width: 768px)");
-  const queryClient = useQueryClient();
-
-  const championMap = useMemo(() => {
-    const championData = (queryClient.getQueryData(["champions"]) ||
-      []) as ChampionData[];
-    const map = new Map<string, ChampionData>();
-    championData.forEach((champion) => {
-      map.set(champion.championNameEn, champion);
-    });
-    return map;
-  }, [queryClient]);
-
-  const getChampionImageUrl = (championName: string) => {
-    const championInfo = championMap.get(championName);
-    if (championInfo?.imageUrl) {
-      return championInfo.imageUrl;
-    }
-
-    const imageNameMap: Record<string, string> = {
-      Drmundo: "DrMundo",
-      Jarvaniv: "JarvanIV",
-      Kogmaw: "KogMaw",
-      Leesin: "LeeSin",
-      Masteryi: "MasterYi",
-      Missfortune: "MissFortune",
-      Monkeyking: "MonkeyKing",
-      Twistedfate: "TwistedFate",
-      Velkoz: "Velkoz",
-      Xinzhao: "XinZhao",
-    };
-
-    const imageName = imageNameMap[championName] || championName;
-    return `https://ddragon.leagueoflegends.com/cdn/15.13.1/img/champion/${imageName}.png`;
-  };
+  const { getChampionImageUrl } = useChampionImage();
 
   const formatGameTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);

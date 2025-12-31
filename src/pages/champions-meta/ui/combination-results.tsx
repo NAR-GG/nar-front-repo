@@ -22,34 +22,7 @@ import type { ChampionData } from "@/entities/champions/model/champions.dto";
 import type { Filters, Mode } from "../model/types";
 import { CombinationCard } from "./combination-card";
 import { CombinationDetail } from "./combination-detail";
-
-// 챔피언 이미지 URL 변환 함수
-const getChampionImageUrl = (championName: string): string => {
-  const imageNameMap: Record<string, string> = {
-    Drmundo: "DrMundo",
-    Jarvaniv: "JarvanIV",
-    Kogmaw: "KogMaw",
-    Leesin: "LeeSin",
-    Masteryi: "MasterYi",
-    Missfortune: "MissFortune",
-    Monkeyking: "MonkeyKing",
-    Twistedfate: "TwistedFate",
-    Velkoz: "Velkoz",
-    Xinzhao: "XinZhao",
-    Aurelionsol: "AurelionSol",
-    Reksai: "RekSai",
-    Tahmkench: "TahmKench",
-    Khazix: "Khazix",
-    Chogath: "Chogath",
-    Belveth: "Belveth",
-    Kaisa: "Kaisa",
-    Renata: "Renata",
-    Ksante: "KSante",
-  };
-
-  const imageName = imageNameMap[championName] || championName;
-  return `https://ddragon.leagueoflegends.com/cdn/15.13.1/img/champion/${imageName}.png`;
-};
+import { useChampionImage } from "@/shared/lib/use-champion-image";
 
 interface CombinationResultsProps {
   selectedChampions: (ChampionData | null)[];
@@ -65,6 +38,7 @@ export function CombinationResults({
   filters,
   onBackToSelection,
 }: CombinationResultsProps) {
+  const { getChampionImageUrl } = useChampionImage();
   const [expandedCards, setExpandedCards] = useState<Record<number, boolean>>(
     {}
   );
@@ -109,8 +83,7 @@ export function CombinationResults({
         splits: filters.splitNames.length > 0 ? filters.splitNames : undefined,
         leagueNames:
           filters.leagueNames.length > 0 ? filters.leagueNames : undefined,
-        teamNames:
-          filters.teamNames.length > 0 ? filters.teamNames : undefined,
+        teamNames: filters.teamNames.length > 0 ? filters.teamNames : undefined,
         patch: filters.patch ?? undefined,
         page: pageParam,
         size: pageSize,
@@ -298,7 +271,9 @@ export function CombinationResults({
                 };
 
                 return (
-                  <div key={`combination-${index}-${combination.combinationId}`}>
+                  <div
+                    key={`combination-${index}-${combination.combinationId}`}
+                  >
                     <div
                       style={{ padding: "12px 0", cursor: "pointer" }}
                       onClick={() => toggleCard(index)}

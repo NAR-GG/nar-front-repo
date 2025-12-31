@@ -21,6 +21,7 @@ import { useQuery } from "@tanstack/react-query";
 import { combinationsQueries } from "@/entities/combinations/model/combinations.queries";
 import type { GameDetail } from "@/entities/combinations/model/combinations.dto";
 import type { Filters } from "../model/types";
+import { useChampionImage } from "@/shared/lib/use-champion-image";
 
 interface MatchupResultsProps {
   champion1?: string;
@@ -38,6 +39,7 @@ export function MatchupResults({
   const [page, setPage] = useState(1);
   const pageSize = 10;
   const isMobile = useMediaQuery("(max-width: 768px)");
+  const { getChampionImageUrl } = useChampionImage();
 
   const { data, isLoading, isError, error } = useQuery(
     combinationsQueries.matchUp1v1({
@@ -145,7 +147,7 @@ export function MatchupResults({
               <Group gap="xl" justify="center" align="center">
                 <Stack align="center" gap="xs">
                   <Avatar
-                    src={`https://ddragon.leagueoflegends.com/cdn/14.24.1/img/champion/${champion1}.png`}
+                    src={getChampionImageUrl(champion1 ?? "")}
                     size={isMobile ? 56 : 64}
                     radius="md"
                   />
@@ -167,7 +169,7 @@ export function MatchupResults({
 
                 <Stack align="center" gap="xs">
                   <Avatar
-                    src={`https://ddragon.leagueoflegends.com/cdn/14.24.1/img/champion/${champion2}.png`}
+                    src={getChampionImageUrl(champion2 ?? "")}
                     size={isMobile ? 56 : 64}
                     radius="md"
                   />
@@ -194,7 +196,11 @@ export function MatchupResults({
                   style={{ borderRadius: "4px 0 0 4px" }}
                 >
                   <Progress.Label
-                    style={{ color: "white", fontSize: "12px", fontWeight: 600 }}
+                    style={{
+                      color: "white",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                    }}
                   >
                     {champion1WinRate}%
                   </Progress.Label>
@@ -205,7 +211,11 @@ export function MatchupResults({
                   style={{ borderRadius: "0 4px 4px 0" }}
                 >
                   <Progress.Label
-                    style={{ color: "white", fontSize: "12px", fontWeight: 600 }}
+                    style={{
+                      color: "white",
+                      fontSize: "12px",
+                      fontWeight: 600,
+                    }}
                   >
                     {champion2WinRate}%
                   </Progress.Label>
@@ -230,12 +240,18 @@ export function MatchupResults({
                   ? game.blueTeam
                   : game.redTeam;
                 const champion2Team =
-                  champion1Team === game.blueTeam ? game.redTeam : game.blueTeam;
+                  champion1Team === game.blueTeam
+                    ? game.redTeam
+                    : game.blueTeam;
                 const champion1Won = champion1Team?.isWin ?? false;
 
                 const positionOrder = ["TOP", "JUG", "MID", "ADC", "SUP"];
                 const sortPlayers = (
-                  players: { position: string; playerName: string; championName: string }[]
+                  players: {
+                    position: string;
+                    playerName: string;
+                    championName: string;
+                  }[]
                 ) =>
                   [...players].sort(
                     (a, b) =>
@@ -305,7 +321,9 @@ export function MatchupResults({
                                 (player, idx) => (
                                   <Avatar
                                     key={idx}
-                                    src={`https://ddragon.leagueoflegends.com/cdn/14.24.1/img/champion/${player.championName}.png`}
+                                    src={getChampionImageUrl(
+                                      player.championName
+                                    )}
                                     size={28}
                                     radius="sm"
                                     style={{
@@ -343,7 +361,9 @@ export function MatchupResults({
                                 (player, idx) => (
                                   <Avatar
                                     key={idx}
-                                    src={`https://ddragon.leagueoflegends.com/cdn/14.24.1/img/champion/${player.championName}.png`}
+                                    src={getChampionImageUrl(
+                                      player.championName
+                                    )}
                                     size={28}
                                     radius="sm"
                                     style={{
@@ -383,7 +403,9 @@ export function MatchupResults({
                                 (player, idx) => (
                                   <Group key={idx} gap={4} wrap="nowrap">
                                     <Avatar
-                                      src={`https://ddragon.leagueoflegends.com/cdn/14.24.1/img/champion/${player.championName}.png`}
+                                      src={getChampionImageUrl(
+                                        player.championName
+                                      )}
                                       size={32}
                                       radius="sm"
                                       style={{
@@ -456,7 +478,9 @@ export function MatchupResults({
                                       {player.playerName}
                                     </Text>
                                     <Avatar
-                                      src={`https://ddragon.leagueoflegends.com/cdn/14.24.1/img/champion/${player.championName}.png`}
+                                      src={getChampionImageUrl(
+                                        player.championName
+                                      )}
                                       size={32}
                                       radius="sm"
                                       style={{

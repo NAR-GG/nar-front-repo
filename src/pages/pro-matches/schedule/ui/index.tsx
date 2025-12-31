@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Container,
@@ -31,8 +31,8 @@ import {
 import { useMediaQuery } from "@mantine/hooks";
 import { useQuery } from "@tanstack/react-query";
 import { scheduleQueries } from "@/entities/schedule/model/schedule.queries";
-import { championsQueries } from "@/entities/champions/model/champions.queries";
 import { sortByPosition } from "@/shared/lib/sort-by-position";
+import { useChampionImage } from "@/shared/lib/use-champion-image";
 
 const TEAM_NAME_MAP: Record<string, string> = {
   "Bnk Fearx": "BFX",
@@ -114,17 +114,8 @@ export const SchedulePageComponent = () => {
     enabled: !!expandedId,
   });
 
-  // 챔피언 데이터 조회
-  const { data: champions = [] } = useQuery(championsQueries.list());
-
-  const championImageMap = useMemo(() => {
-    if (!champions || champions.length === 0) return new Map<string, string>();
-    return new Map(champions.map((c) => [c.championNameEn, c.imageUrl]));
-  }, [champions]);
-
-  const getChampionImageUrl = (championName: string): string => {
-    return championImageMap.get(championName) || "";
-  };
+  // 챔피언 이미지 조회
+  const { getChampionImageUrl } = useChampionImage();
 
   const handleToggleExpand = (matchId: string) => {
     setExpandedId((prev) => (prev === matchId ? null : matchId));

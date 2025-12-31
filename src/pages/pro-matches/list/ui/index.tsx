@@ -13,34 +13,17 @@ import {
 } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { gamesQueries } from "@/entities/games/model/games.queries";
-import { championsQueries } from "@/entities/champions/model/champions.queries";
 import { FilterSection } from "@/pages/champions-meta/ui/filter-section";
 import type { Filters } from "@/pages/champions-meta/model/types";
 import type { SortValue } from "../model/types";
 import { Dateheader } from "./date-header";
 import { GameRow } from "./game-row";
 import type { GameData } from "@/entities/games/model/games.dto";
+import { useChampionImage } from "@/shared/lib/use-champion-image";
 
 export function MatchListPage() {
   const router = useRouter();
-
-  const { data: championsData } = useQuery(championsQueries.list());
-
-  const championImageMap = useMemo(() => {
-    if (!championsData) return new Map<string, string>();
-    const map = new Map<string, string>();
-    championsData.forEach((champ) => {
-      map.set(champ.championNameEn.toLowerCase(), champ.imageUrl);
-    });
-    return map;
-  }, [championsData]);
-
-  const getChampionImageUrl = (championName: string) => {
-    return (
-      championImageMap.get(championName.toLowerCase()) ||
-      `https://ddragon.leagueoflegends.com/cdn/15.1.1/img/champion/${championName}.png`
-    );
-  };
+  const { getChampionImageUrl } = useChampionImage();
 
   const [filters, setFilters] = useState<Filters>({
     year: 2025,

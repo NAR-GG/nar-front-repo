@@ -10,6 +10,7 @@ import {
 import { combinationsQueries } from "@/entities/combinations/model/combinations.queries";
 
 const GTM_ID = "GTM-K4N8CFDR";
+const GA_ID = "G-RTZ77QF42T";
 
 export const metadata: Metadata = {
   title: "나르지지 NAR.GG - 롤 프로 경기 챔피언 조합 분석",
@@ -90,6 +91,22 @@ export default async function RootLayout({
               j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
               'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
               })(window,document,'script','dataLayer','${GTM_ID}');
+            `,
+          }}
+        />
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script
+          id="gtag-init"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${GA_ID}');
             `,
           }}
         />

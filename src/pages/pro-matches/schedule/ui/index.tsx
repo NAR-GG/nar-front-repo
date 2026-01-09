@@ -140,9 +140,9 @@ export const SchedulePageComponent = () => {
   return (
     <Container size="xl" px={{ base: 12, sm: 24, md: 32 }}>
       <Stack gap="lg" mt="md">
-        <Paper p={{ base: "md", sm: "xl" }} withBorder bg="white">
+        <Paper p={{ base: "md", sm: "xl" }} withBorder>
           {/* 날짜 선택 영역 */}
-          <Paper p="sm" mb="md" bg="gray.0" radius="sm">
+          <Paper p="sm" mb="md" bg="var(--mantine-color-default)" radius="sm">
             <Group justify="space-between" mb="sm">
               <ActionIcon variant="light" onClick={handlePrevWeek}>
                 <IconChevronLeft size={18} />
@@ -263,7 +263,7 @@ export const SchedulePageComponent = () => {
                   p="sm"
                   withBorder
                   radius="sm"
-                  bg="gray.0"
+                  bg="var(--mantine-color-default)"
                 >
                   <Group justify="space-between" align="center">
                     <Text
@@ -395,7 +395,6 @@ export const SchedulePageComponent = () => {
                             <Paper
                               key={game.gameNumber}
                               p="md"
-                              bg="white"
                               radius="md"
                               withBorder
                             >

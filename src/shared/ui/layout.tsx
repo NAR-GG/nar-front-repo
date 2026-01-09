@@ -1,6 +1,6 @@
 "use client";
 import type { ReactNode } from "react";
-import { Box, Container, Stack } from "@mantine/core";
+import { Box } from "@mantine/core";
 import { Header } from "./header";
 import { Footer } from "./footer";
 import { KakaoAdFit } from "./kakao-ad-fit";
@@ -11,16 +11,9 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   return (
-    <Stack gap={0} style={{ minHeight: "100vh" }}>
+    <div className="flex min-h-screen flex-col bg-(--nar-bg-primary)">
       <Header />
-
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          backgroundColor: "#f8f9fa",
-        }}
-      >
+      <div className="flex justify-center bg-(--nar-bg-primary) pt-[49.9px] pb-[10px]">
         <Box visibleFrom="sm">
           <KakaoAdFit
             adUnit="DAN-S0LZlpVV3VD0jjia"
@@ -28,7 +21,6 @@ export function Layout({ children }: LayoutProps) {
             adHeight="90"
           />
         </Box>
-
         <Box hiddenFrom="sm">
           <KakaoAdFit
             adUnit="DAN-WsJIRNubTcK6liGa"
@@ -37,25 +29,31 @@ export function Layout({ children }: LayoutProps) {
           />
         </Box>
       </div>
-
-      <main
-        style={{
-          flex: 1,
-          backgroundColor: "#f8f9fa",
-          paddingTop: "2rem",
-          paddingBottom: "2rem",
-        }}
-      >
-        <Container
-          size="lg"
-          px={{ base: 16, sm: 24, md: 32 }}
-          style={{ maxWidth: "1200px" }}
-        >
-          {children}
-        </Container>
+      <main className="flex flex-1 justify-center bg-(--nar-bg-primary) pt-4 pb-8">
+        <Box className="flex w-full max-w-[1600px] items-start gap-5 px-5">
+          <Box visibleFrom="xl" className="w-[160px] shrink-0">
+            <div className="sticky top-5">
+              <KakaoAdFit
+                adUnit="DAN-aEADHI4jj0hEG751"
+                adWidth="160"
+                adHeight="600"
+              />
+            </div>
+          </Box>
+          <Box className="flex-1 min-w-0">{children}</Box>
+          <Box visibleFrom="xl" className="w-[160px] shrink-0">
+            <div className="sticky top-5">
+              <KakaoAdFit
+                adUnit="DAN-SRIytSXAXIz7ErHf"
+                adWidth="160"
+                adHeight="600"
+              />
+            </div>
+          </Box>
+        </Box>
       </main>
 
       <Footer />
-    </Stack>
+    </div>
   );
 }

@@ -2,9 +2,92 @@
 @import "@mantine/dates/styles.css";
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+[data-mantine-color-scheme="light"] {
+  --nav-color: var(--nar-text-nav-default);
+  --nav-color-active: var(--nar-text-nav-active);
+  --header-bg: rgba(255, 255, 255, 0.8);
+  --sub-header-bg: linear-gradient(
+    90deg,
+    rgba(226, 98, 18, 0.44) -7.5%,
+    rgba(149, 3, 113, 0.44) 40.14%,
+    rgba(37, 6, 87, 0.44) 120.4%
+  );
+  --sub-header-shadow: 0 9px 20px 0 rgba(0, 0, 0, 0.12);
+  --m-header-bg: linear-gradient(
+      90deg,
+      rgba(226, 98, 18, 0.44) -7.5%,
+      rgba(149, 3, 113, 0.44) 40.14%,
+      rgba(37, 6, 87, 0.44) 120.4%
+    ),
+    var(--BG_lightmode_nargg, #fffefe);
+  --search-bg: #ffffff;
+  --nar-bg-primary: #fffefe;
+  --nar-bg-secondary: #ffffff;
+  --nar-bg-tertiary: #f8f9fa;
+  --nar-bg-division: #fafafa;
+  --nar-text-nav-default: #141517;
+  --nar-text-nav-active: #f03e3e;
+  --nar-icon-nav-default: #101113;
+  --nar-bg-badge-mini: #e9ecef;
+  --nar-bg-badge-midi: #f8f9fa;
+  --nar-border-badge-midi: #dee2e6;
+  --nar-border-primary: #e9ecef;
+  --nar-text-con-heading: #101113;
+  --nar-text-con-text: #101113;
+  --nar-text-con-text2: #909296;
+  --gradients-nargg: linear-gradient(
+    90deg,
+    #e26212 -7.5%,
+    #950371 40.14%,
+    #250657 120.4%
+  );
+  --logo-gradient-start: #e26212;
+  --logo-gradient-mid: #950371;
+  --logo-gradient-end: #250657;
+}
+
+[data-mantine-color-scheme="dark"] {
+  --nav-color: var(--nar-text-nav-default);
+  --nav-color-active: var(--nar-text-nav-active);
+  --header-bg: rgba(16, 17, 19, 0.8);
+  --sub-header-bg: linear-gradient(
+    90deg,
+    rgba(226, 98, 18, 0.8) -7.5%,
+    rgba(149, 3, 113, 0.8) 40.14%,
+    rgba(37, 6, 87, 0.8) 120.4%
+  );
+  --sub-header-shadow: 0 9px 20px 0 rgba(0, 0, 0, 0.8);
+  --m-header-bg: linear-gradient(
+      90deg,
+      rgba(255, 108, 17, 0.3) -7.5%,
+      rgba(210, 1, 159, 0.3) 40.14%,
+      rgba(75, 10, 180, 0.3) 120.4%
+    ),
+    #000;
+  --search-bg: var(--mantine-color-dark-8);
+  --nar-bg-primary: #0c0a0a;
+  --nar-bg-secondary: #101113;
+  --nar-bg-tertiary: #1a1b1e;
+  --nar-bg-division: #25262b;
+  --nar-text-nav-default: #ced4da;
+  --nar-text-nav-active: #c92a2a;
+  --nar-icon-nav-default: #f8f9fa;
+  --nar-bg-badge-mini: #373a40;
+  --nar-bg-badge-midi: #2c2e33;
+  --nar-border-badge-midi: #101113;
+  --nar-border-primary: #212529;
+  --nar-text-con-heading: #ffffff;
+  --nar-text-con-text: #fafafa;
+  --nar-text-con-text2: #c1c2c5;
+  --gradients-nargg: linear-gradient(
+    90deg,
+    #ff6c11 -7.5%,
+    #d2019f 40.14%,
+    #4b0ab4 120.4%
+  );
+  --logo-gradient-start: #ff6c11;
+  --logo-gradient-mid: #d2019f;
+  --logo-gradient-end: #4b0ab4;
 }
 
 @theme inline {
@@ -12,13 +95,6 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {

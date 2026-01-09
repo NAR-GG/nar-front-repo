@@ -111,12 +111,12 @@ function YoutubeStoriesComponent() {
               width="53"
               height="37"
             />
-            <Text fw={800} fz={26}>
+            <Text fw={800} fz={26} c="var(--mantine-color-text)">
               Youtube 스토리
             </Text>
           </Group>
           {!isMobile && (
-            <Text fw={600}>
+            <Text fw={600} c="var(--mantine-color-text)">
               LOL 프로팀과 인기 쇼츠 채널의 소식을 실시간으로 확인해 보세요.
             </Text>
           )}
@@ -199,14 +199,18 @@ function YoutubeStoriesComponent() {
                               style={{
                                 borderRadius: 8,
                                 backgroundColor: selected
-                                  ? "#000"
+                                  ? "var(--mantine-color-text)"
                                   : "transparent",
                               }}
                             />
                             <Text
                               fz={14}
                               fw={selected ? 700 : 500}
-                              c={selected ? "#000" : "#868E96"}
+                              c={
+                                selected
+                                  ? "var(--mantine-color-text)"
+                                  : "gray.6"
+                              }
                             >
                               {item.label}
                             </Text>
@@ -222,7 +226,7 @@ function YoutubeStoriesComponent() {
                       radius="md"
                       p={isMobile ? "sm" : "lg"}
                       withBorder
-                      bg="#F7F7F9"
+                      bg="var(--mantine-color-default)"
                       style={{
                         height: isMobile ? 450 : 600,
                         overflowY: "auto",

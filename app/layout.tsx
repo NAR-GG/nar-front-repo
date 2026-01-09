@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import Script from "next/script";
+import { ColorSchemeScript, mantineHtmlProps } from "@mantine/core";
 import { Providers } from "./providers";
 import {
   HydrationBoundary,
@@ -79,8 +80,9 @@ export default async function RootLayout({
   await queryClient.prefetchQuery(combinationsQueries.lastUpdate());
 
   return (
-    <html lang="ko">
+    <html lang="ko" {...mantineHtmlProps}>
       <head>
+         <ColorSchemeScript defaultColorScheme="light" />
         <Script
           id="gtm-script"
           strategy="afterInteractive"

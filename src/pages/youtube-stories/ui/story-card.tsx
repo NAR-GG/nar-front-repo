@@ -117,7 +117,7 @@ export function StoryCard({
                       제목
                     </Text>
                     <Divider orientation="vertical" />
-                    <Text fz={12} fw={600} truncate="end" w="100%" c="#000">
+                    <Text fz={12} fw={600} truncate="end" w="100%" c="var(--mantine-color-text)">
                       {title}
                     </Text>
                   </Flex>

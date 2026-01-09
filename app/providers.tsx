@@ -29,6 +29,14 @@ export function Providers({ children }: { children: React.ReactNode }) {
         "#364fc7",
       ],
     },
+    components: {
+      Anchor: {
+        defaultProps: {
+          c: "inherit",
+          td: "none",
+        },
+      },
+    },
   });
 
   const [queryClient] = useState(

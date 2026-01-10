@@ -1,351 +1,375 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import Image from "next/image";
-import {
-  Container,
-  Group,
-  Paper,
-  Text,
-  Title,
-  HoverCard,
-  Stack,
-  Box,
-} from "@mantine/core";
-import { useQuery } from "@tanstack/react-query";
-import { combinationsQueries } from "@/entities/combinations/model/combinations.queries";
-import { IconChevronDown } from "@tabler/icons-react";
+import { Group } from "@mantine/core";
 
-type SubNavItem = {
-  key: string;
-  label: string;
-  href: string;
-  description?: string;
-  match?: (pathname: string) => boolean;
-};
+import { NAV_ITEMS } from "@/shared/config/navigation";
+import type { NavItem, SubNavItem } from "@/shared/types/navigation";
+import { ThemeToggle } from "./theme-toggle";
+import TitleLogo from "@/shared/assets/images/title-logo.svg";
+import Menu from "@/shared/assets/icons/menu.svg";
+import Close from "@/shared/assets/icons/close.svg";
+import { cn } from "@/shared/lib/cn";
 
-type NavItem = {
-  key: string;
-  label: string;
-  href: string;
-  match?: (pathname: string) => boolean;
-  children?: SubNavItem[];
-};
+const isMatch = (
+  pathname: string,
+  href: string,
+  match?: (p: string) => boolean
+) => (match ? match(pathname) : pathname.startsWith(href));
 
-const NAV_ITEMS: NavItem[] = [
-  {
-    key: "pro-matches",
-    label: "프로경기",
-    href: "/pro-matches",
-    match: (p) => p.startsWith("/pro-matches"),
-    children: [
-      {
-        key: "pro-schedule",
-        label: "경기 일정",
-        description: "LCK 프로 경기 일정 확인",
-        href: "/pro-matches/schedule",
-        match: (p) => p.startsWith("/pro-matches/schedule"),
-      },
-      {
-        key: "pro-list",
-        label: "경기 리스트",
-        description: "프로 경기 목록 및 상세 분석",
-        href: "/pro-matches/list",
-        match: (p) => p === "/pro-matches/list",
-      },
-    ],
-  },
-  // {
-  //   key: "team-players",
-  //   label: "팀/선수",
-  //   href: "/team-players",
-  //   match: (p) => p.startsWith("/team-players"),
-  // },
-  {
-    key: "champions-meta",
-    label: "챔피언/메타",
-    href: "/champions-meta",
-    match: (p) => p.startsWith("/champions-meta"),
-  },
-  // {
-  //   key: "analysis-lab",
-  //   label: "분석 랩",
-  //   href: "/analysis-lab",
-  //   match: (p) => p.startsWith("/analysis-lab"),
-  // },
-  {
-    key: "youtube-stories",
-    label: "YOUTUBE 스토리",
-    href: "/youtube-stories",
-    match: (p) => p.startsWith("/youtube-stories"),
-  },
-];
-
-const styles = {
-  mainItem: (active: boolean): React.CSSProperties => ({
-    color: active ? "#ffffff" : "rgba(255, 255, 255, 0.6)",
-    cursor: "pointer",
-    padding: "8px 0",
-    borderBottom: active ? "2px solid white" : "2px solid transparent",
-    transition: "all 0.2s ease",
-    fontSize: "15px",
-    whiteSpace: "nowrap",
-    display: "flex",
-    alignItems: "center",
-    gap: "4px",
-  }),
-  dropdown: {
-    background: "#ffffff",
-    border: "none",
-    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.15)",
-    padding: 0,
-    overflow: "hidden",
-  },
-  subMenuItem: (active: boolean): React.CSSProperties => ({
-    padding: "12px 16px",
-    cursor: "pointer",
-    backgroundColor: active ? "#f0f4ff" : "transparent",
-    borderLeft: active ? "3px solid #5383e8" : "3px solid transparent",
-    transition: "all 0.15s ease",
-  }),
-} as const;
-
-const formatDate = (dateStr: string | undefined | null): string => {
-  if (!dateStr) return "-";
-  const date = new Date(dateStr);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-};
-
-interface SubMenuItemProps {
-  item: SubNavItem;
-  isActive: boolean;
-  onClick: () => void;
-}
-
-function SubMenuItem({ item, isActive, onClick }: SubMenuItemProps) {
-  return (
-    <Box
-      style={styles.subMenuItem(isActive)}
-      onClick={onClick}
-      onMouseEnter={(e) => {
-        if (!isActive) {
-          e.currentTarget.style.backgroundColor = "#f8f9fa";
-        }
-      }}
-      onMouseLeave={(e) => {
-        if (!isActive) {
-          e.currentTarget.style.backgroundColor = "transparent";
-        }
-      }}
-    >
-      <Text
-        size="sm"
-        fw={isActive ? 700 : 500}
-        c={isActive ? "#5383e8" : "#333"}
-      >
-        {item.label}
-      </Text>
-      {item.description && (
-        <Text size="xs" c="dimmed" mt={2}>
-          {item.description}
-        </Text>
-      )}
-    </Box>
-  );
-}
-
-interface SubMenuDropdownProps {
-  items: SubNavItem[];
-  pathname: string;
-  onNavigate: (href: string) => void;
-}
-
-function SubMenuDropdown({
-  items,
-  pathname,
-  onNavigate,
-}: SubMenuDropdownProps) {
-  return (
-    <Stack gap={0}>
-      {items.map((child) => {
-        const childActive = child.match
-          ? child.match(pathname)
-          : pathname.startsWith(child.href);
-
-        return (
-          <SubMenuItem
-            key={child.key}
-            item={child}
-            isActive={childActive}
-            onClick={() => onNavigate(child.href)}
-          />
-        );
-      })}
-    </Stack>
-  );
-}
-
-interface NavItemWithDropdownProps {
-  item: NavItem;
-  isActive: boolean;
-  pathname: string;
-  onNavigate: (href: string) => void;
-}
-
-function NavItemWithDropdown({
-  item,
-  isActive,
-  pathname,
-  onNavigate,
-}: NavItemWithDropdownProps) {
-  return (
-    <HoverCard
-      width={240}
-      position="bottom-start"
-      offset={4}
-      withinPortal
-      openDelay={50}
-      closeDelay={150}
-      shadow="lg"
-      radius="md"
-    >
-      <HoverCard.Target>
-        <Text
-          size="sm"
-          fw={isActive ? 700 : 400}
-          style={styles.mainItem(isActive)}
-          onClick={() => onNavigate(item.href)}
-        >
-          {item.label}
-          <IconChevronDown size={14} style={{ opacity: 0.7 }} />
-        </Text>
-      </HoverCard.Target>
-
-      <HoverCard.Dropdown style={styles.dropdown}>
-        <SubMenuDropdown
-          items={item.children!}
-          pathname={pathname}
-          onNavigate={onNavigate}
-        />
-      </HoverCard.Dropdown>
-    </HoverCard>
-  );
-}
-
-// ============ Main Component ============
-export function Header() {
-  const {
-    data: updateInfo,
-    isLoading,
-    error,
-  } = useQuery(combinationsQueries.lastUpdate());
-
-  const pathname = usePathname() ?? "/";
-  const router = useRouter();
-
-  const activeMainKey = useMemo(() => {
-    const found = NAV_ITEMS.find((item) =>
-      item.match ? item.match(pathname) : pathname.startsWith(item.href)
-    );
-    return found?.key ?? NAV_ITEMS[0]?.key;
+function useHeaderNav(pathname: string, hoverParentKey: string | null) {
+  const routeParent = useMemo<NavItem | undefined>(() => {
+    return NAV_ITEMS.find((item) => {
+      if (!item.children?.length) return false;
+      return item.children.some((c) => isMatch(pathname, c.href, c.match));
+    });
   }, [pathname]);
 
-  const updateText = useMemo(() => {
-    if (isLoading) return "로딩 중...";
-    if (error) return "최근 업데이트: -";
-    return `최근 업데이트: ${formatDate(updateInfo?.data?.lastUpdateTime)}`;
-  }, [isLoading, error, updateInfo]);
+  const activeSubParent = useMemo<NavItem | undefined>(() => {
+    if (routeParent) return routeParent;
+    if (!hoverParentKey) return undefined;
+    return NAV_ITEMS.find((i) => i.key === hoverParentKey);
+  }, [routeParent, hoverParentKey]);
 
-  const handleNavigate = (href: string) => {
-    router.push(href);
+  const subMenuList: SubNavItem[] = activeSubParent?.children ?? [];
+
+  const isVisibleSubHeader =
+    subMenuList.length > 0 && (routeParent != null || hoverParentKey != null);
+
+  return { routeParent, subMenuList, isVisibleSubHeader };
+}
+
+function DesktopNav({
+  pathname,
+  onHoverItem,
+  onGo,
+}: {
+  pathname: string;
+  onHoverItem: (item: NavItem) => void;
+  onGo: (href: string) => void;
+}) {
+  return (
+    <div className="hidden min-[1201px]:flex items-center h-full gap-6 xl:gap-20">
+      {NAV_ITEMS.map((item) => {
+        const hasChildren = !!item.children?.length;
+
+        const isActive =
+          item.match?.(pathname) ||
+          item.children?.some((c) => isMatch(pathname, c.href, c.match));
+
+        return (
+          <div
+            key={item.key}
+            className="h-full flex items-center"
+            onMouseEnter={() => onHoverItem(item)}
+          >
+            <span
+              className={cn(
+                "flex items-center py-2 text-[15px] whitespace-nowrap cursor-pointer",
+                "transition-all duration-200",
+                isActive
+                  ? "[color:var(--nav-color-active)] font-bold"
+                  : "[color:var(--nav-color)] font-bold",
+                hasChildren && "select-none"
+              )}
+              onClick={() => {
+                if (hasChildren) return;
+                onGo(item.href);
+              }}
+            >
+              {item.label}
+            </span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function MobileDrawer({
+  pathname,
+  isOpen,
+  openParentKey,
+  setOpenParentKey,
+  onGo,
+  onClose,
+  headerHeightClass,
+}: {
+  pathname: string;
+  isOpen: boolean;
+  openParentKey: string | null;
+  setOpenParentKey: (
+    v: string | null | ((prev: string | null) => string | null)
+  ) => void;
+  onGo: (href: string) => void;
+  onClose: () => void;
+  headerHeightClass: string;
+}) {
+  if (!isOpen) return null;
+
+  const toggleMobileParent = (item: NavItem) => {
+    if (!item.children?.length) return;
+    setOpenParentKey((prev) => (prev === item.key ? null : item.key));
   };
 
   return (
-    <Paper
-      p={0}
-      radius={0}
-      style={{
-        background: "#5383e8",
-        color: "white",
-        width: "100vw",
-        marginLeft: "calc(-50vw + 50%)",
-        marginRight: "calc(-50vw + 50%)",
-        position: "relative",
-      }}
+    <div
+      className={cn(
+        "fixed inset-0 top-[49.9px] lg:top-[98px] min-[1201px]:hidden z-40 overflow-auto"
+      )}
+      onClick={onClose}
     >
-      <Container
-        size="xl"
-        px={{ base: 16, sm: 24, md: 32 }}
-        style={{ maxWidth: "1200px" }}
+      <div
+        className="ml-auto w-full max-w-[1200px] shadow-xl flex [background:var(--m-header-bg)] flex-col"
+        onClick={(e) => e.stopPropagation()}
       >
-        <Group justify="space-between" align="center" wrap="nowrap" py="sm">
-          <Group gap="xs" align="center" wrap="nowrap">
-            <Image
-              src="/images/nar-icon.png"
-              alt="NAR.GG 아이콘"
-              width={42}
-              height={42}
-              style={{ objectFit: "contain" }}
-            />
-            <Title
-              order={1}
-              fw={700}
-              style={{
-                fontSize: "1.75rem",
-                textShadow: "2px 2px 4px rgba(0,0,0,0.3)",
-              }}
-            >
-              NAR.GG
-            </Title>
-          </Group>
+        <div className="flex flex-col w-full px-4 py-1.5">
+          {NAV_ITEMS.map((item) => {
+            const isOpenParent = openParentKey === item.key;
+            const hasChildren = !!item.children?.length;
 
-          <Text size="xs" c="white" ta="right" style={{ whiteSpace: "nowrap" }}>
-            {updateText}
-          </Text>
-        </Group>
-
-        <div
-          style={{
-            paddingBottom: "12px",
-            overflowX: "auto",
-            WebkitOverflowScrolling: "touch",
-          }}
-        >
-          <Group gap="xl" align="center" wrap="nowrap">
-            {NAV_ITEMS.map((item) => {
-              const isActive = item.key === activeMainKey;
-
-              if (item.children?.length) {
-                return (
-                  <NavItemWithDropdown
-                    key={item.key}
-                    item={item}
-                    isActive={isActive}
-                    pathname={pathname}
-                    onNavigate={handleNavigate}
-                  />
-                );
-              }
-
-              return (
-                <Text
-                  key={item.key}
-                  size="sm"
-                  fw={isActive ? 700 : 400}
-                  style={styles.mainItem(isActive)}
-                  onClick={() => handleNavigate(item.href)}
+            return (
+              <div
+                key={item.key}
+                className="w-full border-b last:border-b-0 border-(--nar-border-primary)"
+              >
+                <div
+                  className="flex justify-between items-center cursor-pointer px-4 py-3.5 hover:bg-black/5"
+                  onClick={() => {
+                    if (!hasChildren) {
+                      onGo(item.href);
+                      onClose();
+                      return;
+                    }
+                    toggleMobileParent(item);
+                  }}
                 >
-                  {item.label}
-                </Text>
-              );
-            })}
+                  <span className="font-bold text-[16px] text-white">
+                    {item.label}
+                  </span>
+
+                  {hasChildren && (
+                    <span
+                      className={cn(
+                        "text-white/80 text-[12px] select-none",
+                        isOpenParent ? "rotate-180" : "rotate-0",
+                        "transition-transform duration-200"
+                      )}
+                    >
+                      ▼
+                    </span>
+                  )}
+                </div>
+
+                {hasChildren && (
+                  <div
+                    className={cn(
+                      "w-full text-white py-1 border-t-[5px] [border-image:var(--gradients-nargg)_1]",
+                      isOpenParent ? "bg-white/20" : "bg-transparent",
+                      isOpenParent ? "block" : "hidden"
+                    )}
+                  >
+                    {item.children!.map((sub) => {
+                      const isSubActive = isMatch(
+                        pathname,
+                        sub.href,
+                        sub.match
+                      );
+
+                      return (
+                        <div
+                          key={sub.key}
+                          className={cn(
+                            "px-4 py-3.5 cursor-pointer font-medium transition-colors",
+                            "hover:bg-white/10",
+                            isSubActive
+                              ? "border-b-[5px] border-[rgba(255,254,254,0.5)] bg-white/10"
+                              : "border-b-[5px] border-transparent"
+                          )}
+                          onClick={() => {
+                            onGo(sub.href);
+                            onClose();
+                          }}
+                        >
+                          {sub.label}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className={cn("min-[1201px]:hidden", headerHeightClass)} />
+    </div>
+  );
+}
+
+function SubHeader({
+  pathname,
+  subMenuList,
+  onGo,
+  subHeaderHeightClass,
+}: {
+  pathname: string;
+  subMenuList: SubNavItem[];
+  onGo: (href: string) => void;
+  subHeaderHeightClass: string;
+}) {
+  return (
+    <div
+      className={cn(
+        "hidden min-[1201px]:flex w-full items-center justify-center gap-10 px-8",
+        subHeaderHeightClass,
+        "[background:var(--sub-header-bg)]",
+        "shadow-[var(--sub-header-shadow)]",
+        "border-t border-(--nar-border-primary)"
+      )}
+    >
+      {subMenuList.map((sub) => {
+        const isSubActive = isMatch(pathname, sub.href, sub.match);
+
+        return (
+          <button
+            key={sub.key}
+            type="button"
+            onClick={() => onGo(sub.href)}
+            className={cn(
+              "h-full py-2.5 px-10 transition-colors",
+              isSubActive
+                ? "border-b-4 border-white"
+                : "border-b-4 border-transparent"
+            )}
+          >
+            <span
+              className={cn(
+                "text-[15px] transition-all duration-200",
+                isSubActive
+                  ? "font-extrabold text-white"
+                  : "font-medium text-white/80 hover:text-white"
+              )}
+            >
+              {sub.label}
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+export function Header() {
+  const pathname = usePathname() ?? "/";
+  const router = useRouter();
+
+  const [hoverParentKey, setHoverParentKey] = useState<string | null>(null);
+
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const [openParentKey, setOpenParentKey] = useState<string | null>(null);
+
+  const { routeParent, subMenuList, isVisibleSubHeader } = useHeaderNav(
+    pathname,
+    hoverParentKey
+  );
+
+  const headerHeightClass = "h-[49.9px] lg:h-[98px] xl:h-[92px]";
+  const subHeaderHeightClass = "h-[27.9px] lg:h-[44px]";
+
+  const go = useCallback((href: string) => router.push(href), [router]);
+
+  const closeSubHeader = useCallback(() => {
+    if (routeParent) return;
+    setHoverParentKey(null);
+  }, [routeParent]);
+
+  const handleMainHover = useCallback(
+    (item: NavItem) => {
+      if (routeParent) return;
+      if (item.children?.length) setHoverParentKey(item.key);
+      else setHoverParentKey(null);
+    },
+    [routeParent]
+  );
+
+  const closeMobileMenu = useCallback(() => {
+    setIsMenuOpen(false);
+  }, []);
+
+  return (
+    <>
+      <div
+        className="fixed top-0 left-0 w-full z-50"
+        onMouseLeave={closeSubHeader}
+      >
+        <div
+          className={cn(
+            "w-full px-5 bg-(--header-bg) shadow-[0_4px_20px_0_rgba(240,62,62,0.08)]",
+            headerHeightClass,
+            "flex items-center"
+          )}
+        >
+          <Group
+            justify="space-between"
+            align="center"
+            wrap="nowrap"
+            className="w-full"
+          >
+            <div className="flex items-center gap-[53px] w-full">
+              <TitleLogo className="w-[183px] h-[44px]" />
+
+              <DesktopNav
+                pathname={pathname}
+                onHoverItem={handleMainHover}
+                onGo={go}
+              />
+            </div>
+
+            <div className="flex items-center gap-4">
+              <ThemeToggle />
+
+              <div
+                className="min-[1201px]:hidden cursor-pointer w-[44px] h-[44px] flex items-center justify-center"
+                onClick={() => setIsMenuOpen((v) => !v)}
+              >
+                {isMenuOpen ? <Close /> : <Menu />}
+              </div>
+            </div>
           </Group>
         </div>
-      </Container>
-    </Paper>
+
+        <MobileDrawer
+          pathname={pathname}
+          isOpen={isMenuOpen}
+          openParentKey={openParentKey}
+          setOpenParentKey={setOpenParentKey}
+          onGo={go}
+          onClose={closeMobileMenu}
+          headerHeightClass={headerHeightClass}
+        />
+
+        {isVisibleSubHeader && (
+          <SubHeader
+            pathname={pathname}
+            subMenuList={subMenuList}
+            onGo={go}
+            subHeaderHeightClass={subHeaderHeightClass}
+          />
+        )}
+      </div>
+
+      <div
+        className={cn(
+          headerHeightClass,
+          "hidden min-[1201px]:block",
+          isVisibleSubHeader ? subHeaderHeightClass : "h-0"
+        )}
+      />
+      <div className={cn("min-[1201px]:hidden", headerHeightClass)} />
+    </>
   );
 }

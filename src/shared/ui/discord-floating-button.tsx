@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ActionIcon, Text } from "@mantine/core";
 import Image from "next/image";
+import DiscordIcon from "@/shared/assets/images/nar_discord.svg";
 
 export function DiscordFloatingButton() {
   const [open, setOpen] = useState(false);
@@ -34,13 +35,7 @@ export function DiscordFloatingButton() {
         onMouseLeave={() => setOpen(false)}
         className="!fixed !bottom-6 !right-6 !z-[9999] !p-0 !bg-[#5865F2] transition-transform duration-[180ms] ease-out hover:scale-[1.08] hover:border-none active:scale-[0.96]"
       >
-        <Image
-          src="/images/discord.svg"
-          alt="디스코드"
-          width={60}
-          height={60}
-          className="object-contain"
-        />
+        <DiscordIcon />
       </ActionIcon>
     </>
   );

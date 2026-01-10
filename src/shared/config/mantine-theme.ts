@@ -22,4 +22,16 @@ export const mantineTheme = createTheme({
       '#364fc7',
     ],
   },
+  components: {
+    SegmentedControl: {
+      styles: () => ({
+        root: {
+          backgroundColor: 'var(--mantine-color-default)',
+        },
+        label: {
+          color: 'var(--mantine-color-text)',
+        },
+      }),
+    },
+  },
 });

@@ -35,6 +35,7 @@
   --nar-text-con-heading: #101113;
   --nar-text-con-text: #101113;
   --nar-text-con-text2: #909296;
+  --nar-text-con-text3: #5c5f66;
   --gradients-nargg: linear-gradient(
     90deg,
     #e26212 -7.5%,
@@ -44,6 +45,11 @@
   --logo-gradient-start: #e26212;
   --logo-gradient-mid: #950371;
   --logo-gradient-end: #250657;
+  --menu-text-inactive: var(--mantine-color-dark-1);
+  --match-card-bg: #fafafa;
+  --match-card-border: #e26212;
+  --match-live-color: var(--mantine-color-red-6);
+  --table-body-color: #fbfbfb;
 }
 
 [data-mantine-color-scheme="dark"] {
@@ -79,6 +85,7 @@
   --nar-text-con-heading: #ffffff;
   --nar-text-con-text: #fafafa;
   --nar-text-con-text2: #c1c2c5;
+  --nar-text-con-text3: #a6a7ab;
   --gradients-nargg: linear-gradient(
     90deg,
     #ff6c11 -7.5%,
@@ -88,6 +95,11 @@
   --logo-gradient-start: #ff6c11;
   --logo-gradient-mid: #d2019f;
   --logo-gradient-end: #4b0ab4;
+  --menu-text-inactive: var(--mantine-color-gray-5);
+  --match-card-bg: #25262b;
+  --match-card-border: #ff6c11;
+  --match-live-color: var(--mantine-color-red-8);
+  --table-body-color: #1a1b1e;
 }
 
 @theme inline {
@@ -99,9 +111,9 @@
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
+  font-family: "SF Pro", "SF Pro Display", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
+    "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

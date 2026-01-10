@@ -6,7 +6,7 @@ import { Footer } from "./footer";
 import { KakaoAdFit } from "./kakao-ad-fit";
 
 interface LayoutProps {
-    children: ReactNode;
+  children: ReactNode;
 }
 
 export function Layout({ children }: LayoutProps) {

@@ -20,21 +20,36 @@ export function SearchBox() {
 
       <div
         className="
+          relative group
           rounded-[24px]
           p-[3px]
-          [background:var(--gradients-nargg)]
+          overflow-hidden
           shadow-[0_0_13px_rgba(240,62,62,0.40)]
         "
       >
+        {/* Default Static Background */}
+        <div className="absolute inset-0 [background:var(--nar_gradients)] transition-opacity duration-300 group-hover:opacity-0 group-focus-within:opacity-0" />
+
+        {/* Rotating Light Background (Active/Hover) */}
+        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-300">
+          <div
+            className="
+              w-[500%] aspect-square
+              bg-conic-spinner
+              animate-spin-slow
+            "
+          />
+        </div>
         <div
           className="
+            relative z-10
             flex items-center justify-between
             w-[291px] sm:w-[549px] md:w-[846px]
             h-[41px] md:h-[56px]
             rounded-[21px]
-            bg-[var(--search-bg)] px-4
+            bg-(--nar-searchbar-bg) px-4
             text-[14px] md:text-[18px]
-          placeholder:text-gray-400
+          placeholder:text-(--nar-searchbar-text)
           "
         >
           <input
@@ -42,7 +57,7 @@ export function SearchBox() {
             placeholder={placeholder}
             className="flex-1 bg-transparent outline-none"
           />
-          <Search className="w-[28px] h-[28px] md:w-[35px] md:h-[35px] text-gray-400" />
+          <Search className="w-[28px] h-[28px] md:w-[35px] md:h-[35px] text-(--nar-searchbar-text)" />
         </div>
       </div>
     </div>

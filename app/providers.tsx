@@ -36,6 +36,14 @@ export function Providers({ children }: { children: React.ReactNode }) {
           td: "none",
         },
       },
+      Paper: {
+        defaultProps: {
+          bg: "var(--nar-bg-secondary)",
+          style: {
+            border: "1px solid var(--nar-line)",
+          },
+        },
+      },
     },
   });
 

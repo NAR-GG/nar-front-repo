@@ -1,7 +1,9 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import Image from "next/image";
+import DarkIcon from "@/shared/assets/icons/dark-icon.svg";
+import DarkHoverIcon from "@/shared/assets/icons/dark-hover-icon.svg";
+import LightIcon from "@/shared/assets/icons/light-icon.svg";
 import {
   Box,
   Transition,
@@ -32,7 +34,8 @@ export function ThemeToggle() {
 
   return (
     <Box
-      onClick={() => toggleColorScheme()}
+      onClick={toggleColorScheme}
+      className="group"
       style={{
         cursor: "pointer",
         position: "relative",
@@ -40,26 +43,43 @@ export function ThemeToggle() {
         height: 44,
       }}
     >
+      {/* 🌞 Light Icon (dark 모드일 때 표시) */}
       <Transition mounted={isDark} transition="rotate-left" duration={200}>
         {(styles) => (
-          <Image
-            src="/images/light-icon.svg"
-            alt="라이트모드로 전환"
+          <LightIcon
             width={44}
             height={44}
             style={{ ...styles, position: "absolute" }}
           />
         )}
       </Transition>
+
+      {/* 🌙 Dark Icon + Hover Icon */}
       <Transition mounted={!isDark} transition="rotate-right" duration={200}>
         {(styles) => (
-          <Image
-            src="/images/dark-icon.svg"
-            alt="다크모드로 전환"
-            width={44}
-            height={44}
-            style={{ ...styles, position: "absolute" }}
-          />
+          <>
+            {/* 기본 Dark 아이콘 */}
+            <DarkIcon
+              width={44}
+              height={44}
+              className="absolute transition-opacity duration-200 group-hover:opacity-0"
+              style={{
+                ...styles,
+                inset: 0,
+              }}
+            />
+
+            {/* Hover 시 그라데이션 아이콘 */}
+            <DarkHoverIcon
+              width={44}
+              height={44}
+              className="absolute opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+              style={{
+                ...styles,
+                inset: 0,
+              }}
+            />
+          </>
         )}
       </Transition>
     </Box>

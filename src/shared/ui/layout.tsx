@@ -11,9 +11,9 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   return (
-    <div className="flex min-h-screen flex-col bg-(--nar-bg-primary)">
+    <div className="flex min-h-screen flex-col bg-(--nar-bg-GNB)">
       <Header />
-      <div className="flex justify-center bg-(--nar-bg-primary) pt-[49.9px] pb-[10px]">
+      <div className="flex justify-center bg-(--nar-bg-GNB) pt-[49.9px] pb-[10px]">
         <Box visibleFrom="sm">
           <KakaoAdFit
             adUnit="DAN-S0LZlpVV3VD0jjia"
@@ -29,7 +29,7 @@ export function Layout({ children }: LayoutProps) {
           />
         </Box>
       </div>
-      <main className="flex flex-1 justify-center bg-(--nar-bg-primary) pt-4 pb-8">
+      <main className="flex flex-1 justify-center bg-(--nar-bg-GNB) pt-4 pb-8">
         <Box className="flex w-full max-w-[1600px] items-start gap-5 px-5">
           <Box visibleFrom="xl" className="w-[160px] shrink-0">
             <div className="sticky top-5">

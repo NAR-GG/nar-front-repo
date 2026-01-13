@@ -1,3 +1,5 @@
+"use client";
+
 import HomeLayout from "./home-layout";
 import { SearchBox } from "./search-box";
 

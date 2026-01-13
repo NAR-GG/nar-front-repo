@@ -10,7 +10,7 @@ import { useChampionImage } from "@/shared/lib/use-champion-image";
 import { getLaneIcon } from "@/shared/lib/get-lane-icon";
 
 export function Top5Champion() {
-  const [mode, setMode] = useState<Top5Mode>("ban");
+  const [mode, setMode] = useState<Top5Mode>("win");
   const { data: championData, isLoading } = useQuery(
     homeQueries.championTop5()
   );

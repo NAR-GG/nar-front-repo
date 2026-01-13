@@ -33,14 +33,14 @@ type Column = {
 };
 
 export function ChampionTop5Table({ data, mode }: ChampionTop5TableProps) {
-  const TD_CLASS = "bg-[var(--table-body-color)] !px-0 !py-[12px]";
+  const TD_CLASS = "bg-(--nar-bg-cont-livebox) !py-[12px]";
   const TH_CLASS = "!py-[12px] !border-b-0";
   const TR_CLASS = "!border-b-0";
 
   const winColumn: Column = {
     key: "win",
     header: "승률",
-    valueColor: "var(--nar-text-con-text)",
+    valueColor: "var(--nar-text-secondary)",
     getRate: (row) => row.winRate,
     getGames: (row) => row.winGames,
   };
@@ -48,7 +48,7 @@ export function ChampionTop5Table({ data, mode }: ChampionTop5TableProps) {
   const pickColumn: Column = {
     key: "pick",
     header: "픽률",
-    valueColor: "var(--nar-text-nav-active)",
+    valueColor: "var(--nar-text-percent)",
     getRate: (row) => row.pickRate ?? 0,
     getGames: (row) => row.pickGames ?? 0,
   };
@@ -56,7 +56,7 @@ export function ChampionTop5Table({ data, mode }: ChampionTop5TableProps) {
   const banColumn: Column = {
     key: "ban",
     header: "벤률",
-    valueColor: "var(--nar-text-nav-active)",
+    valueColor: "var(--nar-text-percent)",
     getRate: (row) => row.banRate ?? 0,
     getGames: (row) => row.banGames ?? 0,
   };
@@ -75,7 +75,7 @@ export function ChampionTop5Table({ data, mode }: ChampionTop5TableProps) {
     >
       <Table.Td className={cn({ TD_CLASS }, "align-center")}>
         <div className="w-6 h-6 flex items-center justify-center">
-          <Text fw={600} fz={18} c="var(--nar-text-con-text)" lineClamp={1}>
+          <Text fw={600} fz={18} c="var(--nar-text-secondary)" lineClamp={1}>
             {row.rank}
           </Text>
         </div>
@@ -86,7 +86,7 @@ export function ChampionTop5Table({ data, mode }: ChampionTop5TableProps) {
           <Avatar src={row.championImageUrl} size={46} radius={0} />
           <Group gap={9} wrap="nowrap" style={{ minWidth: 0 }}>
             {row.laneIcon}
-            <Text fw={600} fz={16} c="var(--nar-text-con-text)" lineClamp={1}>
+            <Text fw={600} fz={16} c="var(--nar-text-secondary)" lineClamp={1}>
               {row.championName}
             </Text>
           </Group>
@@ -98,12 +98,12 @@ export function ChampionTop5Table({ data, mode }: ChampionTop5TableProps) {
           <Text
             fw={600}
             fz={16}
-            c={col.valueColor ?? "var(--nar-text-con-text)"}
+            c={col.valueColor ?? "var(--nar-text-tertiary-sub)"}
             lineClamp={1}
           >
             {col.getRate(row).toFixed(1)}%
           </Text>
-          <Text fw={500} fz={14} c="var(--nar-text-con-text3)" lineClamp={1}>
+          <Text fw={500} fz={14} c="var(--nar-text-tertiary-sub)" lineClamp={1}>
             {col.getGames(row)} 경기
           </Text>
         </Table.Td>
@@ -123,36 +123,21 @@ export function ChampionTop5Table({ data, mode }: ChampionTop5TableProps) {
           <Table.Tr className={TR_CLASS}>
             <Table.Th className={TH_CLASS}>
               <div className="w-[24px] h-[24px] flex items-center justify-center">
-                <Text
-                  fw={600}
-                  fz={18}
-                  c="var(--nar-text-con-text)"
-                  lineClamp={1}
-                >
+                <Text fw={600} fz={18} c="var(--nar-text-4)" lineClamp={1}>
                   #
                 </Text>
               </div>
             </Table.Th>
 
             <Table.Th className={TH_CLASS}>
-              <Text
-                fw={600}
-                fz={14}
-                c="var(--nar-text-con-text3)"
-                lineClamp={1}
-              >
+              <Text fw={600} fz={14} c="var(--nar-text-4)" lineClamp={1}>
                 라인 / 챔피언
               </Text>
             </Table.Th>
 
             {columns.map((col) => (
               <Table.Th key={col.key} className={TH_CLASS}>
-                <Text
-                  fw={600}
-                  fz={14}
-                  c="var(--nar-text-con-text3)"
-                  lineClamp={1}
-                >
+                <Text fw={600} fz={14} c="var(--nar-text-4)" lineClamp={1}>
                   {col.header}
                 </Text>
               </Table.Th>
@@ -160,9 +145,7 @@ export function ChampionTop5Table({ data, mode }: ChampionTop5TableProps) {
           </Table.Tr>
         </Table.Thead>
 
-        <Table.Tbody className="bg-[var(--table-body-color)]">
-          {rows}
-        </Table.Tbody>
+        <Table.Tbody className="bg-(--nar-bg-cont-livebox)">{rows}</Table.Tbody>
       </Table>
     </Table.ScrollContainer>
   );

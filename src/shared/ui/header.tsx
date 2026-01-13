@@ -67,10 +67,10 @@ function DesktopNav({
             <span
               className={cn(
                 "flex items-center py-2 text-[15px] whitespace-nowrap cursor-pointer",
-                "transition-all duration-200",
+                "transition-colors duration-200",
                 isActive
-                  ? "[color:var(--nav-color-active)] font-bold"
-                  : "[color:var(--nav-color)] font-bold",
+                  ? "text-(--nar-text-GNB-active) font-bold"
+                  : "text-(--nar-text-GNB-default) font-bold hover:text-(--nar-text-GNB-hover)",
                 hasChildren && "select-none"
               )}
               onClick={() => {
@@ -121,7 +121,7 @@ function MobileDrawer({
       onClick={onClose}
     >
       <div
-        className="ml-auto w-full max-w-[1200px] shadow-xl flex [background:var(--m-header-bg)] flex-col"
+        className="ml-auto w-full max-w-[1200px] shadow-xl flex [background:var(--nar_gradients_LNB)] flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex flex-col w-full px-4 py-1.5">
@@ -132,7 +132,7 @@ function MobileDrawer({
             return (
               <div
                 key={item.key}
-                className="w-full border-b last:border-b-0 border-(--nar-border-primary)"
+                className="w-full border-b last:border-b-0 border-(--nar-line)"
               >
                 <div
                   className="flex justify-between items-center cursor-pointer px-4 py-3.5 hover:bg-black/5"
@@ -165,7 +165,7 @@ function MobileDrawer({
                 {hasChildren && (
                   <div
                     className={cn(
-                      "w-full text-white py-1 border-t-[5px] [border-image:var(--gradients-nargg)_1]",
+                      "w-full text-white py-1 border-t-[5px] [border-image:var(--nar_gradients_LNB)_1]",
                       isOpenParent ? "bg-white/20" : "bg-transparent",
                       isOpenParent ? "block" : "hidden"
                     )}
@@ -225,9 +225,9 @@ function SubHeader({
       className={cn(
         "hidden min-[1201px]:flex w-full items-center justify-center gap-10 px-8",
         subHeaderHeightClass,
-        "[background:var(--sub-header-bg)]",
+        "[background:var(--nar_gradients_LNB)]",
         "shadow-[var(--sub-header-shadow)]",
-        "border-t border-(--nar-border-primary)"
+        "border-t border-(--nar-line)"
       )}
     >
       {subMenuList.map((sub) => {
@@ -308,7 +308,7 @@ export function Header() {
       >
         <div
           className={cn(
-            "w-full px-5 bg-(--header-bg) shadow-[0_4px_20px_0_rgba(240,62,62,0.08)]",
+            "w-full px-5 bg-(--nar-bg-GNB) shadow-[0_4px_20px_0_rgba(240,62,62,0.08)]",
             headerHeightClass,
             "flex items-center"
           )}

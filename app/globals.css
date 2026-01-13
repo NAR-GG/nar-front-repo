@@ -2,11 +2,137 @@
 @import "@mantine/dates/styles.css";
 @import "tailwindcss";
 
+:root {
+  --nar-dark-900: #101113;
+  --nar-dark-800: #141517;
+  --nar-dark-700: #1a1b1e;
+  --nar-dark-650: #1f2024;
+  --nar-dark-600: #25262b;
+  --nar-dark-500: #2c2e33;
+  --nar-dark-400: #373a40;
+  --nar-dark-300: #5c5f66;
+  --nar-dark-200: #909296;
+  --nar-dark-100: #a6a7ab;
+  --nar-dark-0: #c1c2c5;
+
+  --nar-gray-900: #212529;
+  --nar-gray-850: #292e32;
+  --nar-gray-800: #343a40;
+  --nar-gray-700: #495057;
+  --nar-gray-650: #1f2024;
+  --nar-gray-600: #868e96;
+  --nar-gray-500: #adb5bd;
+  --nar-gray-400: #ced4da;
+  --nar-gray-300: #dee2e6;
+  --nar-gray-200: #e9ecef;
+  --nar-gray-100: #f1f3f5;
+  --nar-gray-50: #fafafa;
+  --nar-gray-0: #f8f9fa;
+
+  --nar-purple-1: #7048e8;
+  --nar-purple-2: #845ef7;
+  --nar-red-500: #ff6b6b;
+  --nar-red-600: #fa5252;
+  --nar-red-700: #f03e3e;
+  --nar-red-800: #e03131;
+  --nar-white: #ffffff;
+  --nar-bg-lightmode-nargg: #fffefe;
+  --nar-bg-darkmode-nargg: #0c0a0a;
+  --nar_red_opacity: #e031311a;
+}
+
 [data-mantine-color-scheme="light"] {
-  --nav-color: var(--nar-text-nav-default);
-  --nav-color-active: var(--nar-text-nav-active);
-  --header-bg: rgba(255, 255, 255, 0.8);
-  --sub-header-bg: linear-gradient(
+  /* GNB (Global Navigation Bar) */
+  --nar-bg-GNB: #ffffffcc;
+  --nar-text-GNB-default: var(--nar-dark-800);
+  --nar-text-GNB-hover: var(--nar-red-700);
+  --nar-text-GNB-active: var(--nar-red-700);
+  --nar-icon-GNB-default: var(--nar-dark-900);
+  --nar-icon-GNB-pressed: var(--nar-dark-900);
+  --nar-text-LNB-default: var(--nar-bg-lightmode-nargg);
+  --nar-button-bg-GNB-hover: rgba(255, 255, 255, 0.2);
+  --nar-bg-GNB-line: rgba(255, 255, 255, 0.5);
+  --nar-button-bg-LNB-hover: rgba(255, 255, 255, 0.2);
+  --nar-bg-SNB-line: rgba(255, 255, 255, 0.5);
+
+  /* Background */
+  --nar-bg-primary: var(--nar-bg-lightmode-nargg);
+  --nar-fill-secondary: var(--nar-white);
+  --nar-bg-secondary: var(--nar-white);
+  --nar-bg-tertiary: var(--nar-gray-0);
+  --nar-bg-cont-livebox: var(--nar-gray-50);
+  --nar-bg-teamlogobox: var(--nar-gray-200);
+
+  /* Text */
+  --nar-text-primary: var(--nar-dark-900);
+  --nar-text-secondary: var(--nar-dark-900);
+  --nar-text-tertiary: var(--nar-dark-600);
+  --nar-text-tertiary-sub: var(--nar-dark-200);
+  --nar-text-cont-nav: var(--nar-dark-100);
+  --nar-text-score: var(--nar-red-600);
+  --nar-text-percent: var(--nar-red-700);
+  --nar-text-red: var(--nar-red-500);
+  --nar-text: var(--nar-dark-900);
+  --nar-text-2: var(--nar-dark-300);
+  --nar-text-3: var(--nar-dark-200);
+  --nar-text-4: var(--nar-dark-100);
+  --nar-text-purple: var(--nar-purple-1);
+
+  /* Line */
+  --nar-line: var(--nar-gray-200);
+  --nar-line-2: var(--nar-gray-300);
+
+  /* Button 1 (Gray) */
+  --nar-button-1-bg: var(--nar-dark-300);
+  --nar-button-1-text: var(--nar-gray-0);
+
+  /* Button 2 (Line) */
+  --nar-button-2-bg: var(--nar-gray-100);
+  --nar-button-2-line: var(--nar-dark-300);
+  --nar-button-2-text: var(--nar-dark-300);
+
+  /* Button Disabled */
+  --nar-button-disabled-text: var(--nar-dark-100);
+  --nar-button-disabled-bg: var(--nar-gray-100);
+  --nar-button-disabled-line: var(--nar-dark-0);
+
+  /* NavChip */
+  --nar-navchip-bg-default: var(--nar-gray-100);
+  --nar-navchip-bg-pressed: var(--nar-white);
+  --nar-navchip-bg-line: var(--nar-gray-200);
+
+  /* Button More */
+  --nar-button-more-bg: var(--nar-white);
+  --nar-button-more-line: var(--nar-gray-200);
+  --nar-button-more-text: var(--nar-dark-300);
+
+  /* Searchbar */
+  --nar-searchbar-bg: var(--nar-white);
+  --nar-searchbar-text: var(--nar-gray-600);
+  --nar-searchbar-text-input: var(--nar-gray-800);
+  --nar-searchbar-text-title: var(--nar-gray-600);
+  --nar-searchbar-bg-1: var(--nar-white);
+  --nar-searchbar-bg-2: var(--nar-gray-50);
+  --nar-searchbar-bg-hover: var(--nar-gray-100);
+  --nar-searchbar-text-con: var(--nar-gray-300);
+  --nar-searchbar-text-con2: var(--nar-gray-600);
+
+  /* Tag Chip */
+  --nar-tagchip-bg: var(--nar-gray-200);
+  --nar-tagchip-text: var(--nar-gray-800);
+
+  /* Scrollbar */
+  --nar-scrollbar: var(--nar-dark-0);
+
+  /* Gradients */
+  --nar_gradients: linear-gradient(
+    90deg,
+    #e26212 -7.5%,
+    #950371 40.14%,
+    #250657 120.4%
+  );
+
+  --nar_gradients_LNB: linear-gradient(
     90deg,
     rgba(226, 98, 18, 0.44) -7.5%,
     rgba(149, 3, 113, 0.44) 40.14%,
@@ -19,87 +145,114 @@
       rgba(149, 3, 113, 0.44) 40.14%,
       rgba(37, 6, 87, 0.44) 120.4%
     ),
-    var(--BG_lightmode_nargg, #fffefe);
-  --search-bg: #ffffff;
-  --nar-bg-primary: #fffefe;
-  --nar-bg-secondary: #ffffff;
-  --nar-bg-tertiary: #f8f9fa;
-  --nar-bg-division: #fafafa;
-  --nar-text-nav-default: #141517;
-  --nar-text-nav-active: #f03e3e;
-  --nar-icon-nav-default: #101113;
-  --nar-bg-badge-mini: #e9ecef;
-  --nar-bg-badge-midi: #f8f9fa;
-  --nar-border-badge-midi: #dee2e6;
-  --nar-border-primary: #e9ecef;
-  --nar-text-con-heading: #101113;
-  --nar-text-con-text: #101113;
-  --nar-text-con-text2: #909296;
-  --nar-text-con-text3: #5c5f66;
-  --gradients-nargg: linear-gradient(
-    90deg,
-    #e26212 -7.5%,
-    #950371 40.14%,
-    #250657 120.4%
-  );
+    var(--nar-bg-lightmode-nargg);
+
   --logo-gradient-start: #e26212;
   --logo-gradient-mid: #950371;
   --logo-gradient-end: #250657;
-  --menu-text-inactive: var(--mantine-color-dark-1);
-  --match-card-bg: #fafafa;
-  --match-card-border: #e26212;
-  --match-live-color: var(--mantine-color-red-6);
-  --table-body-color: #fbfbfb;
 }
 
 [data-mantine-color-scheme="dark"] {
-  --nav-color: var(--nar-text-nav-default);
-  --nav-color-active: var(--nar-text-nav-active);
-  --header-bg: rgba(16, 17, 19, 0.8);
-  --sub-header-bg: linear-gradient(
+  --nar-bg-GNB: #0f1011cc;
+  --nar-text-GNB-default: var(--nar-gray-400);
+  --nar-text-GNB-hover: var(--nar-red-700);
+  --nar-text-GNB-active: var(--nar-red-700);
+  --nar-icon-GNB-default: var(--nar-bg-lightmode-nargg);
+  --nar-icon-GNB-pressed: var(--nar-bg-lightmode-nargg);
+  --nar_text_LNB_default: var(--nar-bg-lightmode-nargg);
+  --nar-button-bg-GNB-hover: rgba(255, 255, 255, 0.2);
+  --nar-bg-GNB-line: rgba(255, 255, 255, 0.5);
+  --nar-button-bg-LNB-hover: rgba(255, 255, 255, 0.2);
+  --nar-bg-SNB-line: rgba(255, 255, 255, 0.5);
+
+  /* Background */
+  --nar-bg-primary: var(--nar-dark-800);
+  --nar-fill-secondary: var(--nar-dark-700);
+  --nar-bg-secondary: var(--nar-dark-700);
+  --nar-bg-tertiary: var(--nar-dark-650);
+  --nar-bg-cont-livebox: var(--nar-dark-600);
+  --nar-bg-teamlogobox: var(--nar-gray-700);
+
+  /* Text */
+  --nar-text-primary: var(--nar-white);
+  --nar-text-secondary: var(--nar-white);
+  --nar-text-tertiary: var(--nar-gray-0);
+  --nar-text-tertiary-sub: var(--nar-dark-100);
+  --nar-text-cont-nav: var(--nar-gray-400);
+  --nar-text-score: var(--nar-red-700);
+  --nar-text-percent: var(--nar-red-700);
+  --nar-text-red: var(--nar-red-500);
+  --nar-text: var(--nar-white);
+  --nar-text-2: var(--nar-dark-100);
+  --nar-text-3: var(--nar-dark-0);
+  --nar-text-4: var(--nar-dark-100);
+  --nar-text-purple: var(--nar-purple-2);
+
+  /* Line */
+  --nar-line: var(--nar-gray-800);
+  --nar-line-2: var(--nar-gray-700);
+
+  /* Button 1 (Gray) */
+  --nar-button-1-bg: var(--nar-gray-300);
+  --nar-button-1-text: var(--nar-dark-900);
+
+  /* Button 2 (Line) */
+  --nar-button-2-bg: var(--nar-dark-300);
+  --nar-button-2-line: var(--nar-dark-400);
+  --nar-button-2-text: var(--nar-gray-0);
+
+  /* Button Disabled */
+  --nar-button-disabled-text: var(--nar-dark-300);
+  --nar-button-disabled-bg: var(--nar-dark-600);
+  --nar-button-disabled-line: var(--nar-dark-300);
+
+  /* NavChip */
+  --nar-navchip-bg-default: var(--nar-dark-800);
+  --nar-navchip-bg-pressed: var(--nar-gray-400);
+  --nar-navchip-bg-line: var(--nar-dark-900);
+
+  /* Button More */
+  --nar-button-more-bg: var(--nar-dark-600);
+  --nar-button-more-line: var(--nar-dark-400);
+  --nar-button-more-text: var(--nar-gray-0);
+
+  /* Searchbar */
+  --nar-searchbar-bg: var(--nar-dark-700);
+  --nar-searchbar-text: var(--nar-gray-500);
+  --nar-searchbar-text-input: var(--nar-gray-200);
+  --nar-searchbar-text-title: var(--nar-gray-600);
+  --nar-searchbar-bg-1: var(--nar-dark-800);
+  --nar-searchbar-bg-2: var(--nar-dark-700);
+  --nar-searchbar-bg-hover: var(--nar-dark-600);
+  --nar-searchbar-text-con: var(--nar-gray-800);
+  --nar-searchbar-text-con2: var(--nar-gray-600);
+
+  /* Tag Chip */
+  --nar-tagchip-bg: var(--nar-gray-700);
+  --nar-tagchip-text: var(--nar-gray-0);
+
+  /* Scrollbar */
+  --nar-scrollbar: var(--nar-dark-700);
+
+  /* Gradients */
+  --nar_gradients: linear-gradient(
+    90deg,
+    #ff6c11 -7.5%,
+    #d2019f 40.14%,
+    #4b0ab4 120.4%
+  );
+
+  --nar_gradients_LNB: linear-gradient(
     90deg,
     rgba(226, 98, 18, 0.8) -7.5%,
     rgba(149, 3, 113, 0.8) 40.14%,
     rgba(37, 6, 87, 0.8) 120.4%
   );
   --sub-header-shadow: 0 9px 20px 0 rgba(0, 0, 0, 0.8);
-  --m-header-bg: linear-gradient(
-      90deg,
-      rgba(255, 108, 17, 0.3) -7.5%,
-      rgba(210, 1, 159, 0.3) 40.14%,
-      rgba(75, 10, 180, 0.3) 120.4%
-    ),
-    #000;
-  --search-bg: var(--mantine-color-dark-8);
-  --nar-bg-primary: #0c0a0a;
-  --nar-bg-secondary: #101113;
-  --nar-bg-tertiary: #1a1b1e;
-  --nar-bg-division: #25262b;
-  --nar-text-nav-default: #ced4da;
-  --nar-text-nav-active: #c92a2a;
-  --nar-icon-nav-default: #f8f9fa;
-  --nar-bg-badge-mini: #373a40;
-  --nar-bg-badge-midi: #2c2e33;
-  --nar-border-badge-midi: #101113;
-  --nar-border-primary: #212529;
-  --nar-text-con-heading: #ffffff;
-  --nar-text-con-text: #fafafa;
-  --nar-text-con-text2: #c1c2c5;
-  --nar-text-con-text3: #a6a7ab;
-  --gradients-nargg: linear-gradient(
-    90deg,
-    #ff6c11 -7.5%,
-    #d2019f 40.14%,
-    #4b0ab4 120.4%
-  );
+
   --logo-gradient-start: #ff6c11;
   --logo-gradient-mid: #d2019f;
   --logo-gradient-end: #4b0ab4;
-  --menu-text-inactive: var(--mantine-color-gray-5);
-  --match-card-bg: #25262b;
-  --match-card-border: #ff6c11;
-  --match-live-color: var(--mantine-color-red-8);
-  --table-body-color: #1a1b1e;
 }
 
 @theme inline {
@@ -107,6 +260,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --animate-spin-slow: spin 3s linear infinite;
 }
 
 body {
@@ -121,4 +275,94 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
+}
+
+.badge-live {
+  @apply inline-flex items-center justify-center gap-1.5
+    text-[12px] font-medium
+    rounded-[8px] px-[11.5px] py-[4px] w-[59px] h-[24px]
+    border border-[var(--nar-text-red)]
+    bg-[var(--nar-red-opacity)]
+    text-[var(--nar-text-red)];
+}
+
+.badge-new {
+  @apply inline-flex items-center justify-center gap-[6px] w-[59px] h-[23px] rounded-[8px] border border-(--nar-red-opacity) bg-(--nar-white) text-[12px] font-medium text-(--nar-text-red);
+}
+
+.badge-default {
+  @apply inline-flex w-fit items-center justify-center gap-1.5
+    text-[12px] font-medium
+    rounded-[8px] px-[11.5px] py-[4px]
+    border border-(--nar-line-2)
+    bg-[var(--nar_bg_tertiary)]
+    text-[var(--nar-text-tertiary)];
+}
+
+.badge-mini {
+  @apply inline-flex w-fit items-center justify-center gap-1.5
+    text-[12px] font-semibold
+    rounded-[8px] px-2 py-[2px]
+    border-none
+    bg-[var(--nar-tagchip-bg)]
+    text-[var(--nar-tagchip-text)];
+}
+
+/* BUTTON */
+
+.btn-gray {
+  @apply inline-flex items-center justify-center
+    rounded-[8px] border-[1.5px]
+    text-[14px] whitespace-nowrap
+    transition-colors duration-150
+    focus:outline-none
+    border-[var(--nar-button-1-bg)]
+    bg-[var(--nar-button-1-bg)]
+    text-[var(--nar-button-1-text)];
+}
+
+.btn-line {
+  @apply inline-flex items-center justify-center
+    rounded-[8px] border-[1.5px]
+    text-[14px] whitespace-nowrap
+    transition-colors duration-150
+    focus:outline-none
+    border-[var(--nar-button-2-line)]
+    bg-[var(--nar-button-2-bg)]
+    text-[var(--nar-button-2-text)];
+}
+
+.btn-line.btn-disabled {
+  @apply cursor-not-allowed
+    border-[var(--nar-button-disabled-line)]
+    bg-[var(--nar-button-disabled-bg)]
+    text-[var(--nar-button-disabled-text)];
+}
+
+/* SIZE / STATE */
+
+.btn-sm {
+  @apply px-[15.5px] py-1 text-[14px];
+}
+
+.btn-md {
+  @apply px-4 py-2.5 text-sm;
+}
+
+.btn-lg {
+  @apply px-6 py-3 text-base;
+}
+
+.btn-disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.bg-conic-spinner {
+  background: conic-gradient(
+    from 0deg,
+    var(--logo-gradient-start),
+    var(--logo-gradient-mid),
+    var(--logo-gradient-end),
+    var(--logo-gradient-start)
+  );
 }

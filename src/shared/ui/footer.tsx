@@ -21,7 +21,7 @@ export function Footer() {
     >
       <Container size="xl">
         <Divider
-          className="border-(--nar-border-primary)"
+          className="border-(--nar-line)"
           mb={{ base: "md", md: "lg" }}
         />
 
@@ -29,7 +29,7 @@ export function Footer() {
           <Group gap="xs" justify="center">
             <Text
               size="sm"
-              className="text-(--nar-text-con-text)"
+              className="text-(--nar-text)"
               style={{ fontSize: "clamp(0.75rem, 2vw, 0.875rem)" }}
             >
               문의사항:
@@ -38,20 +38,20 @@ export function Footer() {
             <Anchor
               href="mailto:mentenseoul@gmail.com"
               td="none"
-              className="text-(--nar-text-con-text)"
+              className="text-(--nar-text)"
               style={{ fontSize: "clamp(0.75rem, 2vw, 0.875rem)" }}
             >
               mentenseoul@gmail.com
             </Anchor>
 
-            <Text className="text-(--nar-text-con-text2)">|</Text>
+            <Text className="text-(--nar-text-2)">|</Text>
 
             <Anchor
               href="https://github.com/NAR-GG"
               target="_blank"
               rel="noopener noreferrer"
               td="none"
-              className="text-(--nar-text-con-text)"
+              className="text-(--nar-text)"
               style={{ fontSize: "clamp(0.75rem, 2vw, 0.875rem)" }}
             >
               GitHub
@@ -61,7 +61,7 @@ export function Footer() {
           <Text
             size="sm"
             ta="center"
-            className="text-(--nar-text-con-text)"
+            className="text-(--nar-text)"
             style={{ fontSize: "clamp(0.75rem, 2vw, 0.875rem)" }}
           >
             © 2025 NAR.GG. All rights reserved.
@@ -70,7 +70,7 @@ export function Footer() {
           <Text
             size="xs"
             ta="center"
-            className="text-(--nar-text-con-text2)"
+            className="text-(--nar-text-2)"
             style={{
               fontSize: "clamp(0.7rem, 1.5vw, 0.75rem)",
               lineHeight: 1.4,

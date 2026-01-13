@@ -1,6 +1,6 @@
 import { Group, Table, Text, Avatar } from "@mantine/core";
 
-export type Top5Mode = "kda" | "ban" | "pick";
+export type Top5Mode = "kda" | "gpm" | "dpm";
 
 export interface ProgamerTop5Row {
   rank: number;
@@ -24,18 +24,18 @@ const MODE_CONFIG: Record<
     header: "K/DA",
     format: (v) => v.toFixed(2),
   },
-  ban: {
-    header: "벤률",
-    format: (v) => `${v.toFixed(1)}%`,
+  gpm: {
+    header: "GPM",
+    format: (v) => `${v.toFixed(1)}`,
   },
-  pick: {
-    header: "픽률",
+  dpm: {
+    header: "DPM",
     format: (v) => `${v.toFixed(1)}%`,
   },
 };
 
 export function ProgamerTop5Table({ data, mode }: ProgamerTop5TableProps) {
-  const TD_CLASS = "bg-[var(--table-body-color)] !py-[12px]";
+  const TD_CLASS = "bg-(--nar-bg-cont-livebox) !py-[12px]";
   const TH_CLASS = "!py-[12px] !border-b-0";
   const TR_CLASS = "!border-b-0";
 
@@ -52,66 +52,42 @@ export function ProgamerTop5Table({ data, mode }: ProgamerTop5TableProps) {
         <Table.Thead>
           <Table.Tr className={TR_CLASS}>
             <Table.Th className={TH_CLASS}>
-              <div className="w-[34px] h-[34px] flex items-center justify-center">
-                <Text span fw={600} fz={18} lineClamp={1}>
+              <div className="w-[24px] h-[24px] flex items-center justify-center">
+                <Text fw={600} fz={18} c="var(--nar-text-4)" lineClamp={1}>
                   #
                 </Text>
               </div>
             </Table.Th>
 
             <Table.Th className={TH_CLASS}>
-              <Text
-                span
-                fw={600}
-                fz={14}
-                c="var(--nar-text-con-text3)"
-                lineClamp={1}
-              >
+              <Text fw={600} fz={14} c="var(--nar-text-4)" lineClamp={1}>
                 소속 / 플레이어
               </Text>
             </Table.Th>
 
             <Table.Th className={TH_CLASS}>
-              <Text
-                span
-                fw={600}
-                fz={14}
-                c="var(--nar-text-con-text3)"
-                lineClamp={1}
-              >
+              <Text fw={600} fz={14} c="var(--nar-text-4)" lineClamp={1}>
                 경기 수
               </Text>
             </Table.Th>
 
             <Table.Th className={TH_CLASS}>
-              <Text
-                span
-                fw={600}
-                fz={14}
-                c="var(--nar-text-con-text3)"
-                lineClamp={1}
-              >
+              <Text fw={600} fz={14} c="var(--nar-text-4)" lineClamp={1}>
                 {config.header}
               </Text>
             </Table.Th>
           </Table.Tr>
         </Table.Thead>
 
-        <Table.Tbody className="bg-[var(--table-body-color)]">
+        <Table.Tbody className="bg-(--nar-bg-cont-livebox)">
           {data.map((row) => (
             <Table.Tr
               key={`${mode}-${row.rank}-${row.playerName}`}
               className={TR_CLASS}
             >
               <Table.Td className={TD_CLASS}>
-                <div className="w-[34px] h-[34px] flex items-center justify-center">
-                  <Text
-                    span
-                    fw={600}
-                    fz={18}
-                    c="var(--nar-text-con-text)"
-                    lineClamp={1}
-                  >
+                <div className="w-[24px] h-[24px] flex items-center justify-center">
+                  <Text fw={600} fz={18} c="var(--nar-text-secondary)">
                     {row.rank}
                   </Text>
                 </div>
@@ -120,35 +96,22 @@ export function ProgamerTop5Table({ data, mode }: ProgamerTop5TableProps) {
               <Table.Td className={TD_CLASS}>
                 <Group gap={13} wrap="nowrap" style={{ minWidth: 0 }}>
                   <Avatar src={row.playerImageUrl} size={46} radius={0} />
-                  <div style={{ minWidth: 0 }}>
-                    <Text
-                      span
-                      fw={600}
-                      fz={16}
-                      c="var(--nar-text-con-text)"
-                      lineClamp={1}
-                    >
-                      {row.playerName}
-                    </Text>
-                    <Text
-                      span
-                      fw={500}
-                      fz={13}
-                      c="var(--nar-text-con-text3)"
-                      lineClamp={1}
-                    >
-                      {row.teamName}
-                    </Text>
-                  </div>
+                  <Text
+                    fw={600}
+                    fz={16}
+                    c="var(--nar-text-secondary)"
+                    lineClamp={1}
+                  >
+                    {row.playerName}
+                  </Text>
                 </Group>
               </Table.Td>
 
               <Table.Td className={TD_CLASS}>
                 <Text
-                  span
                   fw={600}
                   fz={16}
-                  c="var(--nar-text-con-text)"
+                  c="var(--nar-text-secondary)"
                   lineClamp={1}
                 >
                   {row.games}
@@ -156,13 +119,7 @@ export function ProgamerTop5Table({ data, mode }: ProgamerTop5TableProps) {
               </Table.Td>
 
               <Table.Td className={TD_CLASS}>
-                <Text
-                  span
-                  fw={600}
-                  fz={16}
-                  c="var(--mantine-color-violet-7)"
-                  lineClamp={1}
-                >
+                <Text fw={600} fz={16} c="var(--nar-purple-2)" lineClamp={1}>
                   {config.format(row.value)}
                 </Text>
               </Table.Td>

@@ -1,5 +1,3 @@
-import { Button } from "@/src/shared/ui/button";
-import { Badge } from "@/src/shared/ui/badge";
 import { Text } from "@mantine/core";
 
 type MatchCardProps = {
@@ -34,55 +32,69 @@ export function MatchCard({
   rightScore,
   isLive,
   setText,
-  setTextColor = "var(--mantine-color-red-5)",
+  setTextColor = "var(--nar-text-red)",
   buttonLabel,
   buttonTheme,
   buttonDisabled,
   borderColorVar,
 }: MatchCardProps) {
+  const btnClass = `btn-${buttonTheme} btn-sm ${
+    buttonDisabled ? "btn-disabled" : ""
+  }`;
+
   return (
     <div
-      className="bg-[var(--match-card-bg)] border-l-[3px] min-h-[115px] p-4 relative flex flex-col gap-3"
-      style={{ borderColor: borderColorVar }}
+      className="bg-[var(--nar-bg-cont-livebox)] border-l-[3px] min-h-[115px] p-4 relative flex flex-col sm:flex-row sm:flex-wrap md:flex-nowrap md:items-center gap-3 overflow-hidden"
+      style={{ borderLeftColor: borderColorVar }}
     >
-      <div className="flex items-start justify-between">
-        <div className="flex flex-col gap-1">
-          <Badge theme={badgeTheme}>{badgeText}</Badge>
-          <Text fz={12} fw={600} c="var(--nar-text-con-text2)">
-            {tournamentTitle}
-          </Text>
-        </div>
-
-        <div className="hidden sm:block">
-          <Button size="sm" theme={buttonTheme} disabled={buttonDisabled}>
-            {buttonLabel}
-          </Button>
-        </div>
+      <div className="flex flex-col sm:flex-row sm:items-center md:flex-col md:items-start gap-1 sm:gap-2 md:gap-1 shrink-0 md:order-1 md:flex-1 md:basis-0">
+        {badgeTheme === "live" ? (
+          <span className="badge-live">
+            <span className="w-1.5 h-1.5 shrink-0 bg-[var(--mantine-color-red-8)] rounded-full animate-pulse" />
+            LIVE
+          </span>
+        ) : (
+          <span className="badge-default">{badgeText}</span>
+        )}
+        <Text
+          fz={12}
+          fw={600}
+          c="var(--nar-text-tertiary-sub)"
+          className="whitespace-nowrap"
+        >
+          {tournamentTitle}
+        </Text>
       </div>
 
-      <div className="flex-1 flex items-center justify-center">
-        <div className="flex items-center justify-between w-full max-w-[500px] gap-2">
-          <div className="flex flex-col-reverse sm:flex-row items-center gap-2 sm:gap-4 flex-1 justify-end min-w-0">
+      <div className="hidden sm:block ml-auto md:ml-0 md:order-3 md:flex-1 md:basis-0 md:flex md:justify-end shrink-0">
+        <button type="button" disabled={buttonDisabled} className={btnClass}>
+          {buttonLabel}
+        </button>
+      </div>
+
+      <div className="flex items-center justify-center w-full basis-full md:basis-auto md:w-auto md:order-2 min-w-0">
+        <div className="flex items-center justify-center w-full max-w-[500px]">
+          <div className="flex flex-col-reverse sm:flex-row items-center gap-2 sm:gap-4 flex-1 justify-end min-w-0 basis-0">
             <Text
               fz={20}
               fw={500}
-              c="var(--mantine-color-text)"
-              className="truncate"
+              c="var(--nar-text-tertiary)"
+              className="whitespace-nowrap"
             >
               {leftTeamName}
             </Text>
             <div className="w-12.5 h-12.5 bg-[var(--mantine-color-gray-2)] rounded-lg flex-shrink-0" />
           </div>
 
-          <div className="flex flex-col items-center min-w-[100px] sm:min-w-[140px]">
+          <div className="flex flex-col items-center shrink-0 mx-6">
             <div className="flex items-center gap-[14px] sm:gap-3.5">
               <Text
                 fz={{ base: 28, sm: 36 }}
                 fw={700}
                 c={
                   isLive
-                    ? "var(--match-live-color)"
-                    : "var(--mantine-color-dimmed)"
+                    ? "var(--nar-text-score)"
+                    : "var(--nar-text-tertiary-sub)"
                 }
               >
                 {typeof leftScore === "number" ? leftScore : "-"}
@@ -90,7 +102,7 @@ export function MatchCard({
               <Text
                 fz={{ base: 28, sm: 36 }}
                 fw={700}
-                c="var(--mantine-color-dimmed)"
+                c="var(--nar-text-tertiary-sub)"
               >
                 :
               </Text>
@@ -99,8 +111,8 @@ export function MatchCard({
                 fw={700}
                 c={
                   isLive
-                    ? "var(--mantine-color-text)"
-                    : "var(--mantine-color-dimmed)"
+                    ? "var(--nar-text-tertiary)"
+                    : "var(--nar-text-tertiary-sub)"
                 }
               >
                 {typeof rightScore === "number" ? rightScore : "-"}
@@ -119,13 +131,13 @@ export function MatchCard({
             ) : null}
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 flex-1 justify-start min-w-0">
+          <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 flex-1 justify-start min-w-0 basis-0">
             <div className="w-12.5 h-12.5 bg-[var(--mantine-color-gray-2)] rounded-lg flex-shrink-0" />
             <Text
               fz={20}
               fw={500}
-              c="var(--mantine-color-text)"
-              className="truncate order-1 sm:order-none"
+              c="var(--nar-text-tertiary)"
+              className="whitespace-nowrap order-1 sm:order-none"
             >
               {rightTeamName}
             </Text>
@@ -134,14 +146,13 @@ export function MatchCard({
       </div>
 
       <div className="sm:hidden">
-        <Button
-          size="sm"
-          theme={buttonTheme}
+        <button
+          type="button"
           disabled={buttonDisabled}
-          className="w-full"
+          className={`${btnClass} w-full`}
         >
           {buttonLabel}
-        </Button>
+        </button>
       </div>
     </div>
   );

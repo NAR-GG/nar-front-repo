@@ -31,12 +31,10 @@ export default function HomeLayout() {
 
       {/* ================== Laptop (lg ~ xl 미만) ================== */}
       <div className="hidden lg:grid xl:hidden gap-[40px]">
-        {/* A */}
         <div className="min-w-0">
           <TodayGame />
         </div>
 
-        {/* B: CommunityPosts + LatestNews (1:1) ✅ */}
         <div className="grid grid-cols-2 gap-[40px]">
           <div className="min-w-0">
             <CommunityPosts />
@@ -46,7 +44,6 @@ export default function HomeLayout() {
           </div>
         </div>
 
-        {/* C: Top5Champion + Top5Progamer (1:1) */}
         <div className="grid grid-cols-2 gap-[40px]">
           <div className="min-w-0">
             <Top5Champion />
@@ -63,7 +60,6 @@ export default function HomeLayout() {
           <TodayGame />
         </div>
 
-        {/* ✅ Community 먼저 */}
         <div className="min-w-0">
           <CommunityPosts />
         </div>
@@ -72,7 +68,6 @@ export default function HomeLayout() {
           <LatestNews />
         </div>
 
-        {/* Top5 row (1:1) */}
         <div className="grid grid-cols-2 gap-[40px]">
           <div className="min-w-0">
             <Top5Champion />
@@ -88,7 +83,6 @@ export default function HomeLayout() {
         <div className="min-w-0">
           <TodayGame />
         </div>
-        {/* ✅ Community 먼저 */}
         <div className="min-w-0">
           <CommunityPosts />
         </div>

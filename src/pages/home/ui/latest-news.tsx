@@ -1,4 +1,3 @@
-import { Badge } from "@/src/shared/ui/badge";
 import { Paper, Text } from "@mantine/core";
 
 function SourcePill({ children }: { children: React.ReactNode }) {
@@ -25,15 +24,15 @@ function NewsRow({
         <Text
           fz={14}
           fw={600}
-          c="var(--mantine-color-text)"
+          c="var(--nar-text-secondary)"
           className="line-clamp-2"
         >
           {title}
         </Text>
 
         <div className="flex items-center gap-2.5">
-          <Badge theme="mini">{source}</Badge>
-          <Text fz={12} fw={500} c="var(--mantine-color-dark-2)">
+          <span className="badge-mini">{source}</span>
+          <Text fz={12} fw={500} c="var(--nar-text-tertiary-sub)">
             {time}
           </Text>
         </div>
@@ -46,12 +45,12 @@ export function LatestNews() {
   return (
     <Paper withBorder radius={24} className="overflow-hidden">
       <div className="flex items-center justify-between pt-[14px] pb-[23px] px-6">
-        <Text fz={22} fw={700} lh={1.4} c="var(--mantine-color-text)">
+        <Text fz={22} fw={700} lh={1.4} c="var(--nar-text-secondary)">
           최신 뉴스
         </Text>
         <Text
           fz={16}
-          c="var(--mantine-color-dark-2)"
+          c="var(--nar-text-tertiary-sub)"
           className="cursor-pointer"
         >
           더보기
@@ -64,18 +63,18 @@ export function LatestNews() {
             <div className="absolute inset-0 bg-[var(--mantine-color-gray-2)]" />
             <div className="absolute inset-x-0 bottom-0 h-[150px] bg-gradient-to-t from-black/80 via-black/35 to-transparent" />
             <div className="absolute inset-0 p-4 flex flex-col justify-end">
-              <Badge theme="new">NEW</Badge>
+              <span className="badge-new">NEW</span>
               <Text
                 fz={20}
                 fw={800}
                 lh={1.2}
-                c="white"
+                c="var(--nar-white)"
                 className="line-clamp-2"
               >
                 [LCK] 무적 기세의 젠지, 월즈 3연속 우승 T1, 드라마의 주인공
                 KT... 2025 시...
               </Text>
-              <Text fz={14} fw={600} c="white">
+              <Text fz={14} fw={600} c="var(--nar-white)">
                 포모스
               </Text>
             </div>

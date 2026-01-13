@@ -1,10 +1,15 @@
-import { Paper, Text } from "@mantine/core";
+"use client";
+
+import { Paper, Text, Skeleton } from "@mantine/core";
 import clsx from "clsx";
 import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { homeQueries } from "@/entities/home/model/home.queries";
 import { ProgamerTop5Table, Top5Mode, ProgamerTop5Row } from "./progamer-table";
 
 export function Top5Progamer() {
   const [mode, setMode] = useState<Top5Mode>("kda");
+  const { data: playerData, isLoading } = useQuery(homeQueries.playerTop5());
 
   const MENU: { label: string; value: Top5Mode }[] = [
     { label: "K/DA", value: "kda" },
@@ -12,29 +17,25 @@ export function Top5Progamer() {
     { label: "DPM", value: "dpm" },
   ];
 
-  const raw = [
-    {
-      rank: 1,
-      playerName: "Oner",
-      playerImageUrl: "/images/players/oner.png",
-      teamName: "T1",
-      games: 143,
-      kda: 4.21,
-      gpm: 12.3,
-      dpm: 12.3,
-    },
-  ];
-
   const tableData: ProgamerTop5Row[] = useMemo(() => {
-    return raw.map((r) => ({
-      rank: r.rank,
-      playerName: r.playerName,
-      playerImageUrl: r.playerImageUrl,
-      teamName: r.teamName,
-      games: r.games,
-      value: mode === "kda" ? r.kda : mode === "gpm" ? r.gpm : r.dpm,
+    if (!playerData) return [];
+
+    const players =
+      mode === "kda"
+        ? playerData.kdaTop5
+        : mode === "gpm"
+        ? playerData.gpmTop5
+        : playerData.dpmTop5;
+
+    return players.slice(0, 5).map((player, index) => ({
+      rank: index + 1,
+      playerName: player.playerName,
+      playerImageUrl: player.playerImgUrl,
+      teamName: player.teamName,
+      games: player.totalGames,
+      value: player.statValue,
     }));
-  }, [mode]);
+  }, [playerData, mode]);
 
   return (
     <Paper withBorder radius={24} className="overflow-hidden">
@@ -49,7 +50,6 @@ export function Top5Progamer() {
         </div>
       </div>
 
-      {/* ✅ Champion이랑 동일 토큰으로 통일 */}
       <div className="flex px-4 border-b-2 border-(--nar-text-cont-nav)">
         {MENU.map((item) => {
           const isSelected = mode === item.value;

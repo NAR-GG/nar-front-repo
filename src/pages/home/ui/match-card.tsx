@@ -1,12 +1,15 @@
 import { Text } from "@mantine/core";
+import Image from "next/image";
 
 type MatchCardProps = {
   badgeTheme: "live" | "default";
   badgeText: string;
   tournamentTitle: string;
 
-  leftTeamName: string;
-  rightTeamName: string;
+  leftTeamName?: string;
+  leftTeamImage?: string;
+  rightTeamName?: string;
+  rightTeamImage?: string;
 
   leftScore?: number;
   rightScore?: number;
@@ -27,7 +30,9 @@ export function MatchCard({
   badgeText,
   tournamentTitle,
   leftTeamName,
+  leftTeamImage,
   rightTeamName,
+  rightTeamImage,
   leftScore,
   rightScore,
   isLive,
@@ -83,7 +88,17 @@ export function MatchCard({
             >
               {leftTeamName}
             </Text>
-            <div className="w-12.5 h-12.5 bg-[var(--mantine-color-gray-2)] rounded-lg flex-shrink-0" />
+            <div className="w-12.5 h-12.5 bg-[var(--nar-bg-teamlogobox)] rounded-lg shrink-0 flex items-center justify-center overflow-hidden">
+              {leftTeamImage && (
+                <Image
+                  src={leftTeamImage}
+                  alt={leftTeamName || ""}
+                  width={40}
+                  height={40}
+                  className="object-contain"
+                />
+              )}
+            </div>
           </div>
 
           <div className="flex flex-col items-center shrink-0 mx-6">
@@ -132,7 +147,17 @@ export function MatchCard({
           </div>
 
           <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 flex-1 justify-start min-w-0 basis-0">
-            <div className="w-12.5 h-12.5 bg-[var(--mantine-color-gray-2)] rounded-lg flex-shrink-0" />
+            <div className="w-12.5 h-12.5 bg-[var(--nar-bg-teamlogobox)] rounded-lg shrink-0 flex items-center justify-center overflow-hidden">
+              {rightTeamImage && (
+                <Image
+                  src={rightTeamImage}
+                  alt={rightTeamName || ""}
+                  width={40}
+                  height={40}
+                  className="object-contain"
+                />
+              )}
+            </div>
             <Text
               fz={20}
               fw={500}

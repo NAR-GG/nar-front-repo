@@ -4,15 +4,18 @@ export interface ChampionStat {
   totalGames: number;
   wins: number;
   winRate: number;
+  lane?: string;
 }
 
 export interface TopBanStat {
   championNameKr: string;
   championNameEn: string;
   banCount: number;
+  banRate: number;
   totalGames: number;
   wins: number;
   winRate: number;
+  lane?: string;
 }
 
 export interface ChampionTop5Data {

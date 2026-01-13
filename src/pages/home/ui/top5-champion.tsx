@@ -1,32 +1,55 @@
-import { Paper, Text } from "@mantine/core";
+"use client";
+
+import { Paper, Text, Skeleton } from "@mantine/core";
 import clsx from "clsx";
 import { useState } from "react";
-import Eye from "@/shared/assets/icons/eye.svg";
-import { ChampionTop5Table, Top5Mode } from "./champion-table";
+import { useQuery } from "@tanstack/react-query";
+import { homeQueries } from "@/entities/home/model/home.queries";
+import { ChampionTop5Table, Top5Mode, ChampionTop5Row } from "./champion-table";
+import { useChampionImage } from "@/shared/lib/use-champion-image";
+import { getLaneIcon } from "@/shared/lib/get-lane-icon";
 
 export function Top5Champion() {
   const [mode, setMode] = useState<Top5Mode>("ban");
+  const { data: championData, isLoading } = useQuery(
+    homeQueries.championTop5()
+  );
+  const { getChampionImageUrl } = useChampionImage();
 
   const MENU: { label: string; value: Top5Mode }[] = [
     { label: "승률", value: "win" },
-    { label: "벤", value: "ban" },
-    { label: "픽", value: "pick" },
+    // { label: "벤", value: "ban" },
+    // { label: "픽", value: "pick" },
   ];
 
-  const data = [
-    {
-      rank: 1,
-      championName: "신짜오",
-      championImageUrl: "/images/champions/xinzhao.png",
-      laneIcon: <Eye />,
-      winRate: 54.2,
-      winGames: 143,
-      banRate: 5.4,
-      banGames: 58,
-      pickRate: 12.3,
-      pickGames: 210,
-    },
-  ];
+  const data: ChampionTop5Row[] = (() => {
+    if (!championData) return [];
+
+    if (mode === "ban") {
+      return championData.topBans.slice(0, 5).map((ban, index) => ({
+        rank: index + 1,
+        championName: ban.championNameKr,
+        championImageUrl: getChampionImageUrl(ban.championNameEn),
+        laneIcon: getLaneIcon(ban.lane),
+        winRate: ban.winRate,
+        winGames: ban.wins,
+        banRate: ban.banRate,
+        banGames: ban.banCount,
+      }));
+    }
+
+    return championData.champions.slice(0, 5).map((champ, index) => ({
+      rank: index + 1,
+      championName: champ.championNameKr,
+      championImageUrl: getChampionImageUrl(champ.championNameEn),
+      laneIcon: getLaneIcon(champ.lane),
+      winRate: champ.winRate,
+      winGames: champ.wins,
+      pickRate:
+        (champ.totalGames / (championData.topBans[0]?.totalGames || 1)) * 100,
+      pickGames: champ.totalGames,
+    }));
+  })();
 
   return (
     <Paper withBorder radius={24} className="overflow-hidden">
@@ -78,7 +101,15 @@ export function Top5Champion() {
         })}
       </div>
 
-      <ChampionTop5Table data={data} mode={mode} />
+      {isLoading ? (
+        <div className="p-4 flex flex-col gap-2">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <Skeleton key={i} height={70} radius="md" />
+          ))}
+        </div>
+      ) : (
+        <ChampionTop5Table data={data} mode={mode} />
+      )}
     </Paper>
   );
 }

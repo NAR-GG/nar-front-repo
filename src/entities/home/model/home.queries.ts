@@ -18,7 +18,7 @@ export const homeQueries = {
   communitys: () => [...homeQueries.all(), "community"] as const,
   community: ({ sort }: { sort: "latest" | "popular" }) =>
     queryOptions({
-      queryKey: [...homeQueries.communitys()] as const,
+      queryKey: [...homeQueries.communitys(), sort] as const,
       queryFn: () => getCommunity({ sort }),
     }),
   news: () => [...homeQueries.all(), "news"] as const,

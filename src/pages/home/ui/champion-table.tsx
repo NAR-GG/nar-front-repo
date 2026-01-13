@@ -86,7 +86,7 @@ export function ChampionTop5Table({ data, mode }: ChampionTop5TableProps) {
           <Avatar src={row.championImageUrl} size={46} radius={0} />
           <Group gap={9} wrap="nowrap" style={{ minWidth: 0 }}>
             {row.laneIcon}
-            <Text fw={600} fz={16} c="var(--nar-text-secondary)" lineClamp={1}>
+            <Text fw={600} fz={16} c="var(--nar-text-secondary)" style={{ whiteSpace: "nowrap" }}>
               {row.championName}
             </Text>
           </Group>

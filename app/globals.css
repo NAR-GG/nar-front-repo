@@ -1,7 +1,7 @@
+@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css");
 @import "@mantine/core/styles.css";
 @import "@mantine/dates/styles.css";
 @import "tailwindcss";
-@import url("https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css");
 
 * {
   font-synthesis: weight;

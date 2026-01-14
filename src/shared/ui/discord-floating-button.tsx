@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { ActionIcon, Text } from "@mantine/core";
-import Image from "next/image";
 import DiscordIcon from "@/shared/assets/images/nar_discord.svg";
 
 export function DiscordFloatingButton() {

@@ -1,87 +1,42 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useState, useEffect } from "react";
 import DarkIcon from "@/shared/assets/icons/dark-icon.svg";
 import DarkHoverIcon from "@/shared/assets/icons/dark-hover-icon.svg";
 import LightIcon from "@/shared/assets/icons/light-icon.svg";
-import {
-  Box,
-  Transition,
-  useMantineColorScheme,
-  useComputedColorScheme,
-} from "@mantine/core";
-
-const emptySubscribe = () => () => {};
-
-function useIsMounted() {
-  return useSyncExternalStore(
-    emptySubscribe,
-    () => true,
-    () => false
-  );
-}
+import { useMantineColorScheme, useComputedColorScheme } from "@mantine/core";
+import styles from "./theme-toggle.module.css";
 
 export function ThemeToggle() {
   const { toggleColorScheme } = useMantineColorScheme();
   const computedColorScheme = useComputedColorScheme("light");
-  const isMounted = useIsMounted();
+  const [isHovered, setIsHovered] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   const isDark = computedColorScheme === "dark";
 
-  if (!isMounted) {
-    return <Box style={{ width: 44, height: 44 }} />;
-  }
+  const Icon = isDark ? LightIcon : isHovered ? DarkHoverIcon : DarkIcon;
+
+  const handleClick = () => {
+    setIsAnimating(true);
+    toggleColorScheme();
+  };
+
+  useEffect(() => {
+    if (isAnimating) {
+      const timer = setTimeout(() => setIsAnimating(false), 200);
+      return () => clearTimeout(timer);
+    }
+  }, [isAnimating]);
 
   return (
-    <Box
-      onClick={toggleColorScheme}
-      className="group"
-      style={{
-        cursor: "pointer",
-        position: "relative",
-        width: 44,
-        height: 44,
-      }}
+    <div
+      onClick={handleClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      className="cursor-pointer overflow-hidden"
     >
-      {/* 🌞 Light Icon (dark 모드일 때 표시) */}
-      <Transition mounted={isDark} transition="rotate-left" duration={200}>
-        {(styles) => (
-          <LightIcon
-            width={44}
-            height={44}
-            style={{ ...styles, position: "absolute" }}
-          />
-        )}
-      </Transition>
-
-      {/* 🌙 Dark Icon + Hover Icon */}
-      <Transition mounted={!isDark} transition="rotate-right" duration={200}>
-        {(styles) => (
-          <>
-            {/* 기본 Dark 아이콘 */}
-            <DarkIcon
-              width={44}
-              height={44}
-              className="absolute transition-opacity duration-200 group-hover:opacity-0"
-              style={{
-                ...styles,
-                inset: 0,
-              }}
-            />
-
-            {/* Hover 시 그라데이션 아이콘 */}
-            <DarkHoverIcon
-              width={44}
-              height={44}
-              className="absolute opacity-0 transition-opacity duration-200 group-hover:opacity-100"
-              style={{
-                ...styles,
-                inset: 0,
-              }}
-            />
-          </>
-        )}
-      </Transition>
-    </Box>
+      <Icon className={isAnimating ? styles.slideUp : ""} />
+    </div>
   );
 }

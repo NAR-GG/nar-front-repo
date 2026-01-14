@@ -4,7 +4,14 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { DiscordFloatingButton } from "@/src/shared/ui/discord-floating-button";
 import { Layout } from "@/src/shared/ui/layout";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 import "dayjs/locale/ko";
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault("Asia/Seoul");
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const theme = createTheme({

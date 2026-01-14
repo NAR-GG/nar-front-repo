@@ -2,6 +2,10 @@
 @import "@mantine/dates/styles.css";
 @import "tailwindcss";
 
+* {
+  font-synthesis: weight;
+}
+
 :root {
   --nar-dark-900: #101113;
   --nar-dark-800: #141517;

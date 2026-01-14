@@ -9,11 +9,8 @@ import { useState } from "react";
 import { MatchCard } from "./match-card";
 import { useQuery } from "@tanstack/react-query";
 import { homeQueries } from "@/src/entities/home/model/home.queries";
-import dayjs from "dayjs";
-import "dayjs/locale/ko";
+import dayjs, { toKST } from "@/shared/lib/dayjs";
 import { ScheduleData } from "@/src/entities/home/model/home.dto";
-
-dayjs.locale("ko");
 
 export function TodayGame() {
   const [selectedDate, setSelectedDate] = useState(dayjs());
@@ -155,7 +152,7 @@ export function TodayGame() {
                         badgeText={
                           match.state === "started"
                             ? "LIVE"
-                            : dayjs(match.matchDate).format("HH:mm")
+                            : toKST(match.matchDate)?.format("HH:mm") ?? ""
                         }
                         tournamentTitle={match.matchTitle}
                         leftTeamName={match.blueTeam?.code}

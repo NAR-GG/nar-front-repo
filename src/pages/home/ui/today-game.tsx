@@ -29,7 +29,7 @@ export function TodayGame() {
     homeQueries.schedule({
       date: selectedDate.format("YYYY-MM-DD"),
       league: "ALL",
-    })
+    }),
   );
 
   return (
@@ -58,13 +58,13 @@ export function TodayGame() {
                 "flex flex-col items-center justify-center cursor-pointer pt-5 pb-1.75 px-2.5 gap-2.5 flex-1 border-b-4",
                 isSelected
                   ? "border-transparent [border-image:var(--nar_gradients)_1]"
-                  : "border-transparent"
+                  : "border-transparent",
               )}
             >
               <span
                 className={clsx(
                   "text-[16px]",
-                  isSelected ? "font-bold" : "font-normal"
+                  isSelected ? "font-bold" : "font-normal",
                 )}
                 style={
                   isSelected
@@ -81,7 +81,7 @@ export function TodayGame() {
               <span
                 className={clsx(
                   "text-[18px]",
-                  isSelected ? "font-bold" : "font-medium"
+                  isSelected ? "font-bold" : "font-medium",
                 )}
                 style={
                   isSelected
@@ -119,7 +119,7 @@ export function TodayGame() {
             const leagueMatches = scheduleData
               .filter((m) => m.leagueName === leagueName)
               .sort(
-                (a, b) => dayjs(a.matchDate).unix() - dayjs(b.matchDate).unix()
+                (a, b) => dayjs(a.matchDate).unix() - dayjs(b.matchDate).unix(),
               );
 
             if (leagueMatches.length === 0) return null;
@@ -147,12 +147,12 @@ export function TodayGame() {
                       <MatchCard
                         key={match.matchId}
                         badgeTheme={
-                          match.state === "started" ? "live" : "default"
+                          match.state === "inProgress" ? "live" : "default"
                         }
                         badgeText={
-                          match.state === "started"
+                          match.state === "inProgress"
                             ? "LIVE"
-                            : toKST(match.matchDate)?.format("HH:mm") ?? ""
+                            : (toKST(match.matchDate)?.format("HH:mm") ?? "")
                         }
                         tournamentTitle={match.matchTitle}
                         leftTeamName={match.blueTeam?.code}
@@ -161,25 +161,25 @@ export function TodayGame() {
                         rightTeamImage={match.redTeam?.imageUrl}
                         leftScore={match.blueTeam?.wins || 0}
                         rightScore={match.redTeam?.wins || 0}
-                        isLive={match.state === "started"}
+                        isLive={match.state === "inProgress"}
                         setText={
-                          match.state === "started" && lastSetNumber
+                          match.state === "inProgress" && lastSetNumber
                             ? `SET ${lastSetNumber} 진행중`
                             : undefined
                         }
                         buttonLabel={
-                          match.state === "started"
+                          match.state === "inProgress"
                             ? "중계보기"
                             : match.state === "completed"
-                            ? "다시보기"
-                            : "준비 중"
+                              ? "다시보기"
+                              : "준비 중"
                         }
                         buttonTheme={
-                          match.state === "started" ? "gray" : "line"
+                          match.state === "inProgress" ? "gray" : "line"
                         }
                         buttonDisabled={match.state === "unstarted"}
                         borderColorVar={
-                          match.state === "started"
+                          match.state === "inProgress"
                             ? "var(--nar-red-700)"
                             : "var(--nar-bg-tertiary)"
                         }

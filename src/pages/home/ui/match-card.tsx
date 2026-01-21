@@ -1,5 +1,6 @@
 import { Text } from "@mantine/core";
 import Image from "next/image";
+import { ReplayButton } from "./replay-button";
 
 type MatchCardProps = {
   badgeTheme: "live" | "default";
@@ -23,6 +24,9 @@ type MatchCardProps = {
   buttonDisabled?: boolean;
 
   borderColorVar: string;
+
+  sets?: { setNumber: number; vodUrl: string }[];
+  state?: string;
 };
 
 export function MatchCard({
@@ -42,10 +46,15 @@ export function MatchCard({
   buttonTheme,
   buttonDisabled,
   borderColorVar,
+  sets,
+  state,
 }: MatchCardProps) {
   const btnClass = `btn-${buttonTheme} btn-sm ${
     buttonDisabled ? "btn-disabled" : ""
   }`;
+
+  const hasVod = sets?.some((s) => s.vodUrl && s.vodUrl.length > 0);
+  const showReplayButton = state === "completed" && hasVod;
 
   return (
     <div
@@ -72,9 +81,18 @@ export function MatchCard({
       </div>
 
       <div className="hidden sm:block ml-auto md:ml-0 md:order-3 md:flex-1 md:basis-0 md:flex md:justify-end shrink-0">
-        <button type="button" disabled={buttonDisabled} className={btnClass}>
-          {buttonLabel}
-        </button>
+        {showReplayButton && sets ? (
+          <ReplayButton
+            games={sets.map((s) => ({
+              gameNumber: s.setNumber,
+              vodUrl: s.vodUrl,
+            }))}
+          />
+        ) : (
+          <button type="button" disabled={buttonDisabled} className={btnClass}>
+            {buttonLabel}
+          </button>
+        )}
       </div>
 
       <div className="flex items-center justify-center w-full basis-full md:basis-auto md:w-auto md:order-2 min-w-0">
@@ -171,13 +189,22 @@ export function MatchCard({
       </div>
 
       <div className="sm:hidden">
-        <button
-          type="button"
-          disabled={buttonDisabled}
-          className={`${btnClass} w-full`}
-        >
-          {buttonLabel}
-        </button>
+        {showReplayButton && sets ? (
+          <ReplayButton
+            games={sets.map((s) => ({
+              gameNumber: s.setNumber,
+              vodUrl: s.vodUrl,
+            }))}
+          />
+        ) : (
+          <button
+            type="button"
+            disabled={buttonDisabled}
+            className={`${btnClass} w-full`}
+          >
+            {buttonLabel}
+          </button>
+        )}
       </div>
     </div>
   );

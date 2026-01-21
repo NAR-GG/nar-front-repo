@@ -183,6 +183,8 @@ export function TodayGame() {
                             ? "var(--nar-red-700)"
                             : "var(--nar-bg-tertiary)"
                         }
+                        sets={match.sets}
+                        state={match.state}
                       />
                     );
                   })}

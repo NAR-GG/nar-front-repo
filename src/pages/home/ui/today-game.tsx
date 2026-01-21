@@ -3,6 +3,7 @@
 import { Paper, Text, Button } from "@mantine/core";
 import Lck from "@/src/shared/assets/images/lck-home.svg";
 import Lpl from "@/src/shared/assets/images/lpl-home.svg";
+import Lec from "@/src/shared/assets/images/lec-home.svg";
 
 import clsx from "clsx";
 import { useState } from "react";
@@ -124,7 +125,15 @@ export function TodayGame() {
 
             if (leagueMatches.length === 0) return null;
 
-            const LeagueIcon = leagueName.includes("LCK") ? Lck : Lpl;
+            const leagueIconMap: Record<string, typeof Lck> = {
+              LCK: Lck,
+              LEC: Lec,
+              LPL: Lpl,
+            };
+            const leagueKey = Object.keys(leagueIconMap).find((key) =>
+              leagueName.includes(key),
+            );
+            const LeagueIcon = leagueKey ? leagueIconMap[leagueKey] : Lpl;
 
             return (
               <div

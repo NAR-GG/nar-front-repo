@@ -180,13 +180,19 @@ export function TodayGame() {
                           match.state === "inProgress"
                             ? "중계보기"
                             : match.state === "completed"
-                              ? "다시보기"
+                              ? "---"
                               : "준비 중"
                         }
                         buttonTheme={
                           match.state === "inProgress" ? "gray" : "line"
                         }
-                        buttonDisabled={match.state === "unstarted"}
+                        buttonDisabled={
+                          match.state === "unstarted" ||
+                          (match.state === "completed" &&
+                            !match.sets?.some(
+                              (s) => s.vodUrl && s.vodUrl.length > 0,
+                            ))
+                        }
                         borderColorVar={
                           match.state === "inProgress"
                             ? "var(--nar-red-700)"

@@ -15,7 +15,7 @@ import { cn } from "@/shared/lib/cn";
 const isMatch = (
   pathname: string,
   href: string,
-  match?: (p: string) => boolean
+  match?: (p: string) => boolean,
 ) => (match ? match(pathname) : pathname.startsWith(href));
 
 function useHeaderNav(pathname: string, hoverParentKey: string | null) {
@@ -71,7 +71,7 @@ function DesktopNav({
                 isActive
                   ? "text-(--nar-text-GNB-active) font-bold"
                   : "text-(--nar-text-GNB-default) font-bold hover:text-(--nar-text-GNB-hover)",
-                hasChildren && "select-none"
+                hasChildren && "select-none",
               )}
               onClick={() => {
                 if (hasChildren) return;
@@ -100,7 +100,7 @@ function MobileDrawer({
   isOpen: boolean;
   openParentKey: string | null;
   setOpenParentKey: (
-    v: string | null | ((prev: string | null) => string | null)
+    v: string | null | ((prev: string | null) => string | null),
   ) => void;
   onGo: (href: string) => void;
   onClose: () => void;
@@ -116,7 +116,7 @@ function MobileDrawer({
   return (
     <div
       className={cn(
-        "fixed inset-0 top-[49.9px] lg:top-[98px] min-[1201px]:hidden z-40 overflow-auto"
+        "fixed inset-0 top-[49.9px] lg:top-[98px] min-[1201px]:hidden z-40 overflow-auto",
       )}
       onClick={onClose}
     >
@@ -154,7 +154,7 @@ function MobileDrawer({
                       className={cn(
                         "text-white/80 text-[12px] select-none",
                         isOpenParent ? "rotate-180" : "rotate-0",
-                        "transition-transform duration-200"
+                        "transition-transform duration-200",
                       )}
                     >
                       ▼
@@ -167,14 +167,14 @@ function MobileDrawer({
                     className={cn(
                       "w-full text-white py-1 border-t-[5px] [border-image:var(--nar_gradients_LNB)_1]",
                       isOpenParent ? "bg-white/20" : "bg-transparent",
-                      isOpenParent ? "block" : "hidden"
+                      isOpenParent ? "block" : "hidden",
                     )}
                   >
                     {item.children!.map((sub) => {
                       const isSubActive = isMatch(
                         pathname,
                         sub.href,
-                        sub.match
+                        sub.match,
                       );
 
                       return (
@@ -185,7 +185,7 @@ function MobileDrawer({
                             "hover:bg-white/10",
                             isSubActive
                               ? "border-b-[5px] border-[rgba(255,254,254,0.5)] bg-white/10"
-                              : "border-b-[5px] border-transparent"
+                              : "border-b-[5px] border-transparent",
                           )}
                           onClick={() => {
                             onGo(sub.href);
@@ -227,7 +227,7 @@ function SubHeader({
         subHeaderHeightClass,
         "[background:var(--nar_gradients_LNB)]",
         "shadow-[var(--sub-header-shadow)]",
-        "border-t border-(--nar-line)"
+        "border-t border-(--nar-line)",
       )}
     >
       {subMenuList.map((sub) => {
@@ -242,7 +242,7 @@ function SubHeader({
               "h-full py-2.5 px-10 transition-colors",
               isSubActive
                 ? "border-b-4 border-white"
-                : "border-b-4 border-transparent"
+                : "border-b-4 border-transparent",
             )}
           >
             <span
@@ -250,7 +250,7 @@ function SubHeader({
                 "text-[15px] transition-all duration-200",
                 isSubActive
                   ? "font-extrabold text-white"
-                  : "font-medium text-white/80 hover:text-white"
+                  : "font-medium text-white/80 hover:text-white",
               )}
             >
               {sub.label}
@@ -274,7 +274,7 @@ export function Header() {
 
   const { routeParent, subMenuList, isVisibleSubHeader } = useHeaderNav(
     pathname,
-    hoverParentKey
+    hoverParentKey,
   );
 
   const headerHeightClass = "h-[49.9px] lg:h-[98px] xl:h-[92px]";
@@ -293,7 +293,7 @@ export function Header() {
       if (item.children?.length) setHoverParentKey(item.key);
       else setHoverParentKey(null);
     },
-    [routeParent]
+    [routeParent],
   );
 
   const closeMobileMenu = useCallback(() => {
@@ -310,7 +310,7 @@ export function Header() {
           className={cn(
             "w-full px-5 bg-(--nar-bg-GNB) shadow-[0_4px_20px_0_rgba(240,62,62,0.08)]",
             headerHeightClass,
-            "flex items-center"
+            "flex items-center",
           )}
         >
           <Group
@@ -320,7 +320,10 @@ export function Header() {
             className="w-full"
           >
             <div className="flex items-center gap-[53px] w-full">
-              <TitleLogo className="w-[183px] h-[44px]" />
+              <TitleLogo
+                className="w-[183px] h-[44px] hover:cursor-pointer"
+                onClick={() => router.push("/")}
+              />
 
               <DesktopNav
                 pathname={pathname}
@@ -366,7 +369,7 @@ export function Header() {
         className={cn(
           headerHeightClass,
           "hidden min-[1201px]:block",
-          isVisibleSubHeader ? subHeaderHeightClass : "h-0"
+          isVisibleSubHeader ? subHeaderHeightClass : "h-0",
         )}
       />
       <div className={cn("min-[1201px]:hidden", headerHeightClass)} />

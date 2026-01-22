@@ -4,7 +4,7 @@ export interface ChampionStat {
   totalGames: number;
   wins: number;
   winRate: number;
-  banRate?: number;
+  pickRate?: number;
   lane?: string;
 }
 
@@ -17,11 +17,12 @@ export interface TopBanStat {
   wins: number;
   winRate: number;
   lane?: string;
+  pickRate?: number;
 }
 
 export interface ChampionTop5Data {
   topPicks: ChampionStat[];
-  topBans: ChampionStat[];
+  topBans: TopBanStat[];
 }
 
 export interface CommunityData {

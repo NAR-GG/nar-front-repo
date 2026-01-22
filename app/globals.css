@@ -44,6 +44,8 @@
   --nar-bg-lightmode-nargg: #fffefe;
   --nar-bg-darkmode-nargg: #0c0a0a;
   --nar_red_opacity: #e031311a;
+  --nar-white-opacity70: rgba(255, 255, 255, 0.7);
+  --nar-black-opacity40: rgba(0, 0, 0, 0.4);
 }
 
 [data-mantine-color-scheme="light"] {
@@ -67,7 +69,7 @@
   --nar-bg-tertiary: var(--nar-gray-0);
   --nar-bg-cont-livebox: var(--nar-gray-50);
   --nar-bg-teamlogobox: var(--nar-gray-200);
-
+  --nar-bg-blur: var(--nar-white-opacity70);
   /* Text */
   --nar-text-primary: var(--nar-dark-900);
   --nar-text-secondary: var(--nar-dark-900);
@@ -144,7 +146,8 @@
     rgba(37, 6, 87, 0.44) 120.4%
   );
   --sub-header-shadow: 0 9px 20px 0 rgba(0, 0, 0, 0.12);
-  --m-header-bg: linear-gradient(
+  --m-header-bg:
+    linear-gradient(
       90deg,
       rgba(226, 98, 18, 0.44) -7.5%,
       rgba(149, 3, 113, 0.44) 40.14%,
@@ -177,6 +180,7 @@
   --nar-bg-tertiary: var(--nar-dark-650);
   --nar-bg-cont-livebox: var(--nar-dark-600);
   --nar-bg-teamlogobox: var(--nar-gray-700);
+  --nar-bg-blur: var(--nar-black-opacity40);
 
   /* Text */
   --nar-text-primary: var(--nar-white);
@@ -282,16 +286,17 @@
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Pretendard Variable",
-    Pretendard, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",
-    "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Pretendard Variable", Pretendard,
+    "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans",
+    "Droid Sans", "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-    monospace;
+  font-family:
+    source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
 }
 
 .badge-live {

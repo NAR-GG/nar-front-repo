@@ -103,7 +103,7 @@ export function ReplayButton({ games }: ReplayButtonProps) {
             onClick={handleReplayClick}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            className="px-3 py-1.5 rounded-l-lg transition-all duration-150 cursor-pointer bg-(--nar-button-2-bg)"
+            className="px-3 py-1.5 rounded-l-lg w-full md:w-auto transition-all duration-150 cursor-pointer bg-(--nar-button-2-bg)"
             style={{
               borderTop: `1.5px solid ${isHovered ? activeBorder : defaultBorder}`,
               borderBottom: `1.5px solid ${isHovered ? activeBorder : defaultBorder}`,

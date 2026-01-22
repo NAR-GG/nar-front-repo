@@ -10,15 +10,15 @@ import { useChampionImage } from "@/shared/lib/use-champion-image";
 import { getLaneIcon } from "@/shared/lib/get-lane-icon";
 
 export function Top5Champion() {
-  const [mode, setMode] = useState<Top5Mode>("win");
+  const [mode, setMode] = useState<Top5Mode>("ban");
   const { data: championData, isLoading } = useQuery(
     homeQueries.championTop5(),
   );
   const { getChampionImageUrl } = useChampionImage();
 
   const MENU: { label: string; value: Top5Mode }[] = [
-    { label: "승률", value: "win" },
-    { label: "밴률", value: "ban" },
+    { label: "밴", value: "ban" },
+    { label: "픽", value: "pick" },
   ];
 
   const data: ChampionTop5Row[] = (() => {
@@ -33,7 +33,19 @@ export function Top5Champion() {
         winRate: ban.winRate,
         winGames: ban.wins,
         banRate: ban.banRate,
-        banGames: ban.totalGames,
+        banCount: ban.banCount,
+      }));
+    }
+    if (mode === "pick") {
+      return championData.topPicks.slice(0, 5).map((pick, index) => ({
+        rank: index + 1,
+        championName: pick.championNameKr,
+        championImageUrl: getChampionImageUrl(pick.championNameEn),
+        laneIcon: getLaneIcon(pick.lane),
+        winRate: pick.winRate,
+        winGames: pick.wins,
+        pickRate: pick.pickRate,
+        totalGames: pick.totalGames,
       }));
     }
 

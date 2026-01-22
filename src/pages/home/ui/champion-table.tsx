@@ -10,13 +10,14 @@ export interface ChampionTop5Row {
   laneIcon: React.ReactNode;
 
   winRate: number;
-  winGames: number;
+  totalGames?: number;
 
   pickRate?: number;
   pickGames?: number;
+  winGames?: number;
 
   banRate?: number;
-  banGames?: number;
+  banCount?: number;
 }
 
 interface ChampionTop5TableProps {
@@ -32,7 +33,10 @@ type Column = {
   getGames: (row: ChampionTop5Row) => number;
 };
 
-export function ChampionTop5Table({ data, mode }: ChampionTop5TableProps) {
+export function ChampionTop5Table({
+  data,
+  mode = "ban",
+}: ChampionTop5TableProps) {
   const TD_CLASS = "bg-(--nar-bg-cont-livebox) !py-[12px]";
   const TH_CLASS = "!py-[12px] !border-b-0";
   const TR_CLASS = "!border-b-0";
@@ -42,7 +46,7 @@ export function ChampionTop5Table({ data, mode }: ChampionTop5TableProps) {
     header: "승률",
     valueColor: "var(--nar-text-secondary)",
     getRate: (row) => row.winRate,
-    getGames: (row) => row.winGames,
+    getGames: (row) => row.winGames ?? 0,
   };
 
   const pickColumn: Column = {
@@ -50,23 +54,19 @@ export function ChampionTop5Table({ data, mode }: ChampionTop5TableProps) {
     header: "픽률",
     valueColor: "var(--nar-text-percent)",
     getRate: (row) => row.pickRate ?? 0,
-    getGames: (row) => row.pickGames ?? 0,
+    getGames: (row) => row.totalGames ?? 0,
   };
 
   const banColumn: Column = {
     key: "ban",
-    header: "벤률",
+    header: "밴률",
     valueColor: "var(--nar-text-percent)",
     getRate: (row) => row.banRate ?? 0,
-    getGames: (row) => row.banGames ?? 0,
+    getGames: (row) => row.banCount ?? 0,
   };
 
   const columns: Column[] =
-    mode === "win"
-      ? [winColumn]
-      : mode === "pick"
-      ? [winColumn, pickColumn]
-      : [winColumn, banColumn];
+    mode === "pick" ? [winColumn, pickColumn] : [winColumn, banColumn];
 
   const rows = data.map((row) => (
     <Table.Tr
@@ -86,7 +86,12 @@ export function ChampionTop5Table({ data, mode }: ChampionTop5TableProps) {
           <Avatar src={row.championImageUrl} size={46} radius={0} />
           <Group gap={9} wrap="nowrap" style={{ minWidth: 0 }}>
             {row.laneIcon}
-            <Text fw={600} fz={16} c="var(--nar-text-secondary)" style={{ whiteSpace: "nowrap" }}>
+            <Text
+              fw={600}
+              fz={16}
+              c="var(--nar-text-secondary)"
+              style={{ whiteSpace: "nowrap" }}
+            >
               {row.championName}
             </Text>
           </Group>

@@ -10,7 +10,7 @@ export function SpoilerCard({ onReveal }: SpoilerCardProps) {
       className="relative cursor-pointer bg-[var(--nar-bg-cont-livebox)] bg-[var(--nar-bg-blur)] rounded-[14px]"
       onClick={onReveal}
     >
-      <div className="flex items-center gap-3.5 p-2.75">
+      <div className="flex items-center gap-3.5 py-3.25 px-3.25 md:px-2.75">
         <Text
           fz={{ base: 28, sm: 36 }}
           fw={700}

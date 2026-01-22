@@ -200,6 +200,7 @@ export function TodayGame() {
                         }
                         sets={match.sets}
                         state={match.state}
+                        liveStreamUrl={match.liveStreamUrl}
                       />
                     );
                   })}

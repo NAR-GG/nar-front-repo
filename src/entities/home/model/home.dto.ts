@@ -89,4 +89,5 @@ export interface ScheduleData {
   blueTeam: ScheduleTeam;
   redTeam: ScheduleTeam;
   sets: ScheduleSet[];
+  liveStreamUrl?: string;
 }

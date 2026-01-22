@@ -1,6 +1,10 @@
+"use client";
+
 import { Text } from "@mantine/core";
 import Image from "next/image";
+import { useState } from "react";
 import { ReplayButton } from "./replay-button";
+import { SpoilerCard } from "./spoiler-card";
 
 type MatchCardProps = {
   badgeTheme: "live" | "default";
@@ -27,6 +31,7 @@ type MatchCardProps = {
 
   sets?: { setNumber: number; vodUrl: string }[];
   state?: string;
+  liveStreamUrl?: string;
 };
 
 export function MatchCard({
@@ -48,7 +53,10 @@ export function MatchCard({
   borderColorVar,
   sets,
   state,
+  liveStreamUrl,
 }: MatchCardProps) {
+  const [revealed, setRevealed] = useState(false);
+
   const btnClass = `btn-${buttonTheme} btn-sm ${
     buttonDisabled ? "btn-disabled" : ""
   }`;
@@ -89,7 +97,14 @@ export function MatchCard({
             }))}
           />
         ) : (
-          <button type="button" disabled={buttonDisabled} className={btnClass}>
+          <button
+            type="button"
+            disabled={buttonDisabled}
+            className={btnClass}
+            onClick={() => {
+              if (liveStreamUrl) window.open(liveStreamUrl, "_blank");
+            }}
+          >
             {buttonLabel}
           </button>
         )}
@@ -120,48 +135,54 @@ export function MatchCard({
           </div>
 
           <div className="flex flex-col items-center shrink-0 mx-6">
-            <div className="flex items-center gap-[14px] sm:gap-3.5">
-              <Text
-                fz={{ base: 28, sm: 36 }}
-                fw={700}
-                c={
-                  isLive
-                    ? "var(--nar-text-score)"
-                    : "var(--nar-text-tertiary-sub)"
-                }
-              >
-                {typeof leftScore === "number" ? leftScore : "-"}
-              </Text>
-              <Text
-                fz={{ base: 28, sm: 36 }}
-                fw={700}
-                c="var(--nar-text-tertiary-sub)"
-              >
-                :
-              </Text>
-              <Text
-                fz={{ base: 28, sm: 36 }}
-                fw={700}
-                c={
-                  isLive
-                    ? "var(--nar-text-tertiary)"
-                    : "var(--nar-text-tertiary-sub)"
-                }
-              >
-                {typeof rightScore === "number" ? rightScore : "-"}
-              </Text>
-            </div>
+            {state === "unstarted" || revealed ? (
+              <>
+                <div className="flex items-center gap-3.5">
+                  <Text
+                    fz={{ base: 28, sm: 36 }}
+                    fw={700}
+                    c={
+                      isLive
+                        ? "var(--nar-text-score)"
+                        : "var(--nar-text-tertiary-sub)"
+                    }
+                  >
+                    {typeof leftScore === "number" ? leftScore : "-"}
+                  </Text>
+                  <Text
+                    fz={{ base: 28, sm: 36 }}
+                    fw={700}
+                    c="var(--nar-text-tertiary-sub)"
+                  >
+                    :
+                  </Text>
+                  <Text
+                    fz={{ base: 28, sm: 36 }}
+                    fw={700}
+                    c={
+                      isLive
+                        ? "var(--nar-text-tertiary)"
+                        : "var(--nar-text-tertiary-sub)"
+                    }
+                  >
+                    {typeof rightScore === "number" ? rightScore : "-"}
+                  </Text>
+                </div>
 
-            {setText ? (
-              <Text
-                fz={14}
-                fw={400}
-                c={setTextColor}
-                style={{ whiteSpace: "nowrap" }}
-              >
-                {setText}
-              </Text>
-            ) : null}
+                {setText ? (
+                  <Text
+                    fz={14}
+                    fw={400}
+                    c={setTextColor}
+                    style={{ whiteSpace: "nowrap" }}
+                  >
+                    {setText}
+                  </Text>
+                ) : null}
+              </>
+            ) : (
+              <SpoilerCard onReveal={() => setRevealed(true)} />
+            )}
           </div>
 
           <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 flex-1 justify-start min-w-0 basis-0">
@@ -201,6 +222,9 @@ export function MatchCard({
             type="button"
             disabled={buttonDisabled}
             className={`${btnClass} w-full`}
+            onClick={() => {
+              if (liveStreamUrl) window.open(liveStreamUrl, "_blank");
+            }}
           >
             {buttonLabel}
           </button>

@@ -14,7 +14,11 @@ const GTM_ID = "GTM-K4N8CFDR";
 const GA_ID = "G-RTZ77QF42T";
 
 export const metadata: Metadata = {
-  title: "나르지지 NAR.GG - 롤 프로 경기 챔피언 조합 분석",
+  metadataBase: new URL("https://nar.kr"),
+  title: {
+    default: "나르지지 NAR.GG - 롤 프로 경기 챔피언 조합 분석",
+    template: "%s | 나르지지 NAR.GG",
+  },
   description:
     "LCK, LPL, LEC 프로 경기의 챔피언 조합, 1v1 매치업, 승률 통계를 분석합니다. 롤 프로 경기 메타 분석 사이트.",
   keywords: [
@@ -31,7 +35,14 @@ export const metadata: Metadata = {
     "매치업",
     "승률",
     "메타 분석",
+    "롤 프로리그",
+    "e스포츠",
+    "LOL",
+    "League of Legends",
   ],
+  authors: [{ name: "NAR.GG", url: "https://nar.kr" }],
+  creator: "NAR.GG",
+  publisher: "NAR.GG",
   icons: {
     icon: [
       { url: "/favicon.ico" },
@@ -41,21 +52,31 @@ export const metadata: Metadata = {
         type: "image/png",
       },
     ],
+    apple: [{ url: "/images/nar-browser-icon.png" }],
   },
   openGraph: {
     title: "나르지지 NAR.GG - 롤 프로 경기 챔피언 조합 분석",
     description:
       "LCK, LPL, LEC 프로 경기의 챔피언 조합, 1v1 매치업, 승률 통계를 분석합니다.",
-    url: "https://nar.gg",
+    url: "https://nar.kr",
     siteName: "나르지지 NAR.GG",
     locale: "ko_KR",
     type: "website",
+    images: [
+      {
+        url: "/images/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "나르지지 NAR.GG - 롤 프로 경기 챔피언 조합 분석",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "나르지지 NAR.GG - 롤 프로 경기 챔피언 조합 분석",
     description:
       "LCK, LPL, LEC 프로 경기의 챔피언 조합, 1v1 매치업, 승률 통계를 분석합니다.",
+    images: ["/images/og-image.png"],
   },
   robots: {
     index: true,
@@ -63,11 +84,18 @@ export const metadata: Metadata = {
     googleBot: {
       index: true,
       follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
     },
   },
   alternates: {
     canonical: "https://nar.kr",
   },
+  verification: {
+    google: "TBBqfcvvPfGEcOLFx09rvVdzd794xbo0EHBw4Pl9b5U",
+  },
+  category: "esports",
 };
 
 export default async function RootLayout({

@@ -7,6 +7,31 @@ import { HomeComponent } from "@/src/pages/home/ui";
 import { homeQueries } from "@/entities/home/model/home.queries";
 import dayjs from "dayjs";
 
+export const metadata = {
+  title: "나르지지 NAR.GG - 롤 프로 경기 챔피언 조합 분석",
+  description:
+    "LCK, LPL, LEC 프로 경기의 챔피언 조합, 1v1 매치업, 승률 통계를 실시간으로 분석합니다. 오늘의 경기 일정, 챔피언 티어, 프로 선수 랭킹을 확인하세요.",
+  alternates: {
+    canonical: "/",
+  },
+};
+
+// JSON-LD 구조화 데이터
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "나르지지 NAR.GG",
+  alternateName: ["NAR.GG", "나르지지"],
+  url: "https://nar.kr",
+  description:
+    "LCK, LPL, LEC 프로 경기의 챔피언 조합, 1v1 매치업, 승률 통계를 분석합니다.",
+  potentialAction: {
+    "@type": "SearchAction",
+    target: "https://nar.kr/search?q={search_term_string}",
+    "query-input": "required name=search_term_string",
+  },
+};
+
 export default async function Page() {
   const queryClient = new QueryClient();
 
@@ -24,8 +49,14 @@ export default async function Page() {
   ]);
 
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <HomeComponent />
-    </HydrationBoundary>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <HomeComponent />
+      </HydrationBoundary>
+    </>
   );
 }

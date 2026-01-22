@@ -12,14 +12,13 @@ import { getLaneIcon } from "@/shared/lib/get-lane-icon";
 export function Top5Champion() {
   const [mode, setMode] = useState<Top5Mode>("win");
   const { data: championData, isLoading } = useQuery(
-    homeQueries.championTop5()
+    homeQueries.championTop5(),
   );
   const { getChampionImageUrl } = useChampionImage();
 
   const MENU: { label: string; value: Top5Mode }[] = [
     { label: "승률", value: "win" },
-    // { label: "벤", value: "ban" },
-    // { label: "픽", value: "pick" },
+    { label: "밴률", value: "ban" },
   ];
 
   const data: ChampionTop5Row[] = (() => {
@@ -34,19 +33,18 @@ export function Top5Champion() {
         winRate: ban.winRate,
         winGames: ban.wins,
         banRate: ban.banRate,
-        banGames: ban.banCount,
+        banGames: ban.totalGames,
       }));
     }
 
-    return championData.champions.slice(0, 5).map((champ, index) => ({
+    return championData.topPicks.slice(0, 5).map((champ, index) => ({
       rank: index + 1,
       championName: champ.championNameKr,
       championImageUrl: getChampionImageUrl(champ.championNameEn),
       laneIcon: getLaneIcon(champ.lane),
       winRate: champ.winRate,
       winGames: champ.wins,
-      pickRate:
-        (champ.totalGames / (championData.topBans[0]?.totalGames || 1)) * 100,
+      pickRate: champ.winRate,
       pickGames: champ.totalGames,
     }));
   })();
@@ -76,13 +74,13 @@ export function Top5Champion() {
                 "flex flex-col w-[64px] items-center justify-center cursor-pointer pt-5 pb-1.75 px-2.5 gap-2.5 border-b-4",
                 isSelected
                   ? "border-transparent [border-image:var(--nar_gradients)_1]"
-                  : "border-transparent"
+                  : "border-transparent",
               )}
             >
               <span
                 className={clsx(
                   "text-[16px]",
-                  isSelected ? "font-bold" : "font-normal"
+                  isSelected ? "font-bold" : "font-normal",
                 )}
                 style={
                   isSelected

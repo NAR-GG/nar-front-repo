@@ -52,7 +52,6 @@ export function Layout({ children }: LayoutProps) {
           </Box>
         </Box>
       </main>
-
       <Footer />
     </div>
   );

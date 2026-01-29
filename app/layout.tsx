@@ -1,5 +1,5 @@
 import "./globals.css";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { ColorSchemeScript, mantineHtmlProps } from "@mantine/core";
 import { Providers } from "./providers";
@@ -12,6 +12,13 @@ import { combinationsQueries } from "@/entities/combinations/model/combinations.
 
 const GTM_ID = "GTM-K4N8CFDR";
 const GA_ID = "G-RTZ77QF42T";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://nar.kr"),

@@ -12,10 +12,22 @@ export function ThemeToggle() {
   const computedColorScheme = useComputedColorScheme("light");
   const [isHovered, setIsHovered] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- hydration 불일치 방지용
+    setMounted(true);
+  }, []);
 
   const isDark = computedColorScheme === "dark";
 
-  const Icon = isDark ? LightIcon : isHovered ? DarkHoverIcon : DarkIcon;
+  const Icon = !mounted
+    ? DarkIcon
+    : isDark
+      ? LightIcon
+      : isHovered
+        ? DarkHoverIcon
+        : DarkIcon;
 
   const handleClick = () => {
     setIsAnimating(true);

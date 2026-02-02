@@ -12,8 +12,10 @@ import { useQuery } from "@tanstack/react-query";
 import { homeQueries } from "@/src/entities/home/model/home.queries";
 import dayjs, { toKST } from "@/shared/lib/dayjs";
 import { ScheduleData } from "@/src/entities/home/model/home.dto";
+import { useRouter } from "next/navigation";
 
 export function TodayGame() {
+  const router = useRouter();
   const [selectedDate, setSelectedDate] = useState(dayjs());
 
   // Generate date menu items (2 days before, today, 2 days after)
@@ -43,6 +45,7 @@ export function TodayGame() {
           fz={16}
           c="var(--nar-text-tertiary-sub)"
           className="cursor-pointer"
+          onClick={() => router.push("/pro-matches/schedule")}
         >
           전체일정
         </Text>
@@ -103,7 +106,6 @@ export function TodayGame() {
 
       {scheduleData && scheduleData.length > 0 ? (
         (() => {
-          // 리그별로 그룹핑하고 LCK 우선 정렬
           const leagueOrder = ["LCK", "LPL"];
           const uniqueLeagues = [
             ...new Set(scheduleData.map((m) => m.leagueName)),

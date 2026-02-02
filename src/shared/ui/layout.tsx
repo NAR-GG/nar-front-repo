@@ -30,7 +30,7 @@ export function Layout({ children }: LayoutProps) {
         </Box>
       </div>
       <main className="flex flex-1 justify-center bg-(--nar-bg-GNB) pt-4 pb-8">
-        <Box className="flex w-full max-w-[1600px] items-start gap-5 px-5">
+        <Box className="flex w-full max-w-[1600px] items-start gap-5 px-[15px]">
           <Box visibleFrom="xl" className="w-[160px] shrink-0">
             <div className="sticky top-5">
               <KakaoAdFit

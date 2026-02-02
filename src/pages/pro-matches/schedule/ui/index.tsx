@@ -215,20 +215,23 @@ export const SchedulePageComponent = () => {
     <Container size="xl" px={{ base: 12, sm: 24, md: 32 }}>
       <Stack gap="lg" mt="md">
         <Paper withBorder radius={24}>
-          <div className="flex relative items-center justify-center pt-10 pb-5.75 gap-5">
-            <button
-              onClick={handlePrevMonth}
-              className="flex items-center justify-center w-6 h-6"
-              style={{
-                background: "var(--nar_gradients)",
-                WebkitMaskImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 6l-6 6l6 6'/%3E%3C/svg%3E")`,
-                WebkitMaskRepeat: "no-repeat",
-                WebkitMaskPosition: "center",
-                maskImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 6l-6 6l6 6'/%3E%3C/svg%3E")`,
-                maskRepeat: "no-repeat",
-                maskPosition: "center",
-              }}
-            />
+          <div className="flex relative items-center justify-center pt-5 sm:pt-10 pb-5.75 gap-5">
+            {!isMobile && (
+              <button
+                onClick={handlePrevMonth}
+                className="flex items-center justify-center w-6 h-6"
+                style={{
+                  background: "var(--nar_gradients)",
+                  WebkitMaskImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 6l-6 6l6 6'/%3E%3C/svg%3E")`,
+                  WebkitMaskRepeat: "no-repeat",
+                  WebkitMaskPosition: "center",
+                  maskImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 6l-6 6l6 6'/%3E%3C/svg%3E")`,
+                  maskRepeat: "no-repeat",
+                  maskPosition: "center",
+                }}
+              />
+            )}
+
             <div className="flex items-center gap-1.5 w-40 justify-center">
               <Text fz={26} fw={700} c="var(--nar-text-GNB-default)">
                 {selectedDate.getFullYear()}.
@@ -267,19 +270,22 @@ export const SchedulePageComponent = () => {
               </Popover>
             </div>
 
-            <button
-              onClick={handleNextMonth}
-              className="flex items-center justify-center w-6 h-6"
-              style={{
-                background: "var(--nar_gradients)",
-                WebkitMaskImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6l6 6l-6 6'/%3E%3C/svg%3E")`,
-                WebkitMaskRepeat: "no-repeat",
-                WebkitMaskPosition: "center",
-                maskImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6l6 6l-6 6'/%3E%3C/svg%3E")`,
-                maskRepeat: "no-repeat",
-                maskPosition: "center",
-              }}
-            />
+            {!isMobile && (
+              <button
+                onClick={handleNextMonth}
+                className="flex items-center justify-center w-6 h-6"
+                style={{
+                  background: "var(--nar_gradients)",
+                  WebkitMaskImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6l6 6l-6 6'/%3E%3C/svg%3E")`,
+                  WebkitMaskRepeat: "no-repeat",
+                  WebkitMaskPosition: "center",
+                  maskImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6l6 6l-6 6'/%3E%3C/svg%3E")`,
+                  maskRepeat: "no-repeat",
+                  maskPosition: "center",
+                }}
+              />
+            )}
+
             <button
               onClick={() => setSelectedDate(new Date())}
               className="flex gap-1 items-center absolute right-5 justify-center px-2.5 py-1.5 w-[32px] h-[32px] sm:w-auto sm:h-auto rounded-lg bg-(--nar-bg-tertiary) border border-(--nar-line-2) text-(--nar-text-tertiary-sub) text-xs"

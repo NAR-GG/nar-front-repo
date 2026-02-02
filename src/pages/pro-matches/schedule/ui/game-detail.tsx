@@ -111,11 +111,11 @@ export function GameDetail({
                           </Text>
                         </Text>
                       </Group>
-                      <div className="flex gap-4">
+                      <div className="flex gap-1 sm:gap-4">
                         {sortByPosition(game.blueTeam.players).map((player) => (
                           <div
                             key={player.playerName}
-                            className="flex flex-col items-center"
+                            className="flex flex-col items-center w-[46px] sm:w-full"
                           >
                             <Avatar
                               src={getChampionImageUrl(player.championName)}
@@ -164,11 +164,11 @@ export function GameDetail({
                           </Text>
                         </Text>
                       </Group>
-                      <div className="flex gap-4">
+                      <div className="flex gap-1 sm:gap-4">
                         {sortByPosition(game.redTeam.players).map((player) => (
                           <div
                             key={player.playerName}
-                            className="flex flex-col items-center"
+                            className="flex flex-col items-center w-[46px] sm:w-full"
                           >
                             <Avatar
                               src={getChampionImageUrl(player.championName)}

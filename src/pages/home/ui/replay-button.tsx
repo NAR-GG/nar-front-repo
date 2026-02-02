@@ -116,7 +116,11 @@ export function ReplayButton({ games, fullWidth = false }: ReplayButtonProps) {
               size="sm"
               fw={500}
               c={isHovered ? activeBorder : defaultText}
-              style={{ transition: "color 0.15s ease" }}
+              style={{
+                transition: "color 0.15s ease",
+                lineHeight: "1",
+                whiteSpace: "nowrap",
+              }}
             >
               다시 보기
             </Text>

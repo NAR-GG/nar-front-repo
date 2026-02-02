@@ -19,6 +19,11 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
+        hostname: "mimgnews.pstatic.net",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
         hostname: "static.lolesports.com",
         pathname: "/**",
       },

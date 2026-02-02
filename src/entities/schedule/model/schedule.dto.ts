@@ -2,15 +2,27 @@ import type { ApiResponse } from "@/shared/types/api";
 
 export interface ScheduleTeamScore {
   teamName: string;
+  teamCode: string;
   score: number;
+  teamImageUrl: string;
+}
+
+export interface ScheduleSet {
+  setNumber: number;
+  vodUrl: string;
 }
 
 export interface ScheduleMatchSummary {
   matchId: string;
   scheduledTime: string;
   leagueInfo: string;
+  matchTitle: string;
+  matchStatus: string;
+  isSynced: boolean;
   teamA: ScheduleTeamScore;
   teamB: ScheduleTeamScore;
+  liveStreamUrl?: string;
+  sets?: ScheduleSet[];
 }
 
 export interface DateScheduleData {

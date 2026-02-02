@@ -44,6 +44,7 @@
   --nar-bg-lightmode-nargg: #fffefe;
   --nar-bg-darkmode-nargg: #0c0a0a;
   --nar_red_opacity: #e031311a;
+  --nar-red-opacity10: rgba(255, 107, 107, 0.1);
   --nar-white-opacity70: rgba(255, 255, 255, 0.7);
   --nar-black-opacity40: rgba(0, 0, 0, 0.4);
 }
@@ -70,6 +71,8 @@
   --nar-bg-cont-livebox: var(--nar-gray-50);
   --nar-bg-teamlogobox: var(--nar-gray-200);
   --nar-bg-blur: var(--nar-white-opacity70);
+  --nar-BG-last: var(--nar-gray-100);
+
   /* Text */
   --nar-text-primary: var(--nar-dark-900);
   --nar-text-secondary: var(--nar-dark-900);
@@ -181,6 +184,7 @@
   --nar-bg-cont-livebox: var(--nar-dark-600);
   --nar-bg-teamlogobox: var(--nar-gray-700);
   --nar-bg-blur: var(--nar-black-opacity40);
+  --nar-BG-last: var(--nar-dark-600);
 
   /* Text */
   --nar-text-primary: var(--nar-white);
@@ -383,9 +387,110 @@ code {
 .bg-conic-spinner {
   background: conic-gradient(
     from 0deg,
-    var(--logo-gradient-start),
-    var(--logo-gradient-mid),
-    var(--logo-gradient-end),
-    var(--logo-gradient-start)
+    var(--logo-gradient-start) 0%,
+    var(--logo-gradient-mid) 40%,
+    var(--logo-gradient-end) 80%,
+    var(--logo-gradient-start) 100%
   );
+}
+
+/* Mantine Loader Global Style */
+.mantine-Loader-root {
+  --loader-color: var(--logo-gradient-mid) !important;
+}
+
+/* DatePicker Custom Styles */
+.mantine-Popover-dropdown {
+  border: none !important;
+  border-radius: 14px !important;
+  box-shadow: 0px 4px 20px 0px #1011131f !important;
+}
+
+/* Navigation Arrows */
+.mantine-DatePicker-calendarHeaderControl,
+.mantine-MonthPicker-calendarHeaderControl,
+.mantine-YearPicker-calendarHeaderControl {
+  background: transparent !important;
+  border: none !important;
+  position: relative;
+}
+
+.mantine-DatePicker-calendarHeaderControl svg,
+.mantine-MonthPicker-calendarHeaderControl svg,
+.mantine-YearPicker-calendarHeaderControl svg {
+  display: none !important;
+}
+
+.mantine-DatePicker-calendarHeaderControl::after,
+.mantine-MonthPicker-calendarHeaderControl::after,
+.mantine-YearPicker-calendarHeaderControl::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--nar_gradients);
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: 24px;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: 24px;
+}
+
+/* Previous Arrow */
+.mantine-DatePicker-calendarHeaderControl[data-direction="previous"]::after,
+.mantine-MonthPicker-calendarHeaderControl[data-direction="previous"]::after,
+.mantine-YearPicker-calendarHeaderControl[data-direction="previous"]::after {
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 6l-6 6l6 6'/%3E%3C/svg%3E");
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 6l-6 6l6 6'/%3E%3C/svg%3E");
+}
+
+/* Next Arrow */
+.mantine-DatePicker-calendarHeaderControl[data-direction="next"]::after,
+.mantine-MonthPicker-calendarHeaderControl[data-direction="next"]::after,
+.mantine-YearPicker-calendarHeaderControl[data-direction="next"]::after {
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6l6 6l-6 6'/%3E%3C/svg%3E");
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6l6 6l-6 6'/%3E%3C/svg%3E");
+}
+
+/* Selected/Hover Styles */
+.mantine-DatePicker-day:hover,
+.mantine-DatePicker-monthsListControl:hover,
+.mantine-DatePicker-yearsListControl:hover {
+  background-color: var(--nar-red-opacity10) !important;
+}
+
+.mantine-DatePicker-day[data-selected="true"],
+.mantine-DatePicker-monthsListControl[data-selected="true"],
+.mantine-DatePicker-yearsListControl[data-selected="true"] {
+  background-color: var(--nar-text-red) !important;
+  color: var(--nar-white) !important;
+}
+
+.mantine-DatePicker-day[data-selected="true"]:hover,
+.mantine-DatePicker-monthsListControl[data-selected="true"]:hover,
+.mantine-DatePicker-yearsListControl[data-selected="true"]:hover {
+  background-color: var(--nar-red-600) !important;
+}
+
+/* DatePicker Indicator dot - 날짜 아래 가운데 점 */
+.nar-day-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+}
+
+.nar-day-cell[data-has-match="true"]::after {
+  content: "";
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--nar_gradients);
 }

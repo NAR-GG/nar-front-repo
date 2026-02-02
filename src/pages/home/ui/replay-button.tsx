@@ -10,9 +10,10 @@ interface ReplayButtonProps {
     gameNumber: number;
     vodUrl?: string;
   }[];
+  fullWidth?: boolean;
 }
 
-export function ReplayButton({ games }: ReplayButtonProps) {
+export function ReplayButton({ games, fullWidth = false }: ReplayButtonProps) {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [isDotsHovered, setIsDotsHovered] = useState(false);
@@ -96,14 +97,14 @@ export function ReplayButton({ games }: ReplayButtonProps) {
 
   return (
     <>
-      <div ref={buttonRef} className="relative">
-        <div className="flex">
+      <div ref={buttonRef} className={`relative ${fullWidth ? "w-full" : ""}`}>
+        <div className={`flex ${fullWidth ? "w-full" : ""}`}>
           <button
             type="button"
             onClick={handleReplayClick}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            className="px-3 py-1.5 rounded-l-lg w-full md:w-auto transition-all duration-150 cursor-pointer bg-(--nar-button-2-bg)"
+            className={`px-3 py-1.5 rounded-l-lg transition-all duration-150 cursor-pointer bg-(--nar-button-2-bg) ${fullWidth ? "flex-1" : ""}`}
             style={{
               borderTop: `1.5px solid ${isHovered ? activeBorder : defaultBorder}`,
               borderBottom: `1.5px solid ${isHovered ? activeBorder : defaultBorder}`,

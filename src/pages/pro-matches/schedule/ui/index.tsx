@@ -1,53 +1,34 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Container,
   Stack,
   Paper,
-  Group,
   Text,
   ActionIcon,
-  Button,
-  Box,
-  Card,
-  Collapse,
-  Flex,
-  ScrollArea,
   Center,
-  Avatar,
   Loader,
   Popover,
 } from "@mantine/core";
 import { DatePicker } from "@mantine/dates";
 import "dayjs/locale/ko";
-import {
-  IconChevronLeft,
-  IconChevronRight,
-  IconCalendar,
-  IconChevronDown,
-} from "@tabler/icons-react";
-import { useMediaQuery } from "@mantine/hooks";
-import { useQuery } from "@tanstack/react-query";
+import { IconChevronDown, IconReload } from "@tabler/icons-react";
+import CaretLeft from "@/shared/assets/icons/caret-left.svg";
+import CaretRight from "@/shared/assets/icons/caret-right.svg";
+import NarCalendar from "@/shared/assets/icons/nar_calendar.svg";
+import Lck from "@/shared/assets/images/lck-home.svg";
+import Lpl from "@/shared/assets/images/lpl-home.svg";
+import Lec from "@/shared/assets/images/lec-home.svg";
+import { useQuery, useQueries } from "@tanstack/react-query";
 import { scheduleQueries } from "@/entities/schedule/model/schedule.queries";
-import { sortByPosition } from "@/shared/lib/sort-by-position";
-import { useChampionImage } from "@/shared/lib/use-champion-image";
+import clsx from "clsx";
+import dayjs from "dayjs";
+import { MatchCard } from "./match-card";
+import { useMediaQuery } from "@mantine/hooks";
 
-const TEAM_NAME_MAP: Record<string, string> = {
-  "Bnk Fearx": "BFX",
-  "Dplus Kia": "DK",
-  "Kt Rolster": "KT",
-  "Nongshim Redforce": "NS",
-  "Hanwha Life Esports": "HLE",
-  "Gen.g": "GEN",
-  T1: "T1",
-  "Oksavingsbank Brion": "BRO",
-  Drx: "DRX",
-  "Dn Freecs": "DNF",
-};
-
-const DAY_NAMES = ["월", "화", "수", "목", "금", "토", "일"];
+const DAY_NAMES = ["일", "월", "화", "수", "목", "금", "토"];
 
 const formatDateString = (date: Date): string => {
   const year = date.getFullYear();
@@ -56,10 +37,13 @@ const formatDateString = (date: Date): string => {
   return `${year}-${month}-${day}`;
 };
 
-const formatGameTime = (seconds: number): string => {
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = seconds % 60;
-  return `${minutes}:${String(remainingSeconds).padStart(2, "0")}`;
+const getMonthDates = (year: number, month: number): Date[] => {
+  const dates: Date[] = [];
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  for (let day = 1; day <= daysInMonth; day++) {
+    dates.push(new Date(year, month, day));
+  }
+  return dates;
 };
 
 const getWeekDates = (date: Date): Date[] => {
@@ -76,9 +60,9 @@ const getWeekDates = (date: Date): Date[] => {
 };
 
 export const SchedulePageComponent = () => {
+  const isMobile = useMediaQuery("(max-width: 768px)");
   const router = useRouter();
   const searchParams = useSearchParams();
-  const isMobile = useMediaQuery("(max-width: 768px)");
 
   const initializeDate = (): Date => {
     const dateParam = searchParams?.get("date");
@@ -89,10 +73,14 @@ export const SchedulePageComponent = () => {
   };
 
   const [selectedDate, setSelectedDate] = useState<Date>(initializeDate);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [calendarMonth, setCalendarMonth] = useState<Date>(initializeDate);
 
   const dateString = formatDateString(selectedDate);
   const weekDates = getWeekDates(selectedDate);
+
+  const monthDates = useMemo(() => {
+    return getMonthDates(calendarMonth.getFullYear(), calendarMonth.getMonth());
+  }, [calendarMonth]);
 
   // URL 동기화
   useEffect(() => {
@@ -108,22 +96,96 @@ export const SchedulePageComponent = () => {
     isError: scheduleError,
   } = useQuery(scheduleQueries.date(dateString));
 
-  // 매치 상세 조회
-  const { data: matchDetail, isLoading: detailLoading } = useQuery({
-    ...scheduleQueries.detail(expandedId ?? ""),
-    enabled: !!expandedId,
+  // 주간 경기 유무 조회
+  const weekScheduleQueries = useQueries({
+    queries: weekDates.map((date) => ({
+      ...scheduleQueries.date(formatDateString(date)),
+      staleTime: 1000 * 60 * 5,
+    })),
   });
 
-  // 챔피언 이미지 조회
-  const { getChampionImageUrl } = useChampionImage();
+  const weekHasMatches = weekDates.map((_, idx) => {
+    const query = weekScheduleQueries[idx];
+    return query.data?.matches && query.data.matches.length > 0;
+  });
 
-  const handleToggleExpand = (matchId: string) => {
-    setExpandedId((prev) => (prev === matchId ? null : matchId));
-  };
+  // 월별 경기 유무 조회 (DatePicker용)
+  const monthScheduleQueries = useQueries({
+    queries: monthDates.map((date) => ({
+      ...scheduleQueries.date(formatDateString(date)),
+      staleTime: 1000 * 60 * 10,
+    })),
+  });
 
-  const handleNavigateToRecord = (gameId: number) => {
-    router.push(`/pro-matches/${gameId}/record`);
-  };
+  // 경기 있는 날짜 Set
+  const matchDatesSet = useMemo(() => {
+    const set = new Set<string>();
+    monthDates.forEach((date, idx) => {
+      const query = monthScheduleQueries[idx];
+      if (query.data?.matches && query.data.matches.length > 0) {
+        set.add(formatDateString(date));
+      }
+    });
+    return set;
+  }, [monthDates, monthScheduleQueries]);
+
+  // DatePicker renderDay 함수
+  const renderDay = useCallback(
+    (date: string) => {
+      const dateObj = new Date(date);
+      const dateStr = formatDateString(dateObj);
+      const hasMatch = matchDatesSet.has(dateStr);
+      const day = dateObj.getDate();
+
+      return (
+        <div
+          className="nar-day-cell"
+          data-has-match={hasMatch ? "true" : undefined}
+        >
+          {day}
+        </div>
+      );
+    },
+    [matchDatesSet],
+  );
+
+  // DatePicker excludeDate 함수 (경기 없는 날짜 비활성화)
+  const excludeDate = useCallback(
+    (date: string) => {
+      const dateObj = new Date(date);
+      const dateStr = formatDateString(dateObj);
+      return !matchDatesSet.has(dateStr);
+    },
+    [matchDatesSet],
+  );
+
+  const allQueriesLoaded = weekScheduleQueries.every((q) => !q.isLoading);
+  const selectedDateStr = selectedDate.toDateString();
+
+  // 선택된 날짜에 경기가 없으면 경기 있는 날짜로 자동 이동
+  useEffect(() => {
+    if (!allQueriesLoaded) return;
+
+    const currentDayIndex = weekDates.findIndex(
+      (d) => d.toDateString() === selectedDateStr,
+    );
+
+    if (currentDayIndex === -1) return;
+
+    const currentHasMatches = weekHasMatches[currentDayIndex];
+
+    if (!currentHasMatches) {
+      const firstMatchIndex = weekHasMatches.findIndex(
+        (hasMatch) => hasMatch === true,
+      );
+      if (firstMatchIndex !== -1) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- 경기 없는 날짜 선택 방지
+        setSelectedDate(weekDates[firstMatchIndex]);
+      }
+    }
+  }, [allQueriesLoaded, selectedDateStr, weekDates, weekHasMatches]);
+
+  // 매치 상세 조회
 
   const handlePrevWeek = () => {
     const newDate = new Date(selectedDate);
@@ -137,113 +199,194 @@ export const SchedulePageComponent = () => {
     setSelectedDate(newDate);
   };
 
+  const handlePrevMonth = () => {
+    const newDate = new Date(selectedDate);
+    newDate.setMonth(newDate.getMonth() - 1);
+    setSelectedDate(newDate);
+  };
+
+  const handleNextMonth = () => {
+    const newDate = new Date(selectedDate);
+    newDate.setMonth(newDate.getMonth() + 1);
+    setSelectedDate(newDate);
+  };
+
   return (
     <Container size="xl" px={{ base: 12, sm: 24, md: 32 }}>
       <Stack gap="lg" mt="md">
-        <Paper p={{ base: "md", sm: "xl" }} withBorder>
-          {/* 날짜 선택 영역 */}
-          <Paper p="sm" mb="md" bg="var(--mantine-color-default)" radius="sm">
-            <Group justify="space-between" mb="sm">
-              <ActionIcon variant="light" onClick={handlePrevWeek}>
-                <IconChevronLeft size={18} />
-              </ActionIcon>
+        <Paper withBorder radius={24}>
+          <div className="flex relative items-center justify-center pt-10 pb-5.75 gap-5">
+            <button
+              onClick={handlePrevMonth}
+              className="flex items-center justify-center w-6 h-6"
+              style={{
+                background: "var(--nar_gradients)",
+                WebkitMaskImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 6l-6 6l6 6'/%3E%3C/svg%3E")`,
+                WebkitMaskRepeat: "no-repeat",
+                WebkitMaskPosition: "center",
+                maskImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 6l-6 6l6 6'/%3E%3C/svg%3E")`,
+                maskRepeat: "no-repeat",
+                maskPosition: "center",
+              }}
+            />
+            <div className="flex items-center gap-1.5 w-40 justify-center">
+              <Text fz={26} fw={700} c="var(--nar-text-GNB-default)">
+                {selectedDate.getFullYear()}.
+                {String(selectedDate.getMonth() + 1).padStart(2, "0")}
+              </Text>
               <Popover position="bottom" withArrow shadow="md">
                 <Popover.Target>
-                  <Group gap="xs" style={{ cursor: "pointer" }}>
-                    <IconCalendar
-                      size={16}
-                      color="var(--mantine-color-blue-6)"
+                  <div className="flex items-center gap-1 cursor-pointer">
+                    <NarCalendar
+                      size={22}
+                      color="var(--nar-text-tertiary-sub)"
                     />
-                    <Text fw={600}>
-                      {selectedDate.getFullYear()}.
-                      {String(selectedDate.getMonth() + 1).padStart(2, "0")}
-                    </Text>
-                  </Group>
+                    <IconChevronDown
+                      size={16}
+                      color="var(--nar-text-tertiary-sub)"
+                    />
+                  </div>
                 </Popover.Target>
                 <Popover.Dropdown>
                   <DatePicker
                     value={selectedDate}
-                    onChange={(date) => date && setSelectedDate(new Date(date))}
+                    onChange={(date) => {
+                      if (date) {
+                        const newDate = new Date(date);
+                        setSelectedDate(newDate);
+                        setCalendarMonth(newDate);
+                      }
+                    }}
+                    date={calendarMonth}
+                    onDateChange={(date) => setCalendarMonth(new Date(date))}
                     locale="ko"
+                    renderDay={renderDay}
+                    excludeDate={excludeDate}
                   />
                 </Popover.Dropdown>
               </Popover>
-              <ActionIcon variant="light" onClick={handleNextWeek}>
-                <IconChevronRight size={18} />
-              </ActionIcon>
-            </Group>
+            </div>
 
-            <Center>
-              <ScrollArea type="never" style={{ width: "100%" }}>
-                <Flex
-                  gap="xs"
-                  justify="center"
-                  wrap="nowrap"
-                  style={{ minWidth: "max-content" }}
-                >
-                  {weekDates.map((date, idx) => {
-                    const isSelected =
-                      date.toDateString() === selectedDate.toDateString();
-                    const isToday =
-                      date.toDateString() === new Date().toDateString();
+            <button
+              onClick={handleNextMonth}
+              className="flex items-center justify-center w-6 h-6"
+              style={{
+                background: "var(--nar_gradients)",
+                WebkitMaskImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6l6 6l-6 6'/%3E%3C/svg%3E")`,
+                WebkitMaskRepeat: "no-repeat",
+                WebkitMaskPosition: "center",
+                maskImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6l6 6l-6 6'/%3E%3C/svg%3E")`,
+                maskRepeat: "no-repeat",
+                maskPosition: "center",
+              }}
+            />
+            <button
+              onClick={() => setSelectedDate(new Date())}
+              className="flex gap-1 items-center absolute right-5 justify-center px-2.5 py-1.5 w-[32px] h-[32px] sm:w-auto sm:h-auto rounded-lg bg-(--nar-bg-tertiary) border border-(--nar-line-2) text-(--nar-text-tertiary-sub) text-xs"
+            >
+              <IconReload
+                width={12}
+                height={12}
+                color="var(--nar-text-tertiary-sub)"
+              />
+              {!isMobile && "오늘 일자"}
+            </button>
+          </div>
 
-                    return (
-                      <Button
-                        key={idx}
-                        size="sm"
-                        variant={isSelected ? "filled" : "light"}
-                        color={isSelected ? "blue" : isToday ? "blue" : "gray"}
-                        onClick={() => setSelectedDate(date)}
-                        style={{
-                          minWidth: 50,
-                          height: 60,
-                          flexDirection: "column",
-                          padding: 8,
-                        }}
-                      >
-                        <div style={{ textAlign: "center", lineHeight: 1.2 }}>
-                          <Text
-                            size="xs"
-                            fw={500}
-                            c={
-                              isSelected ? "white" : isToday ? "blue" : "dimmed"
+          <div className="flex items-center px-4 gap-0 sm:gap-6.5">
+            <ActionIcon
+              variant="transparent"
+              onClick={handlePrevWeek}
+              c="var(--nar-text-tertiary-sub)"
+            >
+              <CaretLeft size={20} />
+            </ActionIcon>
+
+            <div className="flex justify-around flex-1 overflow-x-auto pb-1">
+              {weekDates.map((date, idx) => {
+                const isSelected =
+                  date.toDateString() === selectedDate.toDateString();
+                const isToday =
+                  date.toDateString() === new Date().toDateString();
+                const dayIndex = date.getDay();
+                const hasMatches = weekHasMatches[idx];
+                const isLoading = weekScheduleQueries[idx].isLoading;
+                const isDisabled = isLoading || !hasMatches;
+
+                return (
+                  <div
+                    key={idx}
+                    onClick={() => {
+                      if (!isDisabled) {
+                        setSelectedDate(date);
+                      }
+                    }}
+                    className={clsx(
+                      "flex flex-col items-center justify-center pt-5 pb-1.75 px-2.5 gap-2.5 flex-1 border-b-4 border-transparent",
+                      isSelected && "[border-image:var(--nar_gradients)_1]",
+                      isDisabled ? "cursor-not-allowed" : "cursor-pointer",
+                    )}
+                    style={{
+                      boxShadow: `0 2px 0 ${isDisabled ? "var(--nar-searchbar-text-con)" : "var(--nar-text-tertiary-sub)"}`,
+                    }}
+                  >
+                    <span
+                      className={clsx(
+                        "text-sm sm:text-base",
+                        isSelected ? "font-bold" : "font-normal",
+                      )}
+                      style={
+                        isSelected
+                          ? {
+                              background: "var(--nar_gradients)",
+                              WebkitBackgroundClip: "text",
+                              WebkitTextFillColor: "transparent",
                             }
-                            style={{ marginBottom: "2px" }}
-                          >
-                            {DAY_NAMES[idx]}
-                          </Text>
-                          <Text
-                            size="sm"
-                            fw={700}
-                            c={isSelected ? "white" : isToday ? "blue" : "dark"}
-                          >
-                            {date.getDate()}
-                          </Text>
-                          {isToday && !isSelected && (
-                            <Box
-                              w={4}
-                              h={4}
-                              bg="blue"
-                              style={{
-                                borderRadius: "50%",
-                                margin: "2px auto 0",
-                              }}
-                            />
-                          )}
-                        </div>
-                      </Button>
-                    );
-                  })}
-                </Flex>
-              </ScrollArea>
-            </Center>
+                          : {
+                              color: isDisabled
+                                ? "var(--nar-searchbar-text-con)"
+                                : "var(--nar-text-tertiary-sub)",
+                            }
+                      }
+                    >
+                      {isToday ? "오늘" : DAY_NAMES[dayIndex]}
+                    </span>
+                    <span
+                      className={clsx(
+                        "text-base sm:text-lg",
+                        isSelected ? "font-bold" : "font-medium",
+                      )}
+                      style={
+                        isSelected
+                          ? {
+                              background: "var(--nar_gradients)",
+                              WebkitBackgroundClip: "text",
+                              WebkitTextFillColor: "transparent",
+                            }
+                          : {
+                              color: isDisabled
+                                ? "var(--nar-searchbar-text-con)"
+                                : "var(--nar-text-tertiary-sub)",
+                            }
+                      }
+                    >
+                      {dayjs(date).format("M.D")}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
 
-            <Text c="dimmed" size="xs" ta="center" mt="xs">
-              경기 데이터는 실제 경기 종료 후 약 24시간 내에 업데이트됩니다.
-            </Text>
-          </Paper>
+            <ActionIcon
+              variant="transparent"
+              onClick={handleNextWeek}
+              c="var(--nar-text-tertiary-sub)"
+            >
+              <CaretRight size={20} />
+            </ActionIcon>
+          </div>
 
-          <Stack gap="sm">
+          <div className="py-5 px-3.5 flex flex-col w-full gap-4 bg-(--nar-fill-secondary) rounded-b-3xl">
             {scheduleLoading ? (
               <Center p="xl">
                 <Loader />
@@ -253,322 +396,62 @@ export const SchedulePageComponent = () => {
                 <Text c="red">데이터를 불러오는 중 오류가 발생했습니다.</Text>
               </Center>
             ) : !scheduleData?.matches || scheduleData.matches.length === 0 ? (
-              <Center p="xl">
-                <Text c="dimmed">해당 날짜에 경기 일정이 없습니다.</Text>
-              </Center>
+              <div className="py-10 text-center text-(--nar-text-tertiary)">
+                해당 날짜에 경기 일정이 없습니다.
+              </div>
             ) : (
-              scheduleData.matches.map((match) => (
-                <Card
-                  key={match.matchId}
-                  p="sm"
-                  withBorder
-                  radius="sm"
-                  bg="var(--mantine-color-default)"
-                >
-                  <Group justify="space-between" align="center">
-                    <Text
-                      fw={600}
-                      size="sm"
-                      c="blue.6"
-                      w={{ base: 45, sm: 50 }}
-                    >
-                      {match.scheduledTime}
-                    </Text>
+              (() => {
+                const leagueOrder = ["LCK", "LPL", "LEC"];
+                const uniqueLeagues = [
+                  ...new Set(scheduleData.matches.map((m) => m.leagueInfo)),
+                ].sort((a, b) => {
+                  const aIndex = leagueOrder.findIndex((l) => a.includes(l));
+                  const bIndex = leagueOrder.findIndex((l) => b.includes(l));
+                  return (
+                    (aIndex === -1 ? 999 : aIndex) -
+                    (bIndex === -1 ? 999 : bIndex)
+                  );
+                });
 
-                    <Flex
-                      style={{ flex: 1, minWidth: 0, overflow: "hidden" }}
-                      justify="center"
-                      align="center"
-                      direction="row"
-                      gap={isMobile ? 4 : "md"}
-                    >
-                      {/* Team A */}
-                      <Group
-                        gap={isMobile ? 4 : "sm"}
-                        justify="flex-end"
-                        style={{ flex: "1 1 auto", minWidth: 0 }}
-                      >
-                        <Text
-                          fw={700}
-                          size={isMobile ? "md" : "lg"}
-                          style={{
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            textAlign: "right",
-                          }}
-                        >
-                          {TEAM_NAME_MAP[match.teamA.teamName] ||
-                            match.teamA.teamName}
+                const leagueIconMap: Record<string, typeof Lck> = {
+                  LCK: Lck,
+                  LEC: Lec,
+                  LPL: Lpl,
+                };
+
+                return uniqueLeagues.map((leagueName) => {
+                  const leagueMatches = scheduleData.matches.filter(
+                    (m) => m.leagueInfo === leagueName,
+                  );
+
+                  if (leagueMatches.length === 0) return null;
+
+                  const leagueKey = Object.keys(leagueIconMap).find((key) =>
+                    leagueName.includes(key),
+                  );
+                  const LeagueIcon = leagueKey ? leagueIconMap[leagueKey] : Lpl;
+
+                  return (
+                    <div key={leagueName} className="flex flex-col gap-4">
+                      <div className="w-full flex gap-2.5 items-center">
+                        <LeagueIcon />
+                        <Text fz={28} fw={590} c="var(--nar-text-secondary)">
+                          {leagueName}
                         </Text>
-                        <Text
-                          fw={700}
-                          size={isMobile ? "md" : "lg"}
-                          c={
-                            match.teamA.score > match.teamB.score
-                              ? "black"
-                              : "gray.5"
-                          }
-                          style={{ whiteSpace: "nowrap", flexShrink: 0 }}
-                        >
-                          {match.teamA.score}
-                        </Text>
-                      </Group>
-
-                      <Text
-                        fw={500}
-                        c="gray.6"
-                        size="xs"
-                        px="xs"
-                        style={{ whiteSpace: "nowrap", flexShrink: 0 }}
-                      >
-                        VS
-                      </Text>
-
-                      {/* Team B */}
-                      <Group
-                        gap={isMobile ? 4 : "sm"}
-                        justify="flex-start"
-                        style={{ flex: "1 1 auto", minWidth: 0 }}
-                      >
-                        <Text
-                          fw={700}
-                          size={isMobile ? "md" : "lg"}
-                          c={
-                            match.teamB.score > match.teamA.score
-                              ? "black"
-                              : "gray.5"
-                          }
-                          style={{ whiteSpace: "nowrap", flexShrink: 0 }}
-                        >
-                          {match.teamB.score}
-                        </Text>
-                        <Text
-                          fw={700}
-                          size={isMobile ? "md" : "lg"}
-                          style={{
-                            whiteSpace: "nowrap",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis",
-                            textAlign: "left",
-                          }}
-                        >
-                          {TEAM_NAME_MAP[match.teamB.teamName] ||
-                            match.teamB.teamName}
-                        </Text>
-                      </Group>
-                    </Flex>
-
-                    {isMobile ? (
-                      <ActionIcon
-                        variant="light"
-                        color="gray"
-                        onClick={() => handleToggleExpand(match.matchId)}
-                      >
-                        <IconChevronDown size={18} />
-                      </ActionIcon>
-                    ) : (
-                      <Button
-                        size="xs"
-                        variant="outline"
-                        onClick={() => handleToggleExpand(match.matchId)}
-                      >
-                        상세정보
-                      </Button>
-                    )}
-                  </Group>
-
-                  {/* 상세 정보 */}
-                  <Collapse in={expandedId === match.matchId}>
-                    {detailLoading && expandedId === match.matchId ? (
-                      <Center p="md">
-                        <Loader size="sm" />
-                      </Center>
-                    ) : matchDetail && expandedId === match.matchId ? (
-                      <Stack mt="sm" gap="md">
-                        {matchDetail.gameDetails.map((game) => {
-                          const winnerSide = game.blueTeam.isWin
-                            ? "blue"
-                            : "red";
-
-                          return (
-                            <Paper
-                              key={game.gameNumber}
-                              p="md"
-                              radius="md"
-                              withBorder
-                            >
-                              <Stack gap="sm">
-                                <Group justify="space-between" align="center">
-                                  <Group gap="sm">
-                                    <Text fw={600} size="sm">
-                                      Game {game.gameNumber}
-                                    </Text>
-                                    <Text size="xs" c="dimmed">
-                                      {formatGameTime(game.gameLengthSeconds)}
-                                    </Text>
-                                  </Group>
-                                  <Button
-                                    size="xs"
-                                    variant="light"
-                                    color="gray"
-                                    onClick={() =>
-                                      handleNavigateToRecord(game.id)
-                                    }
-                                  >
-                                    기록
-                                  </Button>
-                                </Group>
-
-                                <Group
-                                  justify="center"
-                                  align="flex-start"
-                                  gap="md"
-                                >
-                                  {/* Blue Team */}
-                                  <Stack gap="xs" align="center">
-                                    <Group gap="xs" align="center">
-                                      <Text size="xs" fw={600}>
-                                        {TEAM_NAME_MAP[
-                                          game.blueTeam.teamName
-                                        ] || game.blueTeam.teamName}{" "}
-                                        <Text
-                                          component="span"
-                                          c={
-                                            winnerSide === "blue"
-                                              ? "blue"
-                                              : "gray.6"
-                                          }
-                                          fw={700}
-                                        >
-                                          ({winnerSide === "blue" ? "승" : "패"}
-                                          )
-                                        </Text>
-                                      </Text>
-                                    </Group>
-                                    <div
-                                      style={{ display: "flex", gap: "4px" }}
-                                    >
-                                      {sortByPosition(
-                                        game.blueTeam.players
-                                      ).map((player) => (
-                                        <div
-                                          key={player.playerName}
-                                          style={{
-                                            display: "flex",
-                                            flexDirection: "column",
-                                            alignItems: "center",
-                                            width: "40px",
-                                          }}
-                                        >
-                                          <Avatar
-                                            src={getChampionImageUrl(
-                                              player.championName
-                                            )}
-                                            size={32}
-                                            radius="md"
-                                          />
-                                          <Text
-                                            size="xs"
-                                            mt={2}
-                                            style={{
-                                              textAlign: "center",
-                                              width: "100%",
-                                              whiteSpace: "nowrap",
-                                              overflow: "hidden",
-                                              textOverflow: "ellipsis",
-                                            }}
-                                          >
-                                            {player.playerName}
-                                          </Text>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </Stack>
-
-                                  <div
-                                    style={{
-                                      display: "flex",
-                                      alignItems: "center",
-                                      height: "32px",
-                                      paddingTop: "16px",
-                                    }}
-                                  >
-                                    <Text size="sm" fw={600} c="dimmed">
-                                      vs
-                                    </Text>
-                                  </div>
-
-                                  {/* Red Team */}
-                                  <Stack gap="xs" align="center">
-                                    <Group gap="xs" align="center">
-                                      <Text size="xs" fw={600}>
-                                        {TEAM_NAME_MAP[game.redTeam.teamName] ||
-                                          game.redTeam.teamName}{" "}
-                                        <Text
-                                          component="span"
-                                          c={
-                                            winnerSide === "red"
-                                              ? "red"
-                                              : "gray.6"
-                                          }
-                                          fw={700}
-                                        >
-                                          ({winnerSide === "red" ? "승" : "패"})
-                                        </Text>
-                                      </Text>
-                                    </Group>
-                                    <div
-                                      style={{ display: "flex", gap: "4px" }}
-                                    >
-                                      {sortByPosition(game.redTeam.players).map(
-                                        (player) => (
-                                          <div
-                                            key={player.playerName}
-                                            style={{
-                                              display: "flex",
-                                              flexDirection: "column",
-                                              alignItems: "center",
-                                              width: "40px",
-                                            }}
-                                          >
-                                            <Avatar
-                                              src={getChampionImageUrl(
-                                                player.championName
-                                              )}
-                                              size={32}
-                                              radius="md"
-                                            />
-                                            <Text
-                                              size="xs"
-                                              mt={2}
-                                              style={{
-                                                textAlign: "center",
-                                                width: "100%",
-                                                whiteSpace: "nowrap",
-                                                overflow: "hidden",
-                                                textOverflow: "ellipsis",
-                                              }}
-                                            >
-                                              {player.playerName}
-                                            </Text>
-                                          </div>
-                                        )
-                                      )}
-                                    </div>
-                                  </Stack>
-                                </Group>
-                              </Stack>
-                            </Paper>
-                          );
-                        })}
-                      </Stack>
-                    ) : null}
-                  </Collapse>
-                </Card>
-              ))
+                      </div>
+                      <div className="w-full flex flex-col [&>*:not(:first-child)]:border-t [&>*:not(:first-child)]:border-(--nar-line-2)">
+                        {leagueMatches.map((match) => (
+                          <div key={match.matchId}>
+                            <MatchCard match={match} />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                });
+              })()
             )}
-          </Stack>
+          </div>
         </Paper>
       </Stack>
     </Container>

@@ -72,6 +72,7 @@
   --nar-bg-teamlogobox: var(--nar-gray-200);
   --nar-bg-blur: var(--nar-white-opacity70);
   --nar-BG-last: var(--nar-gray-100);
+  --nar-navchip-bg-defualt: var(--nar-gray-100);
 
   /* Text */
   --nar-text-primary: var(--nar-dark-900);
@@ -185,6 +186,7 @@
   --nar-bg-teamlogobox: var(--nar-gray-700);
   --nar-bg-blur: var(--nar-black-opacity40);
   --nar-BG-last: var(--nar-dark-600);
+  --nar-navchip-bg-defualt: var(--nar-dark-800);
 
   /* Text */
   --nar-text-primary: var(--nar-white);
@@ -493,4 +495,59 @@ code {
   height: 5px;
   border-radius: 50%;
   background: var(--nar_gradients);
+}
+
+/* Mantine Tabs Custom Styles - Game Record */
+.mantine-Tabs-list {
+  border-bottom: 1.5px solid var(--nar-text-tertiary-sub) !important;
+  gap: 0 !important;
+}
+
+.mantine-Tabs-list::before,
+.mantine-Tabs-list::after {
+  display: none !important;
+}
+
+/* Hide default Mantine Tabs indicator */
+.mantine-Tabs-indicator {
+  display: none !important;
+  opacity: 0 !important;
+  height: 0 !important;
+}
+
+.mantine-Tabs-tab {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: var(--nar-text-tertiary-sub) !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 10px 41.5px !important;
+  position: relative;
+}
+
+.mantine-Tabs-tab::after {
+  content: "";
+  position: absolute;
+  bottom: -1.5px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: transparent;
+  transition: background 0.2s ease;
+}
+
+.mantine-Tabs-tab[data-active="true"] {
+  background: transparent !important;
+}
+
+.mantine-Tabs-tab[data-active="true"]::after {
+  background: var(--nar_gradients);
+}
+
+/* Active tab gradient text */
+.mantine-Tabs-tab[data-active="true"] .mantine-Tabs-tabLabel {
+  background: var(--nar_gradients);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }

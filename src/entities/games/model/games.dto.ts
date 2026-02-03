@@ -219,9 +219,30 @@ export interface GameDetailPlayer {
   oppAssistsAt25: number;
   oppDeathsAt25: number;
 }
+export type setData = {
+  setNumber: number;
+  gameId: number;
+  vodUrl: string;
+};
+
+export interface GameTeamData {
+  code: string;
+  name: string;
+  imageUrl: string;
+  score: number;
+}
+
+export interface GameSetNav {
+  currentSet: number;
+  totalSets: number;
+  sets: setData[];
+  blueTeam: GameTeamData;
+  redTeam: GameTeamData;
+}
 
 export interface GameDetailData {
   gameid: string;
+  matchTitle: string;
   datacompleteness: string;
   league: string;
   year: number;
@@ -234,6 +255,7 @@ export interface GameDetailData {
 
   bans: GameBans;
   players: GameDetailPlayer[];
+  setNav: GameSetNav;
 }
 
 export type GameDetailResponseDTO = ApiResponse<GameDetailData>;

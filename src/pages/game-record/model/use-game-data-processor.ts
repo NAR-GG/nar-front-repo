@@ -44,6 +44,7 @@ interface ProcessedTeam {
 
 interface GameInfo {
   league: string;
+  matchTitle: string;
   split: string;
   playoffs: number;
   date: string;
@@ -63,12 +64,15 @@ export function useGameDataProcessor(
         gameInfo: null,
         blueTeam: null,
         redTeam: null,
+        setNav: null,
+        bans: null,
         getChampionImageUrl,
       };
     }
 
     const gameInfo: GameInfo = {
       league: gameData.league,
+      matchTitle: gameData.matchTitle || `${gameData.league} ${gameData.split}`,
       split: gameData.split,
       playoffs: gameData.playoffs,
       date: gameData.date,
@@ -134,6 +138,8 @@ export function useGameDataProcessor(
       gameInfo,
       blueTeam,
       redTeam,
+      setNav: gameData.setNav,
+      bans: gameData.bans,
       getChampionImageUrl,
     };
   }, [gameData, getChampionImageUrl]);

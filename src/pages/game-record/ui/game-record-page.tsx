@@ -3,12 +3,12 @@
 import { useState } from "react";
 import {
   Container,
-  Stack,
   Tabs,
   ScrollArea,
   Loader,
   Center,
   Text,
+  Paper,
 } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { gamesQueries } from "@/entities/games/model/games.queries";
@@ -33,7 +33,7 @@ export function GameRecordPage({ gameId }: GameRecordPageProps) {
     error,
   } = useQuery(gamesQueries.detail(gameId));
 
-  const { gameInfo, blueTeam, redTeam, getChampionImageUrl } =
+  const { gameInfo, blueTeam, redTeam, setNav, bans, getChampionImageUrl } =
     useGameDataProcessor(gameData);
 
   if (isLoading) {
@@ -52,7 +52,7 @@ export function GameRecordPage({ gameId }: GameRecordPageProps) {
     );
   }
 
-  if (isError || !gameInfo || !blueTeam || !redTeam) {
+  if (isError || !gameInfo || !blueTeam || !redTeam || !setNav || !bans) {
     return (
       <Container size="xl" pt="lg">
         <Center>
@@ -69,15 +69,29 @@ export function GameRecordPage({ gameId }: GameRecordPageProps) {
 
   return (
     <Container size="xl" px={{ base: 12, sm: 24, md: 32 }}>
-      <Stack gap="lg" mt="md">
+      <Paper
+        p={{ base: "md", md: "xl" }}
+        radius="lg"
+        style={{
+          backgroundColor: "var(--nar-bg-secondary)",
+          border: "1px solid var(--nar-line)",
+        }}
+      >
         <GameHeader
+          gameId={Number(gameId)}
           gameInfo={gameInfo}
           blueTeam={blueTeam}
           redTeam={redTeam}
+          setNav={setNav}
+          bans={bans}
           getChampionImageUrl={getChampionImageUrl}
         />
 
-        <Tabs value={activeTab} onChange={setActiveTab} mt="md">
+        <Tabs
+          value={activeTab}
+          onChange={setActiveTab}
+          className="bg-(--nar-bg-tertiary) pt-12 border-x border-(--nar-line)"
+        >
           <ScrollArea pb="xs" scrollbarSize={4} type="auto">
             <Tabs.List style={{ flexWrap: "nowrap", minWidth: "max-content" }}>
               <Tabs.Tab value="overview">경기 개요</Tabs.Tab>
@@ -110,7 +124,7 @@ export function GameRecordPage({ gameId }: GameRecordPageProps) {
             )}
           </Tabs.Panel>
         </Tabs>
-      </Stack>
+      </Paper>
     </Container>
   );
 }

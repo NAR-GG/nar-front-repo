@@ -32,6 +32,8 @@ interface TeamStats {
   firstBaron: boolean;
   firstHerald: boolean;
   firstTower: boolean;
+  oppElders: number;
+  oppTurretPlates: number;
 }
 
 interface ProcessedTeam {
@@ -115,6 +117,8 @@ export function useGameDataProcessor(
         firstBaron: firstPlayer?.firstbaron || false,
         firstHerald: firstPlayer?.firstherald || false,
         firstTower: firstPlayer?.firsttower || false,
+        oppElders: firstPlayer?.oppElders || 0,
+        oppTurretPlates: firstPlayer?.oppTurretPlates || 0,
       };
     };
 

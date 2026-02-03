@@ -92,16 +92,15 @@ export function GameRecordPage({ gameId }: GameRecordPageProps) {
           onChange={setActiveTab}
           className="bg-(--nar-bg-tertiary) pt-12 border-x border-(--nar-line)"
         >
-          <ScrollArea pb="xs" scrollbarSize={4} type="auto">
+          <ScrollArea scrollbarSize={4} type="auto">
             <Tabs.List style={{ flexWrap: "nowrap", minWidth: "max-content" }}>
               <Tabs.Tab value="overview">경기 개요</Tabs.Tab>
               <Tabs.Tab value="players">선수 기록</Tabs.Tab>
-              <Tabs.Tab value="objectives">오브젝트</Tabs.Tab>
               <Tabs.Tab value="timeline">타임라인 분석</Tabs.Tab>
             </Tabs.List>
           </ScrollArea>
 
-          <Tabs.Panel value="overview" pt="md">
+          <Tabs.Panel value="overview">
             <OverviewTab blueTeam={blueTeam} redTeam={redTeam} />
           </Tabs.Panel>
           <Tabs.Panel value="players" pt="md">
@@ -111,9 +110,6 @@ export function GameRecordPage({ gameId }: GameRecordPageProps) {
               gameLengthInMin={gameLengthInMin}
               getChampionImageUrl={getChampionImageUrl}
             />
-          </Tabs.Panel>
-          <Tabs.Panel value="objectives" pt="md">
-            <ObjectivesTab blueTeam={blueTeam} redTeam={redTeam} />
           </Tabs.Panel>
           <Tabs.Panel value="timeline" pt="md">
             {gameData && (

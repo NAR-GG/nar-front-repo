@@ -103,7 +103,7 @@ export function GameRecordPage({ gameId }: GameRecordPageProps) {
           <Tabs.Panel value="overview">
             <OverviewTab blueTeam={blueTeam} redTeam={redTeam} />
           </Tabs.Panel>
-          <Tabs.Panel value="players" pt="md">
+          <Tabs.Panel value="players">
             <PlayersTab
               blueTeam={blueTeam}
               redTeam={redTeam}
@@ -111,7 +111,7 @@ export function GameRecordPage({ gameId }: GameRecordPageProps) {
               getChampionImageUrl={getChampionImageUrl}
             />
           </Tabs.Panel>
-          <Tabs.Panel value="timeline" pt="md">
+          <Tabs.Panel value="timeline">
             {gameData && (
               <TimelineAnalysisTab
                 gameData={gameData}

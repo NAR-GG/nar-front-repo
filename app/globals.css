@@ -79,6 +79,7 @@
   --nar-bg-blur: var(--nar-white-opacity70);
   --nar-BG-last: var(--nar-gray-100);
   --nar-navchip-bg-defualt: var(--nar-gray-100);
+  --nar-BG-badge-REDOP: var(--nar-red-opacity10);
 
   /* Text */
   --nar-text-primary: var(--nar-dark-900);
@@ -193,6 +194,7 @@
   --nar-bg-blur: var(--nar-black-opacity40);
   --nar-BG-last: var(--nar-dark-600);
   --nar-navchip-bg-defualt: var(--nar-dark-800);
+  --nar-BG-badge-REDOP: var(--nar-red-opacity80);
 
   /* Text */
   --nar-text-primary: var(--nar-white);
@@ -341,6 +343,68 @@ code {
     border-none
     bg-[var(--nar-tagchip-bg)]
     text-[var(--nar-tagchip-text)];
+}
+.badge-mini-hub-line {
+  @apply inline-flex w-fit items-center justify-center gap-1.5
+    text-[12px] font-semibold
+    rounded-[8px] px-2 py-[2px];
+
+  position: relative;
+  background: var(--nar-BG-badge-REDOP);
+  box-sizing: border-box;
+}
+
+.badge-mini-hub-line::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  padding: 1px;
+  background: var(--nar_gradients);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.badge-mini-hub-line span {
+  background: var(--nar_gradients);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.badge-mini-hub {
+  @apply inline-flex w-fit items-center justify-center gap-1.5
+    text-[12px] font-semibold
+    rounded-[8px] px-2 py-[2px]
+    border-none
+    text-[var(--nar-white)];
+  background: var(--nar_gradients);
+}
+
+.badge-mini-gray {
+  @apply inline-flex w-fit items-center justify-center gap-1.5
+    text-[12px] font-semibold
+    rounded-[8px] px-2 py-[2px]
+    border-none
+    bg-(--nar-tagchip-bg)
+    text-[var(--nar-text-secondary)];
+}
+
+/* Sticky column shadow (mobile) */
+.sticky-col-end {
+  box-shadow: 3px 0 9px 0 rgba(0, 0, 0, 0.02) !important;
+}
+
+@media (min-width: 640px) {
+  .sticky-col-end {
+    border-right: none;
+    box-shadow: none;
+  }
 }
 
 /* BUTTON */

@@ -40,14 +40,12 @@ interface OverviewTabProps {
   redTeam: TeamData;
 }
 
-const ICON_BASE_PATH = "/shared/assets/icons/";
-
 export function OverviewTab({ blueTeam, redTeam }: OverviewTabProps) {
   if (!blueTeam?.stats || !redTeam?.stats) return null;
 
   return (
     <div className="bg-[var(--nar-bg-secondary)] w-full flex flex-col items-center justify-center">
-      <div className="bg-[var(--nar-bg-secondary)] w-full sm:w-[719px] flex flex-col items-center justify-center">
+      <div className="w-full sm:w-[719px] flex flex-col items-center justify-center">
         <TeamStatsTab blueTeam={blueTeam} redTeam={redTeam} />
         <ObjectivesTab blueTeam={blueTeam} redTeam={redTeam} />
       </div>

@@ -364,6 +364,9 @@ code {
   -webkit-mask:
     linear-gradient(#fff 0 0) content-box,
     linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events: none;
@@ -395,19 +398,17 @@ code {
     text-[var(--nar-text-secondary)];
 }
 
-/* Sticky column shadow (mobile) */
 .sticky-col-end {
-  box-shadow: 3px 0 9px 0 rgba(0, 0, 0, 0.02) !important;
+  box-shadow:
+    1px 0 0 0 var(--nar-line-2),
+    3px 0 9px 0 rgba(0, 0, 0, 0.02) !important;
 }
 
 @media (min-width: 640px) {
   .sticky-col-end {
-    border-right: none;
-    box-shadow: none;
+    box-shadow: none !important;
   }
 }
-
-/* BUTTON */
 
 .btn-gray {
   @apply inline-flex items-center justify-center

@@ -92,7 +92,7 @@ export function GameRecordPage({ gameId }: GameRecordPageProps) {
           onChange={setActiveTab}
           className="bg-(--nar-bg-tertiary) pt-12 border-x border-(--nar-line)"
         >
-          <ScrollArea scrollbarSize={4} type="auto">
+          <ScrollArea scrollbarSize={4} type="auto" scrollbars="x">
             <Tabs.List style={{ flexWrap: "nowrap", minWidth: "max-content" }}>
               <Tabs.Tab value="overview">경기 개요</Tabs.Tab>
               <Tabs.Tab value="players">선수 기록</Tabs.Tab>

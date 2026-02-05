@@ -79,11 +79,7 @@ function renderDragonIcons(stats: TeamStats) {
   for (let i = 0; i < stats.hextechs; i++) {
     dragons.push(<HextechDragon key={`hextech-${i}`} width={24} height={24} />);
   }
-  for (let i = 0; i < stats.elders; i++) {
-    dragons.push(<ElderDragon key={`elder-${i}`} width={24} height={24} />);
-  }
 
-// 드래곤이 없으면 빈 div 반환
   if (dragons.length === 0) {
     return [<div key="empty" style={{ width: 24, height: 24 }} />];
   }
@@ -115,7 +111,7 @@ export function ObjectivesTab({ blueTeam, redTeam }: ObjectivesTabProps) {
             </Text>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-0 sm:gap-3">
             {renderDragonIcons(blueTeam.stats)}
           </div>
         </div>

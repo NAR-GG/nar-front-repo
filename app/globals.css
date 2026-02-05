@@ -51,8 +51,10 @@
   --nar-bg-darkmode-nargg: #0c0a0a;
   --nar_red_opacity: #e031311a;
   --nar-red-opacity10: rgba(255, 107, 107, 0.1);
+  --nar-blue-opacity10: rgba(34, 139, 230, 0.1);
   --nar-white-opacity70: rgba(255, 255, 255, 0.7);
   --nar-black-opacity40: rgba(0, 0, 0, 0.4);
+  --nar-purple-opacity5: #7048e80d;
 }
 
 [data-mantine-color-scheme="light"] {
@@ -621,4 +623,39 @@ code {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+/* Mantine Select Custom Styles */
+.mantine-Select-root .mantine-Select-input,
+.mantine-Select-input,
+[data-combobox-target] input {
+  background-color: var(--nar-bg-secondary) !important;
+  border: 1px solid var(--nar-line) !important;
+  border-radius: 10px !important;
+}
+
+.mantine-Select-root .mantine-Select-input:focus,
+.mantine-Select-root .mantine-Select-input[data-expanded],
+.mantine-Select-input:focus,
+.mantine-Select-input[data-expanded],
+[data-combobox-target] input:focus {
+  border: 1px solid var(--nar-red-500) !important;
+  outline: none !important;
+}
+
+.mantine-Select-dropdown,
+.mantine-Combobox-dropdown {
+  background-color: var(--nar-bg-secondary) !important;
+  border: 1px solid var(--nar-line) !important;
+}
+
+.mantine-Select-option[data-checked],
+.mantine-Combobox-option[data-combobox-selected] {
+  color: var(--nar-red-500) !important;
+  background-color: transparent !important;
+}
+
+.mantine-Select-option[data-checked]:hover,
+.mantine-Combobox-option[data-combobox-selected]:hover {
+  background-color: var(--nar-red-opacity10) !important;
 }

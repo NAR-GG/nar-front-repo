@@ -1,32 +1,21 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
-import {
-  Stack,
-  Paper,
-  Title,
-  Group,
-  Text,
-  Card,
-  SimpleGrid,
-  Table,
-  ScrollArea,
-  Select,
-  Badge,
-  Avatar,
-  Box,
-  SegmentedControl,
-} from "@mantine/core";
-import { LineChart } from "@mantine/charts";
-import type { GameDetailData, GameDetailPlayer } from "@/entities/games/model/games.dto";
+import { useState, useMemo } from "react";
+import { Stack, Paper, Text, Table, Select, Avatar } from "@mantine/core";
+import type {
+  GameDetailData,
+  GameDetailPlayer,
+} from "@/entities/games/model/games.dto";
+import { IconChevronDown } from "@tabler/icons-react";
+import { TimelineChart } from "./timeline-chart/timeline-chart";
+import { buildChartData } from "./timeline-chart/timeline-chart.utils";
 
-const TIME_SELECTOR_DATA = [
-  { label: "10분", value: "10" },
-  { label: "15분", value: "15" },
-  { label: "20분", value: "20" },
-  { label: "25분", value: "25" },
-];
-const POSITIONS = ["전체", "top", "jng", "mid", "bot", "sup"];
+import NarGrayTop from "@/shared/assets/icons/nar_gray_top.svg";
+import NarGrayJungle from "@/shared/assets/icons/nar_gray_jungle.svg";
+import NarGrayMid from "@/shared/assets/icons/nar_gray_mid.svg";
+import NarGrayBottom from "@/shared/assets/icons/nar_gray_bottom.svg";
+import NarGraySupport from "@/shared/assets/icons/nar_gray_support.svg";
+
 const PLAYER_POSITIONS = ["top", "jng", "mid", "bot", "sup"];
 const METRICS = [
   { value: "gold", label: "골드" },
@@ -38,12 +27,29 @@ const METRICS = [
 ];
 const TIME_POINTS = [10, 15, 20, 25];
 
-const createTimelineKey = (metric: string, time: number) => `${metric}At${time}`;
+const TEAM_DETAIL_METRICS = [
+  { value: "gold", label: "골드" },
+  { value: "xp", label: "경험치" },
+  { value: "cs", label: "CS" },
+  { value: "kda", label: "KDA" },
+];
 
-// 플레이어 객체에서 동적 키로 값을 가져오는 헬퍼 함수
+const createTimelineKey = (metric: string, time: number) =>
+  `${metric}At${time}`;
+
+const formatDiff = (value: number): string => {
+  if (value === 0) return "0";
+  const absValue = Math.abs(value);
+  const sign = value > 0 ? "+" : "";
+  if (absValue >= 1000) {
+    return `${sign}${(value / 1000).toFixed(1)}k`;
+  }
+  return `${sign}${value}`;
+};
+
 const getPlayerValue = (
   player: GameDetailPlayer | null | undefined,
-  key: string
+  key: string,
 ): number => {
   if (!player) return 0;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -53,53 +59,55 @@ const getPlayerValue = (
 // 플레이어 객체에서 문자열 값을 가져오는 헬퍼 함수
 const getPlayerStringValue = (
   player: GameDetailPlayer | null | undefined,
-  key: string
+  key: string,
 ): string => {
   if (!player) return "";
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (player as any)[key] ?? "";
 };
 
-interface ChartTooltipPayload {
-  name: string;
-  value: number;
-  color: string;
-}
+const POSITION_FILTER_DATA = [
+  { value: "전체", label: "전체" },
+  { value: "top", label: "탑" },
+  { value: "jng", label: "정글" },
+  { value: "mid", label: "미드" },
+  { value: "bot", label: "원딜" },
+  { value: "sup", label: "서폿" },
+];
 
-interface CustomChartTooltipProps {
-  label?: string | number;
-  payload?: readonly ChartTooltipPayload[];
-  active?: boolean;
-}
+const METRIC_FILTER_DATA = [
+  { value: "gold", label: "골드" },
+  { value: "xp", label: "경험치" },
+  { value: "cs", label: "CS" },
+  { value: "kills", label: "킬" },
+];
 
-function CustomChartTooltip({ label, payload, active }: CustomChartTooltipProps) {
-  if (active && payload?.length) {
-    return (
-      <Paper px="sm" py="xs" withBorder shadow="sm" radius="sm">
-        <Text fw={700} mb={5}>
-          {label}
-        </Text>
-        {payload.map((item) => (
-          <Group key={item.name} gap="xs" justify="space-between">
-            <Group gap="xs" align="center">
-              <Box
-                w={10}
-                h={10}
-                bg={item.color}
-                style={{ borderRadius: "50%" }}
-              />
-              <Text size="sm">{item.name}</Text>
-            </Group>
-            <Text size="sm" fw={500}>
-              {item.value.toLocaleString()}
-            </Text>
-          </Group>
-        ))}
-      </Paper>
-    );
-  }
-  return null;
-}
+const TIME_FILTER_DATA = [
+  { label: "10m", value: "10" },
+  { label: "15m", value: "15" },
+  { label: "20m", value: "20" },
+  { label: "25m", value: "25" },
+];
+
+const tableWrapperStyle: React.CSSProperties = {
+  backgroundColor: "var(--nar-bg-primary)",
+  border: "1px solid var(--nar-line-2)",
+  borderRadius: 24,
+  overflowX: "auto",
+};
+
+const tableStyles = {
+  th: { height: 48 },
+  td: { height: 48 },
+};
+
+const POSITION_ICONS: Record<string, any> = {
+  top: NarGrayTop,
+  jng: NarGrayJungle,
+  mid: NarGrayMid,
+  bot: NarGrayBottom,
+  sup: NarGraySupport,
+};
 
 interface TimelineAnalysisTabProps {
   gameData: GameDetailData;
@@ -131,10 +139,10 @@ export function TimelineAnalysisTab({
     };
 
     const bluePlayers = gameData.players.filter(
-      (p) => p.side.toLowerCase() === "blue"
+      (p) => p.side.toLowerCase() === "blue",
     );
     const redPlayers = gameData.players.filter(
-      (p) => p.side.toLowerCase() === "red"
+      (p) => p.side.toLowerCase() === "red",
     );
     if (bluePlayers.length === 0 || redPlayers.length === 0) return null;
 
@@ -149,7 +157,7 @@ export function TimelineAnalysisTab({
           const key = createTimelineKey(metricInfo.value, time);
           totals[time][metricInfo.value] = players.reduce(
             (sum, p) => sum + getPlayerValue(p, key),
-            0
+            0,
           );
         });
       });
@@ -172,31 +180,12 @@ export function TimelineAnalysisTab({
 
   const chartData = useMemo(() => {
     if (!processedData) return [];
-    const isTotalView = selectedPosition === "전체";
-    const bluePlayer = isTotalView
-      ? null
-      : processedData.blueTeam.players.find(
-          (p) => p.position === selectedPosition
-        );
-    const redPlayer = isTotalView
-      ? null
-      : processedData.redTeam.players.find(
-          (p) => p.position === selectedPosition
-        );
-    return TIME_POINTS.map((time) => {
-      const key = createTimelineKey(selectedMetric, time);
-      const blueValue = isTotalView
-        ? processedData.blueTeam.totalsByTime[time][selectedMetric]
-        : getPlayerValue(bluePlayer, key);
-      const redValue = isTotalView
-        ? processedData.redTeam.totalsByTime[time][selectedMetric]
-        : getPlayerValue(redPlayer, key);
-      return {
-        time: `${time}분`,
-        [processedData.blueTeam.name]: blueValue,
-        [processedData.redTeam.name]: redValue,
-      };
-    });
+    return buildChartData(
+      processedData.blueTeam,
+      processedData.redTeam,
+      selectedPosition,
+      selectedMetric,
+    );
   }, [processedData, selectedPosition, selectedMetric]);
 
   if (!processedData) {
@@ -212,23 +201,6 @@ export function TimelineAnalysisTab({
   const { blueTeam, redTeam } = processedData;
   const isTotalView = selectedPosition === "전체";
 
-  const getDifference = (time: number) => {
-    const key = createTimelineKey(selectedMetric, time);
-    if (isTotalView) {
-      return (
-        blueTeam.totalsByTime[time][selectedMetric] -
-        redTeam.totalsByTime[time][selectedMetric]
-      );
-    }
-    const bluePlayer = blueTeam.players.find(
-      (p) => p.position === selectedPosition
-    );
-    const redPlayer = redTeam.players.find(
-      (p) => p.position === selectedPosition
-    );
-    return getPlayerValue(bluePlayer, key) - getPlayerValue(redPlayer, key);
-  };
-
   const positionDisplayText = isTotalView
     ? "팀 전체"
     : selectedPosition.toUpperCase();
@@ -236,298 +208,401 @@ export function TimelineAnalysisTab({
     METRICS.find((m) => m.value === selectedMetric)?.label || "";
 
   return (
-    <Stack gap="lg" mt="lg">
-      {/* 필터 */}
-      <Paper p="md" withBorder radius="sm">
-        <Group gap="md" wrap="wrap">
+    <div className="bg-[var(--nar-bg-secondary)] w-full flex flex-col items-center justify-center px-[19.5px] py-[30px] gap-15">
+      <div className="flex flex-col w-full gap-6">
+        <Text c="--nar-text-secondary" fw={600} fz={{base: 20,sm: 28}}>
+          {positionDisplayText} {metricLabel} 추이
+        </Text>
+        <div className="flex w-full gap-6">
           <Select
             label="포지션"
             value={selectedPosition}
             onChange={(v) => setSelectedPosition(v || "전체")}
-            data={POSITIONS}
+            data={POSITION_FILTER_DATA}
             style={{ minWidth: 120 }}
+            rightSection={<IconChevronDown size={18} />}
+            checkIconPosition="right"
           />
           <Select
             label="지표"
             value={selectedMetric}
             onChange={(v) => setSelectedMetric(v || "gold")}
-            data={METRICS.slice(0, 4)}
+            data={METRIC_FILTER_DATA}
             style={{ minWidth: 120 }}
+            rightSection={<IconChevronDown size={18} />}
+            checkIconPosition="right"
           />
-        </Group>
-      </Paper>
+        </div>
+      </div>
 
-      {/* 시간대별 차트 */}
-      <Paper p="lg" withBorder radius="sm">
-        <Title order={3}>
-          {positionDisplayText} {metricLabel} 추이
-        </Title>
-        <LineChart
-          h={300}
-          data={chartData}
-          dataKey="time"
-          series={[
-            { name: blueTeam.name, color: "blue.6" },
-            { name: redTeam.name, color: "red.6" },
-          ]}
-          curveType="linear"
-          withLegend={false}
-          tooltipProps={{ content: CustomChartTooltip }}
-        />
-        <Group justify="center" mt="md" gap="lg">
-          <Group gap="xs">
-            <Box w={12} h={3} bg="blue.6" />
-            <Text size="sm">{blueTeam.name}</Text>
-          </Group>
-          <Group gap="xs">
-            <Box w={12} h={3} bg="red.6" />
-            <Text size="sm">{redTeam.name}</Text>
-          </Group>
-        </Group>
-      </Paper>
+      <TimelineChart
+        chartData={chartData}
+        blueTeamName={blueTeam.name}
+        redTeamName={redTeam.name}
+        selectedMetric={selectedMetric}
+      />
 
-      {/* 차이 분석 카드 */}
-      <Paper p="lg" withBorder radius="sm">
-        <Title order={3} mb="md">
-          {positionDisplayText} 시간대별 {metricLabel} 격차
-        </Title>
-        <SimpleGrid cols={{ base: 2, md: 4 }} spacing="md">
-          {TIME_POINTS.map((time) => {
-            const diff = getDifference(time);
-            const isBlueAhead = diff >= 0;
-            const leadTeam = isBlueAhead ? blueTeam : redTeam;
-            const leadColor = isBlueAhead ? "blue" : "red";
-            return (
-              <Card key={time} p="md" withBorder radius="sm">
-                <Stack align="center" gap="xs">
-                  <Text size="sm" fw={600}>
-                    {time}분
-                  </Text>
-                  <Badge variant="light" color={leadColor} size="lg" radius="sm">
-                    {leadTeam.name} 우세
-                  </Badge>
-                  <Text size="lg" fw={700} c={leadColor}>
-                    +{Math.abs(diff).toLocaleString()}
-                  </Text>
-                </Stack>
-              </Card>
-            );
-          })}
-        </SimpleGrid>
-      </Paper>
-
-      {/* 상세 지표 테이블 */}
-      <Paper p="lg" withBorder radius="sm">
-        <Title order={3} mb="md">
+      <div className="flex flex-col w-full gap-6">
+        <Text c="--nar-text-secondary" fw={600} fz={{base: 20,sm: 28}}>
           팀 전체 상세 지표
-        </Title>
-        <ScrollArea>
-          <Table
-            striped
-            highlightOnHover
-            withTableBorder
-            withColumnBorders
-            miw={800}
-          >
-            <Table.Thead>
-              <Table.Tr>
-                {["시간", "팀", ...METRICS.map((m) => m.label)].map((h) => (
-                  <Table.Th key={h}>{h}</Table.Th>
-                ))}
-              </Table.Tr>
-            </Table.Thead>
-            <Table.Tbody>
-              {TIME_POINTS.map((time) => (
-                <React.Fragment key={time}>
-                  <Table.Tr>
-                    <Table.Td rowSpan={2}>
-                      <Text fw={600}>{time}분</Text>
-                    </Table.Td>
-                    <Table.Td>
-                      <Badge color="blue" variant="light" radius="sm">
-                        {blueTeam.name}
-                      </Badge>
-                    </Table.Td>
-                    {METRICS.map((m) => (
-                      <Table.Td key={`${time}-blue-${m.value}`}>
-                        {blueTeam.totalsByTime[time][m.value].toLocaleString()}
-                      </Table.Td>
-                    ))}
-                  </Table.Tr>
-                  <Table.Tr>
-                    <Table.Td>
-                      <Badge color="red" variant="light" radius="sm">
-                        {redTeam.name}
-                      </Badge>
-                    </Table.Td>
-                    {METRICS.map((m) => (
-                      <Table.Td key={`${time}-red-${m.value}`}>
-                        {redTeam.totalsByTime[time][m.value].toLocaleString()}
-                      </Table.Td>
-                    ))}
-                  </Table.Tr>
-                </React.Fragment>
-              ))}
-            </Table.Tbody>
-          </Table>
-        </ScrollArea>
-      </Paper>
-
-      {/* 포지션별 지표 비교 테이블 */}
-      <Paper p="lg" withBorder radius="sm">
-        <Stack gap="md">
-          <Title order={3}>
-            {selectedTime}분 포지션별 지표 비교
-          </Title>
-          <SegmentedControl
+        </Text>
+        <div className="flex w-full gap-6">
+          <Select
             value={selectedTime}
-            onChange={setSelectedTime}
-            data={TIME_SELECTOR_DATA}
-            color="blue"
-            fullWidth
+            onChange={(v) => setSelectedTime(v || "10")}
+            data={TIME_FILTER_DATA}
+            style={{ minWidth: 120 }}
+            rightSection={<IconChevronDown size={18} />}
+            checkIconPosition="right"
           />
-        </Stack>
-        <ScrollArea mt="md">
-          <Table
-            striped
-            highlightOnHover
-            withTableBorder
-            withColumnBorders
-            miw={700}
-          >
+        </div>
+        <div style={tableWrapperStyle}>
+          <Table miw={{ base: 0, sm: 600 }} styles={tableStyles}>
             <Table.Thead>
               <Table.Tr>
-                <Table.Th>포지션</Table.Th>
-                <Table.Th>선수</Table.Th>
-                <Table.Th>골드 (격차)</Table.Th>
-                <Table.Th>CS (격차)</Table.Th>
-                <Table.Th>K/D/A</Table.Th>
+                <Table.Th w={60}></Table.Th>
+                <Table.Th ta="center">
+                  <div className="flex items-start sm:items-center flex-col sm:flex-row justify-center w-fit mx-auto">
+                    <Text c="blue" fw={600} fz={{ base: 14, sm: 16 }}>
+                      {blueTeam.name}
+                    </Text>
+                    <Text c="blue" fw={400} fz={{ base: 14, sm: 16 }}>
+                      (Blue side)
+                    </Text>
+                  </div>
+                </Table.Th>
+                <Table.Th ta="center" w={{ base: 70, sm: 150 }} className="bg-(--nar-purple-opacity5)">
+                  <Text fw={600} c="var(--nar-purple-1)">
+                    격차
+                  </Text>
+                </Table.Th>
+                <Table.Th ta="center">
+                  <div className="flex items-start sm:items-center flex-col sm:flex-row justify-center w-fit mx-auto">
+                    <Text c="red" fw={600} fz={{ base: 14, sm: 16 }}>
+                      {redTeam.name}
+                    </Text>
+                    <Text c="red" fw={400} fz={{ base: 14, sm: 16 }}>
+                      (Red side)
+                    </Text>
+                  </div>
+                </Table.Th>
               </Table.Tr>
             </Table.Thead>
             <Table.Tbody>
-              {PLAYER_POSITIONS.map((pos) => {
-                const blueP = blueTeam.players.find(
-                  (p) => p.position.toLowerCase() === pos
-                );
-                const redP = redTeam.players.find(
-                  (p) => p.position.toLowerCase() === pos
-                );
+              {TEAM_DETAIL_METRICS.map((metric) => {
+                const timeNum = parseInt(selectedTime);
+                let blueValue: number | string;
+                let redValue: number | string;
+                let diff: string;
 
-                const goldDiff = getPlayerValue(blueP, `goldDiffAt${selectedTime}`);
-                const csDiff = getPlayerValue(blueP, `csdiffAt${selectedTime}`);
+                if (metric.value === "kda") {
+                  const blueKills = blueTeam.totalsByTime[timeNum]?.kills ?? 0;
+                  const blueDeaths =
+                    blueTeam.totalsByTime[timeNum]?.deaths ?? 0;
+                  const blueAssists =
+                    blueTeam.totalsByTime[timeNum]?.assists ?? 0;
+                  const redKills = redTeam.totalsByTime[timeNum]?.kills ?? 0;
+                  const redDeaths = redTeam.totalsByTime[timeNum]?.deaths ?? 0;
+                  const redAssists =
+                    redTeam.totalsByTime[timeNum]?.assists ?? 0;
+
+                  blueValue = `${blueKills}/${blueDeaths}/${blueAssists}`;
+                  redValue = `${redKills}/${redDeaths}/${redAssists}`;
+                  diff = "-";
+                } else {
+                  blueValue =
+                    blueTeam.totalsByTime[timeNum]?.[metric.value] ?? 0;
+                  redValue = redTeam.totalsByTime[timeNum]?.[metric.value] ?? 0;
+                  const diffNum = (blueValue as number) - (redValue as number);
+                  diff = formatDiff(diffNum);
+                }
+
+                const diffColor =
+                  diff === "-"
+                    ? "dimmed"
+                    : diff.startsWith("+")
+                      ? "blue"
+                      : diff === "0"
+                        ? "dimmed"
+                        : "red";
 
                 return (
-                  <React.Fragment key={pos}>
-                    <Table.Tr>
-                      <Table.Td rowSpan={2}>
-                        <Text fw={600} tt="uppercase">
-                          {pos}
-                        </Text>
-                      </Table.Td>
-                      <Table.Td>
-                        <Group gap="xs" wrap="nowrap">
-                          {getPlayerStringValue(blueP, "champion") && (
-                            <Avatar
-                              src={getChampionImageUrl(getPlayerStringValue(blueP, "champion"))}
-                              size={24}
-                              radius="sm"
-                            />
-                          )}
-                          <Text size="sm">
-                            {getPlayerStringValue(blueP, "playername") || "N/A"}
-                          </Text>
-                        </Group>
-                      </Table.Td>
-                      <Table.Td>
-                        <Group gap={4} wrap="nowrap">
-                          <Text size="sm">
-                            {getPlayerValue(blueP, createTimelineKey("gold", parseInt(selectedTime))).toLocaleString()}
-                          </Text>
-                          <Text
-                            c={goldDiff >= 0 ? "blue" : "red"}
-                            size="xs"
-                          >
-                            ({goldDiff >= 0 ? "+" : ""}
-                            {goldDiff})
-                          </Text>
-                        </Group>
-                      </Table.Td>
-                      <Table.Td>
-                        <Group gap={4} wrap="nowrap">
-                          <Text size="sm">
-                            {getPlayerValue(blueP, createTimelineKey("cs", parseInt(selectedTime)))}
-                          </Text>
-                          <Text
-                            c={csDiff >= 0 ? "blue" : "red"}
-                            size="xs"
-                          >
-                            ({csDiff >= 0 ? "+" : ""}
-                            {csDiff})
-                          </Text>
-                        </Group>
-                      </Table.Td>
-                      <Table.Td>
-                        {getPlayerValue(blueP, createTimelineKey("kills", parseInt(selectedTime)))}/
-                        {getPlayerValue(blueP, createTimelineKey("deaths", parseInt(selectedTime)))}/
-                        {getPlayerValue(blueP, createTimelineKey("assists", parseInt(selectedTime)))}
-                      </Table.Td>
-                    </Table.Tr>
-                    <Table.Tr>
-                      <Table.Td>
-                        <Group gap="xs" wrap="nowrap">
-                          {getPlayerStringValue(redP, "champion") && (
-                            <Avatar
-                              src={getChampionImageUrl(getPlayerStringValue(redP, "champion"))}
-                              size={24}
-                              radius="sm"
-                            />
-                          )}
-                          <Text size="sm">
-                            {getPlayerStringValue(redP, "playername") || "N/A"}
-                          </Text>
-                        </Group>
-                      </Table.Td>
-                      <Table.Td>
-                        <Group gap={4} wrap="nowrap">
-                          <Text size="sm">
-                            {getPlayerValue(redP, createTimelineKey("gold", parseInt(selectedTime))).toLocaleString()}
-                          </Text>
-                          <Text
-                            c={goldDiff <= 0 ? "blue" : "red"}
-                            size="xs"
-                          >
-                            ({goldDiff <= 0 ? "+" : ""}
-                            {-goldDiff})
-                          </Text>
-                        </Group>
-                      </Table.Td>
-                      <Table.Td>
-                        <Group gap={4} wrap="nowrap">
-                          <Text size="sm">
-                            {getPlayerValue(redP, createTimelineKey("cs", parseInt(selectedTime)))}
-                          </Text>
-                          <Text
-                            c={csDiff <= 0 ? "blue" : "red"}
-                            size="xs"
-                          >
-                            ({csDiff <= 0 ? "+" : ""}
-                            {-csDiff})
-                          </Text>
-                        </Group>
-                      </Table.Td>
-                      <Table.Td>
-                        {getPlayerValue(redP, createTimelineKey("kills", parseInt(selectedTime)))}/
-                        {getPlayerValue(redP, createTimelineKey("deaths", parseInt(selectedTime)))}/
-                        {getPlayerValue(redP, createTimelineKey("assists", parseInt(selectedTime)))}
-                      </Table.Td>
-                    </Table.Tr>
-                  </React.Fragment>
+                  <Table.Tr key={metric.value}>
+                    <Table.Td>
+                      <Text fw={400} fz={{ base: 12, sm: 14 }} c="var(--nar-text-tertiary-sub)">
+                        {metric.label}
+                      </Text>
+                    </Table.Td>
+                    <Table.Td ta="center">
+                      <Text c="blue" fz={{ base: 14, sm: 16 }}>
+                        {typeof blueValue === "number"
+                          ? blueValue.toLocaleString()
+                          : blueValue}
+                      </Text>
+                    </Table.Td>
+                    <Table.Td ta="center" className="bg-(--nar-bg-tertiary)">
+                      <Text c={diffColor} fz={{ base: 14, sm: 16 }} fw={500}>
+                        {diff}
+                      </Text>
+                    </Table.Td>
+                    <Table.Td ta="center">
+                      <Text c="red" fz={{ base: 14, sm: 16 }}>
+                        {typeof redValue === "number"
+                          ? redValue.toLocaleString()
+                          : redValue}
+                      </Text>
+                    </Table.Td>
+                  </Table.Tr>
                 );
               })}
             </Table.Tbody>
           </Table>
-        </ScrollArea>
-      </Paper>
-    </Stack>
+        </div>
+      </div>
+
+      <div className="flex flex-col w-full gap-6">
+        <Text c="--nar-text-secondary" fw={600} fz={{base: 20,sm: 28}}>
+          {selectedTime}분 포지션별 지표 비교
+        </Text>
+        <div className="flex w-full gap-6">
+          <Select
+            value={selectedTime}
+            onChange={(v) => setSelectedTime(v || "10")}
+            data={TIME_FILTER_DATA}
+            style={{ minWidth: 120 }}
+            rightSection={<IconChevronDown size={18} />}
+            checkIconPosition="right"
+          />
+        </div>
+
+        <Stack gap="lg">
+          {PLAYER_POSITIONS.map((pos) => {
+            const blueP = blueTeam.players.find(
+              (p) => p.position.toLowerCase() === pos,
+            );
+            const redP = redTeam.players.find(
+              (p) => p.position.toLowerCase() === pos,
+            );
+
+            const timeNum = parseInt(selectedTime);
+            const blueGold = getPlayerValue(
+              blueP,
+              createTimelineKey("gold", timeNum),
+            );
+            const redGold = getPlayerValue(
+              redP,
+              createTimelineKey("gold", timeNum),
+            );
+            const goldDiff = blueGold - redGold;
+
+            const blueCs = getPlayerValue(
+              blueP,
+              createTimelineKey("cs", timeNum),
+            );
+            const redCs = getPlayerValue(
+              redP,
+              createTimelineKey("cs", timeNum),
+            );
+            const csDiff = blueCs - redCs;
+
+            const blueKills = getPlayerValue(
+              blueP,
+              createTimelineKey("kills", timeNum),
+            );
+            const blueDeaths = getPlayerValue(
+              blueP,
+              createTimelineKey("deaths", timeNum),
+            );
+            const blueAssists = getPlayerValue(
+              blueP,
+              createTimelineKey("assists", timeNum),
+            );
+            const redKills = getPlayerValue(
+              redP,
+              createTimelineKey("kills", timeNum),
+            );
+            const redDeaths = getPlayerValue(
+              redP,
+              createTimelineKey("deaths", timeNum),
+            );
+            const redAssists = getPlayerValue(
+              redP,
+              createTimelineKey("assists", timeNum),
+            );
+
+            return (
+              <div key={pos} style={tableWrapperStyle}>
+                <Table styles={tableStyles}>
+                  <Table.Thead>
+                    <Table.Tr>
+                      <Table.Th w={60}></Table.Th>
+                      <Table.Th ta="center">
+                        <div className="flex items-start sm:items-center flex-col sm:flex-row justify-center gap-1 w-fit mx-auto">
+                          <Text c="blue" fw={600} fz={{ base: 14, sm: 16 }}>
+                            {blueTeam.name}
+                          </Text>
+                          <Text c="blue" fw={400} fz={{ base: 14, sm: 16 }}>
+                            (Blue side)
+                          </Text>
+                        </div>
+                      </Table.Th>
+                      <Table.Th
+                        ta="center"
+                        w={{ base: 70, sm: 150 }}
+                        className="bg-[var(--nar-purple-opacity5)]"
+                      >
+                        <Text fw={600} c="var(--nar-purple-1)">
+                          격차
+                        </Text>
+                      </Table.Th>
+                      <Table.Th ta="center">
+                        <div className="flex items-start sm:items-center flex-col sm:flex-row justify-center gap-1 w-fit mx-auto">
+                          <Text c="red" fw={600} fz={{ base: 14, sm: 16 }}>
+                            {redTeam.name}
+                          </Text>
+                          <Text c="red" fw={400} fz={{ base: 14, sm: 16 }}>
+                            (Red side)
+                          </Text>
+                        </div>
+                      </Table.Th>
+                    </Table.Tr>
+                  </Table.Thead>
+                  <Table.Tbody>
+                    <Table.Tr>
+                      <Table.Td>
+                        {(() => {
+                          const Icon = POSITION_ICONS[pos];
+                          return Icon ? <Icon width={34} height={34} /> : null;
+                        })()}
+                      </Table.Td>
+                      <Table.Td ta="center">
+                        <div className="flex flex-col items-center justify-center">
+                          {getPlayerStringValue(blueP, "champion") && (
+                            <Avatar
+                              src={getChampionImageUrl(
+                                getPlayerStringValue(blueP, "champion"),
+                              )}
+                              size={32}
+                              radius="sm"
+                            />
+                          )}
+                          <Text fz={{ base: 14, sm: 16 }}>
+                            {getPlayerStringValue(blueP, "playername") || "N/A"}
+                          </Text>
+                        </div>
+                      </Table.Td>
+                      <Table.Td
+                        ta="center"
+                        className="bg-[var(--nar-bg-tertiary)]"
+                      ></Table.Td>
+                      <Table.Td ta="center">
+                        <div className="flex flex-col items-center justify-center">
+                          {getPlayerStringValue(redP, "champion") && (
+                            <Avatar
+                              src={getChampionImageUrl(
+                                getPlayerStringValue(redP, "champion"),
+                              )}
+                              size={32}
+                              radius="sm"
+                            />
+                          )}
+                          <Text fz={{ base: 14, sm: 16 }}>
+                            {getPlayerStringValue(redP, "playername") || "N/A"}
+                          </Text>
+                        </div>
+                      </Table.Td>
+                    </Table.Tr>
+                    <Table.Tr>
+                      <Table.Td>
+                        <Text fw={500} fz={{ base: 12, sm: 14 }} c="var(--nar-text-tertiary-sub)">
+                          골드
+                        </Text>
+                      </Table.Td>
+                      <Table.Td ta="center">
+                        <Text c="blue"  fz={{base: 14,sm: 16}}>{blueGold.toLocaleString()}</Text>
+                      </Table.Td>
+                      <Table.Td
+                        ta="center"
+                        className="bg-[var(--nar-bg-tertiary)]"
+                      >
+                        <Text
+                          c={
+                            goldDiff > 0
+                              ? "blue"
+                              : goldDiff < 0
+                                ? "red"
+                                : "dimmed"
+                          }
+                          fw={500}
+                           fz={{base: 14,sm: 16}}
+                        >
+                          {formatDiff(goldDiff)}
+                        </Text>
+                      </Table.Td>
+                      <Table.Td ta="center">
+                        <Text c="red"  fz={{base: 14,sm: 16}}>{redGold.toLocaleString()}</Text>
+                      </Table.Td>
+                    </Table.Tr>
+                    <Table.Tr>
+                      <Table.Td>
+                        <Text fw={400} fz={{base: 12,sm: 14}} c="var(--nar-text-tertiary-sub)">
+                          CS
+                        </Text>
+                      </Table.Td>
+                      <Table.Td ta="center">
+                        <Text c="blue"  fz={{base: 14,sm: 16}}>{blueCs}</Text>
+                      </Table.Td>
+                      <Table.Td
+                        ta="center"
+                        className="bg-[var(--nar-bg-tertiary)]"
+                      >
+                        <Text
+                          c={
+                            csDiff > 0 ? "blue" : csDiff < 0 ? "red" : "dimmed"
+                          }
+                          fw={500}
+                          fz={{base: 14,sm: 16}}
+                        >
+                          {formatDiff(csDiff)}
+                        </Text>
+                      </Table.Td>
+                      <Table.Td ta="center">
+                        <Text c="red"  fz={{base: 14,sm: 16}}>{redCs}</Text>
+                      </Table.Td>
+                    </Table.Tr>
+                    {/* K/D/A 행 */}
+                    <Table.Tr>
+                      <Table.Td>
+                        <Text fw={400} fz={{ base: 12, sm: 14 }} c="var(--nar-text-tertiary-sub)">
+                          K/D/A
+                        </Text>
+                      </Table.Td>
+                      <Table.Td ta="center">
+                        <Text c="blue" fz={{base: 14,sm: 16}}>
+                          {blueKills}/{blueDeaths}/{blueAssists}
+                        </Text>
+                      </Table.Td>
+                      <Table.Td
+                        ta="center"
+                        className="bg-[var(--nar-bg-tertiary)]"
+                      >
+                        <Text c="dimmed" fw={500} fz={{base: 14,sm: 16}}>
+                          -
+                        </Text>
+                      </Table.Td>
+                      <Table.Td ta="center">
+                        <Text c="red" fz={{base: 14,sm: 16}}>
+                          {redKills}/{redDeaths}/{redAssists}
+                        </Text>
+                      </Table.Td>
+                    </Table.Tr>
+                  </Table.Tbody>
+                </Table>
+              </div>
+            );
+          })}
+        </Stack>
+      </div>
+    </div>
   );
 }

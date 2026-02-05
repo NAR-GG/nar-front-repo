@@ -47,7 +47,6 @@ const POSITION_ORDER: Record<string, number> = {
 export function PlayerStatsTable({
   players,
   teamKills,
-  gameLengthInMin,
   getChampionImageUrl,
 }: PlayerStatsTableProps) {
   const maxDamage = Math.max(...players.map((p) => p.damageToChampions));

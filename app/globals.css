@@ -40,13 +40,21 @@
   --nar-red-600: #fa5252;
   --nar-red-700: #f03e3e;
   --nar-red-800: #e03131;
+
+  --nar-blue-500: #339af0;
+  --nar-blue-600: #228be6;
+  --nar-blue-700: #1c7ed6;
+  --nar-blue-800: #1971c2;
+
   --nar-white: #ffffff;
   --nar-bg-lightmode-nargg: #fffefe;
   --nar-bg-darkmode-nargg: #0c0a0a;
   --nar_red_opacity: #e031311a;
   --nar-red-opacity10: rgba(255, 107, 107, 0.1);
+  --nar-blue-opacity10: rgba(34, 139, 230, 0.1);
   --nar-white-opacity70: rgba(255, 255, 255, 0.7);
   --nar-black-opacity40: rgba(0, 0, 0, 0.4);
+  --nar-purple-opacity5: #7048e80d;
 }
 
 [data-mantine-color-scheme="light"] {
@@ -72,6 +80,8 @@
   --nar-bg-teamlogobox: var(--nar-gray-200);
   --nar-bg-blur: var(--nar-white-opacity70);
   --nar-BG-last: var(--nar-gray-100);
+  --nar-navchip-bg-defualt: var(--nar-gray-100);
+  --nar-BG-badge-REDOP: var(--nar-red-opacity10);
 
   /* Text */
   --nar-text-primary: var(--nar-dark-900);
@@ -185,6 +195,8 @@
   --nar-bg-teamlogobox: var(--nar-gray-700);
   --nar-bg-blur: var(--nar-black-opacity40);
   --nar-BG-last: var(--nar-dark-600);
+  --nar-navchip-bg-defualt: var(--nar-dark-800);
+  --nar-BG-badge-REDOP: var(--nar-red-opacity80);
 
   /* Text */
   --nar-text-primary: var(--nar-white);
@@ -334,8 +346,71 @@ code {
     bg-[var(--nar-tagchip-bg)]
     text-[var(--nar-tagchip-text)];
 }
+.badge-mini-hub-line {
+  @apply inline-flex w-fit items-center justify-center gap-1.5
+    text-[12px] font-semibold
+    rounded-[8px] px-2 py-[2px];
 
-/* BUTTON */
+  position: relative;
+  background: var(--nar-BG-badge-REDOP);
+  box-sizing: border-box;
+}
+
+.badge-mini-hub-line::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 8px;
+  padding: 1px;
+  background: var(--nar_gradients);
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.badge-mini-hub-line span {
+  background: var(--nar_gradients);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+.badge-mini-hub {
+  @apply inline-flex w-fit items-center justify-center gap-1.5
+    text-[12px] font-semibold
+    rounded-[8px] px-2 py-[2px]
+    border-none
+    text-[var(--nar-white)];
+  background: var(--nar_gradients);
+}
+
+.badge-mini-gray {
+  @apply inline-flex w-fit items-center justify-center gap-1.5
+    text-[12px] font-semibold
+    rounded-[8px] px-2 py-[2px]
+    border-none
+    bg-(--nar-tagchip-bg)
+    text-[var(--nar-text-secondary)];
+}
+
+.sticky-col-end {
+  box-shadow:
+    1px 0 0 0 var(--nar-line-2),
+    3px 0 9px 0 rgba(0, 0, 0, 0.02) !important;
+}
+
+@media (min-width: 640px) {
+  .sticky-col-end {
+    box-shadow: none !important;
+  }
+}
 
 .btn-gray {
   @apply inline-flex items-center justify-center
@@ -493,4 +568,94 @@ code {
   height: 5px;
   border-radius: 50%;
   background: var(--nar_gradients);
+}
+
+/* Mantine Tabs Custom Styles - Game Record */
+.mantine-Tabs-list {
+  border-bottom: 1.5px solid var(--nar-text-tertiary-sub) !important;
+  gap: 0 !important;
+}
+
+.mantine-Tabs-list::before,
+.mantine-Tabs-list::after {
+  display: none !important;
+}
+
+/* Hide default Mantine Tabs indicator */
+.mantine-Tabs-indicator {
+  display: none !important;
+  opacity: 0 !important;
+  height: 0 !important;
+}
+
+.mantine-Tabs-tab {
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  color: var(--nar-text-tertiary-sub) !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 10px 41.5px !important;
+  position: relative;
+}
+
+.mantine-Tabs-tab::after {
+  content: "";
+  position: absolute;
+  bottom: -1.5px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: transparent;
+  transition: background 0.2s ease;
+}
+
+.mantine-Tabs-tab[data-active="true"] {
+  background: transparent !important;
+}
+
+.mantine-Tabs-tab[data-active="true"]::after {
+  background: var(--nar_gradients);
+}
+
+/* Active tab gradient text */
+.mantine-Tabs-tab[data-active="true"] .mantine-Tabs-tabLabel {
+  background: var(--nar_gradients);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Mantine Select Custom Styles */
+.mantine-Select-root .mantine-Select-input,
+.mantine-Select-input,
+[data-combobox-target] input {
+  background-color: var(--nar-bg-secondary) !important;
+  border: 1px solid var(--nar-line) !important;
+  border-radius: 10px !important;
+}
+
+.mantine-Select-root .mantine-Select-input:focus,
+.mantine-Select-root .mantine-Select-input[data-expanded],
+.mantine-Select-input:focus,
+.mantine-Select-input[data-expanded],
+[data-combobox-target] input:focus {
+  border: 1px solid var(--nar-red-500) !important;
+  outline: none !important;
+}
+
+.mantine-Select-dropdown,
+.mantine-Combobox-dropdown {
+  background-color: var(--nar-bg-secondary) !important;
+  border: 1px solid var(--nar-line) !important;
+}
+
+.mantine-Select-option[data-checked],
+.mantine-Combobox-option[data-combobox-selected] {
+  color: var(--nar-red-500) !important;
+  background-color: transparent !important;
+}
+
+.mantine-Select-option[data-checked]:hover,
+.mantine-Combobox-option[data-combobox-selected]:hover {
+  background-color: var(--nar-red-opacity10) !important;
 }

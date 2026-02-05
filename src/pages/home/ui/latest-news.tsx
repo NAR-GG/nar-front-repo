@@ -16,7 +16,7 @@ function NewsRow({ news }: { news: NewsData }) {
       className="flex items-center gap-4 h-full hover:opacity-80 transition-opacity"
     >
       <div className="relative w-[100px] h-[61px] rounded-[8px] bg-(--mantine-color-gray-2) shrink-0 overflow-hidden">
-        {news.thumbnail && (
+        {news.thumbnail?.startsWith("http") && (
           <Image
             src={news.thumbnail}
             alt={news.title}
@@ -54,7 +54,7 @@ function MainNewsCard({ news }: { news: NewsData }) {
       rel="noopener noreferrer"
       className="relative lg:h-full md:h-[215px] h-[180px] w-full rounded-[24px] overflow-hidden bg-[var(--mantine-color-gray-2)] block hover:opacity-90 transition-opacity"
     >
-      {news.thumbnail ? (
+      {news.thumbnail?.startsWith("http") ? (
         <img
           src={news.thumbnail}
           alt={news.title}

@@ -1,0 +1,28 @@
+<svg viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M10.1912 7.62281L10.9191 8.7807L11.7279 7.62281L13.6691 19.3947L10.9191 22L8.33088 19.3947L10.1912 7.62281Z" fill="url(#paint0_linear_763_2934)" fill-opacity="0.83"/>
+<path d="M14.1544 12.5439L12.6985 6.94737L14.8824 4.3421L22 4.63158C21.6765 5.04971 20.8515 5.92456 20.1397 6.46491C19.4279 7.00526 18.4412 7.62281 17.5515 7.7193H15.6912L17.5515 10.9035L14.1544 12.5439Z" fill="url(#paint1_linear_763_2934)" fill-opacity="0.83"/>
+<path d="M10.9191 6.27193L7.60294 1.73684L8.33088 0H13.6691L14.3162 1.73684L10.9191 6.27193Z" fill="url(#paint2_linear_763_2934)" fill-opacity="0.83"/>
+<path d="M9.05882 6.94737L7.11765 4.63158H0C0.269608 4.88889 0.485294 5.69298 2.10294 6.65789C3.35496 7.40471 4.39461 7.75146 4.61029 7.7193H6.22794L4.36765 10.9035L7.84559 12.5439L9.05882 6.94737Z" fill="url(#paint3_linear_763_2934)" fill-opacity="0.83"/>
+<defs>
+<linearGradient id="paint0_linear_763_2934" x1="-1.61562" y1="-6.21739" x2="26.7326" y2="-6.00478" gradientUnits="userSpaceOnUse">
+<stop stop-color="var(--logo-gradient-start)"/>
+<stop offset="0.372489" stop-color="var(--logo-gradient-mid)"/>
+<stop offset="1" stop-color="var(--logo-gradient-end)"/>
+</linearGradient>
+<linearGradient id="paint1_linear_763_2934" x1="-1.61562" y1="-6.21739" x2="26.7326" y2="-6.00478" gradientUnits="userSpaceOnUse">
+<stop stop-color="var(--logo-gradient-start)"/>
+<stop offset="0.372489" stop-color="var(--logo-gradient-mid)"/>
+<stop offset="1" stop-color="var(--logo-gradient-end)"/>
+</linearGradient>
+<linearGradient id="paint2_linear_763_2934" x1="-1.61562" y1="-6.21739" x2="26.7326" y2="-6.00478" gradientUnits="userSpaceOnUse">
+<stop stop-color="var(--logo-gradient-start)"/>
+<stop offset="0.372489" stop-color="var(--logo-gradient-mid)"/>
+<stop offset="1" stop-color="var(--logo-gradient-end)"/>
+</linearGradient>
+<linearGradient id="paint3_linear_763_2934" x1="-1.61562" y1="-6.21739" x2="26.7326" y2="-6.00478" gradientUnits="userSpaceOnUse">
+<stop stop-color="var(--logo-gradient-start)"/>
+<stop offset="0.372489" stop-color="var(--logo-gradient-mid)"/>
+<stop offset="1" stop-color="var(--logo-gradient-end)"/>
+</linearGradient>
+</defs>
+</svg>

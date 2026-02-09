@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Avatar, Button, Group, Paper, Text } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import type { ChampionData } from "@/entities/champions/model/champions.dto";
-import type { Mode } from "../model/types";
+import type { Mode } from "@/shared/types/filter.types";
 
 const RADIUS = "sm";
 

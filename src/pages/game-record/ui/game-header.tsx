@@ -1,6 +1,6 @@
 "use client";
 
-import { Paper, Stack, Group, Text, Avatar, Box, ScrollArea } from "@mantine/core";
+import { Paper, Stack, Group, Text, Avatar, Box } from "@mantine/core";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { IconClock, IconDots } from "@tabler/icons-react";
@@ -337,8 +337,7 @@ export function GameHeader({
           </div>
         </div>
 
-        <ScrollArea type="auto" scrollbars="x" offsetScrollbars>
-          <div className="flex items-center gap-[3px] min-w-max">
+        <div className="flex items-center gap-[3px]">
           {setNav.sets.map((set) => {
             const isActive = set.gameId === gameId;
             return (
@@ -366,8 +365,7 @@ export function GameHeader({
               </button>
             );
           })}
-          </div>
-        </ScrollArea>
+        </div>
 
         <div className="bg-(--nar-bg-tertiary) p-[10px] pb-5 flex flex-col gap-[10px] rounded-tr-[14px] border border-(--nar-line) border-b-0">
           <div className="flex items-center justify-between border-b border-(--nar-line) pt-[5px] pb-2">

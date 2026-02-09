@@ -638,6 +638,7 @@ code {
 .mantine-Select-root .mantine-Select-input[data-expanded],
 .mantine-Select-input:focus,
 .mantine-Select-input[data-expanded],
+.mantine-TextInput-input:focus,
 [data-combobox-target] input:focus {
   border: 1px solid var(--nar-red-500) !important;
   outline: none !important;
@@ -658,4 +659,26 @@ code {
 .mantine-Select-option[data-checked]:hover,
 .mantine-Combobox-option[data-combobox-selected]:hover {
   background-color: var(--nar-red-opacity10) !important;
+}
+
+/* SegmentedControl */
+.mantine-SegmentedControl-root {
+  background-color: var(--nar-navchip-bg-default) !important;
+  border: 1px solid var(--nar-navchip-bg-line) !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+}
+
+.mantine-SegmentedControl-label {
+  color: var(--nar-text-tertiary-sub) !important;
+}
+
+.mantine-SegmentedControl-label[data-active] {
+  color: var(--nar-text-secondary) !important;
+}
+
+.mantine-SegmentedControl-indicator {
+  background-color: var(--nar-navchip-bg-pressed) !important;
+  box-shadow: none !important;
+  border-radius: 10px !important;
 }

@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import {
   Container,
   Stack,
+  Group,
+  Flex,
   Text,
   Center,
   Pagination,
@@ -13,20 +15,22 @@ import {
 } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { gamesQueries } from "@/entities/games/model/games.queries";
-import { FilterSection } from "@/pages/champions-meta/ui/filter-section";
-import type { Filters } from "@/pages/champions-meta/model/types";
-import type { SortValue } from "../model/types";
-import { Dateheader } from "./date-header";
+import { FilterSection } from "@/shared/ui/filter-section";
+import { SortControl } from "@/shared/ui/sort-control";
+import type { Filters, SortValue } from "@/shared/types/filter.types";
 import { GameRow } from "./game-row";
 import type { GameData } from "@/entities/games/model/games.dto";
 import { useChampionImage } from "@/shared/lib/use-champion-image";
+import { combinationsQueries } from "@/src/entities/combinations/model/combinations.queries";
+import dayjs from "dayjs";
 
 export function MatchListPage() {
   const router = useRouter();
   const { getChampionImageUrl } = useChampionImage();
+  const { data } = useQuery(combinationsQueries.lastUpdate());
 
   const [filters, setFilters] = useState<Filters>({
-    year: 2025,
+    year: 2026,
     split: null,
     leagueName: null,
     teamName: null,
@@ -53,7 +57,7 @@ export function MatchListPage() {
       filters.teamNames,
       activePage,
       sort,
-    ]
+    ],
   );
 
   const {
@@ -102,17 +106,22 @@ export function MatchListPage() {
   }
 
   return (
-    <Container size="lg" py="xl">
-      <Stack gap="lg">
+    <Paper p="lg" withBorder radius="lg">
+      <Text c="var(--nar-text-tertiary-sub)" fz={14} fw={400}>
+        {dayjs(data?.data.lastUpdateTime).format("YYYY년 MM월 DD일 업데이트")}
+      </Text>
+      <div className="flex flex-col gap-[13px]">
+        <Flex justify="flex-end" mb="sm">
+          <SortControl value={sort} onChange={setSort} />
+        </Flex>
+
         <FilterSection
           filters={filters}
           onFiltersChange={setFilters}
           selectedChampions={[]}
           onCombinationSearch={() => {}}
           currentMode="team"
-          isSearchable={false}
-          sort={sort}
-          onSortChange={setSort}
+          showSearchButton={false}
         />
 
         {isLoading ? (
@@ -123,7 +132,6 @@ export function MatchListPage() {
           <Stack gap="md">
             {Object.entries(groupedGames).map(([date, games]) => (
               <Stack key={date} gap="sm">
-                <Dateheader date={date} />
                 {games.map((game) => (
                   <GameRow
                     key={game.gameId}
@@ -153,7 +161,7 @@ export function MatchListPage() {
             </Center>
           </Paper>
         )}
-      </Stack>
-    </Container>
+      </div>
+    </Paper>
   );
 }

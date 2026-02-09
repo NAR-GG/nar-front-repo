@@ -1,3 +1,5 @@
+export type { SortValue } from "@/shared/types/filter.types";
+
 export interface Player {
   position: string;
   playerName: string;
@@ -25,8 +27,6 @@ export interface MatchListFilters {
   splitNames: string[];
   teamNames: string[];
 }
-
-export type SortValue = "ASC" | "DESC";
 
 export const TEAM_NAME_MAP: Record<string, string> = {
   "Bnk Fearx": "BFX",

@@ -59,6 +59,35 @@ export function Providers({ children }: { children: React.ReactNode }) {
           style: { minWidth: 120 },
         },
       },
+      Pagination: {
+        styles: () => ({
+          control: {
+            border: "none",
+            backgroundColor: "transparent",
+            color: "var(--nar-text-tertiary-sub)",
+            fontWeight: 600,
+            "&:hover": {
+              backgroundColor: "var(--nar-red-opacity10)",
+            },
+            "&[dataActive]": {
+              backgroundColor: "transparent",
+              color: "var(--nar-red-500)",
+              "&:hover": {
+                backgroundColor: "transparent",
+              },
+            },
+            "&:active": {
+              color: "var(--nar-red-500)",
+              transform: "scale(0.95)",
+            },
+            "&[dataDisabled]": {
+              "&:hover": {
+                backgroundColor: "transparent",
+              },
+            },
+          },
+        }),
+      },
     },
   });
 

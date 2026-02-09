@@ -661,7 +661,6 @@ code {
   background-color: var(--nar-red-opacity10) !important;
 }
 
-/* SegmentedControl */
 .mantine-SegmentedControl-root {
   background-color: var(--nar-navchip-bg-default) !important;
   border: 1px solid var(--nar-navchip-bg-line) !important;
@@ -681,4 +680,33 @@ code {
   background-color: var(--nar-navchip-bg-pressed) !important;
   box-shadow: none !important;
   border-radius: 10px !important;
+}
+
+.mantine-Pagination-control {
+  border: none !important;
+  background-color: transparent !important;
+  color: var(--nar-text-tertiary-sub) !important;
+  font-weight: 600 !important;
+}
+
+.mantine-Pagination-control:hover {
+  background-color: var(--nar-red-opacity10) !important;
+}
+
+.mantine-Pagination-control[data-active="true"] {
+  background-color: transparent !important;
+  color: var(--nar-text-red) !important;
+}
+
+.mantine-Pagination-control[data-active="true"]:hover {
+  background-color: transparent !important;
+}
+
+.mantine-Pagination-control:active {
+  color: var(--nar-text-red) !important;
+  transform: scale(0.95);
+}
+
+.mantine-Pagination-control[data-disabled="true"]:hover {
+  background-color: transparent !important;
 }

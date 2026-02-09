@@ -13,6 +13,7 @@ import {
   Loader,
   Paper,
 } from "@mantine/core";
+import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { gamesQueries } from "@/entities/games/model/games.queries";
 import { FilterSection } from "@/shared/ui/filter-section";
@@ -150,6 +151,33 @@ export function MatchListPage() {
                   value={activePage}
                   onChange={setActivePage}
                   size="md"
+                  withControls
+                  nextIcon={() => (
+                    <div className="flex items-center justify-center px-2 py-1">
+                      <Text
+                        fz={14}
+                        fw={500}
+                        mb={3}
+                        c="var(--nar-text-tertiary-sub)"
+                      >
+                        next
+                      </Text>
+                      <IconChevronRight size={23} />
+                    </div>
+                  )}
+                  previousIcon={() => (
+                    <div className="flex items-center justify-center px-2 py-1">
+                      <IconChevronLeft size={23} />
+                      <Text
+                        fz={14}
+                        fw={500}
+                        mb={3}
+                        c="var(--nar-text-tertiary-sub)"
+                      >
+                        prev
+                      </Text>
+                    </div>
+                  )}
                 />
               </Center>
             )}

@@ -117,7 +117,7 @@ export default async function RootLayout({
   return (
     <html lang="ko" {...mantineHtmlProps}>
       <head>
-        <ColorSchemeScript defaultColorScheme="dark" />
+        <ColorSchemeScript defaultColorScheme="light" />
         <Script
           id="gtm-script"
           strategy="afterInteractive"

@@ -19,7 +19,7 @@ import { IconArrowLeft, IconChevronDown } from "@tabler/icons-react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { getCombinationDetail } from "@/entities/combinations/api/combinations.api";
 import type { ChampionData } from "@/entities/champions/model/champions.dto";
-import type { Filters, Mode } from "../model/types";
+import type { Filters, Mode } from "@/shared/types/filter.types";
 import { CombinationCard } from "./combination-card";
 import { CombinationDetail } from "./combination-detail";
 import { useChampionImage } from "@/shared/lib/use-champion-image";

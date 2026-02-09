@@ -101,7 +101,7 @@ const tableStyles = {
   td: { height: 48 },
 };
 
-const POSITION_ICONS: Record<string, any> = {
+const POSITION_ICONS: Record<string, React.FC<React.SVGProps<SVGSVGElement>>> = {
   top: NarGrayTop,
   jng: NarGrayJungle,
   mid: NarGrayMid,
@@ -328,24 +328,24 @@ export function TimelineAnalysisTab({
 
                 return (
                   <Table.Tr key={metric.value}>
-                    <Table.Td className="px-5">
+                    <Table.Td>
                       <Text fw={400} fz={{ base: 12, sm: 14 }} c="var(--nar-text-tertiary-sub)">
                         {metric.label}
                       </Text>
                     </Table.Td>
-                    <Table.Td ta="center" className="px-5">
+                    <Table.Td ta="center">
                       <Text c="blue" fz={{ base: 14, sm: 16 }}>
                         {typeof blueValue === "number"
                           ? blueValue.toLocaleString()
                           : blueValue}
                       </Text>
                     </Table.Td>
-                    <Table.Td ta="center" className="bg-(--nar-bg-tertiary) px-5">
+                    <Table.Td ta="center" className="bg-(--nar-bg-tertiary)">
                       <Text c={diffColor} fz={{ base: 14, sm: 16 }} fw={500}>
                         {diff}
                       </Text>
                     </Table.Td>
-                    <Table.Td ta="center" className="px-5">
+                    <Table.Td ta="center">
                       <Text c="red" fz={{ base: 14, sm: 16 }}>
                         {typeof redValue === "number"
                           ? redValue.toLocaleString()
@@ -469,7 +469,7 @@ export function TimelineAnalysisTab({
                   </Table.Thead>
                   <Table.Tbody>
                     <Table.Tr>
-                      <Table.Td ta="center">
+                      <Table.Td>
                         {(() => {
                           const Icon = POSITION_ICONS[pos];
                           return Icon ? <Icon width={34} height={34} /> : null;
@@ -513,17 +513,17 @@ export function TimelineAnalysisTab({
                       </Table.Td>
                     </Table.Tr>
                     <Table.Tr>
-                      <Table.Td className="px-5">
+                      <Table.Td>
                         <Text fw={500} fz={{ base: 12, sm: 14 }} c="var(--nar-text-tertiary-sub)">
                           골드
                         </Text>
                       </Table.Td>
-                      <Table.Td ta="center" className="px-5">
+                      <Table.Td ta="center">
                         <Text c="blue"  fz={{base: 14,sm: 16}}>{blueGold.toLocaleString()}</Text>
                       </Table.Td>
                       <Table.Td
                         ta="center"
-                        className="bg-[var(--nar-bg-tertiary)] px-5"
+                        className="bg-[var(--nar-bg-tertiary)]"
                       >
                         <Text
                           c={
@@ -539,22 +539,22 @@ export function TimelineAnalysisTab({
                           {formatDiff(goldDiff)}
                         </Text>
                       </Table.Td>
-                      <Table.Td ta="center" className="px-5">
+                      <Table.Td ta="center">
                         <Text c="red"  fz={{base: 14,sm: 16}}>{redGold.toLocaleString()}</Text>
                       </Table.Td>
                     </Table.Tr>
                     <Table.Tr>
-                      <Table.Td className="px-5">
+                      <Table.Td>
                         <Text fw={400} fz={{base: 12,sm: 14}} c="var(--nar-text-tertiary-sub)">
                           CS
                         </Text>
                       </Table.Td>
-                      <Table.Td ta="center" className="px-5">
+                      <Table.Td ta="center">
                         <Text c="blue"  fz={{base: 14,sm: 16}}>{blueCs}</Text>
                       </Table.Td>
                       <Table.Td
                         ta="center"
-                        className="bg-[var(--nar-bg-tertiary)] px-5"
+                        className="bg-[var(--nar-bg-tertiary)]"
                       >
                         <Text
                           c={
@@ -566,31 +566,31 @@ export function TimelineAnalysisTab({
                           {formatDiff(csDiff)}
                         </Text>
                       </Table.Td>
-                      <Table.Td ta="center" className="px-5">
+                      <Table.Td ta="center">
                         <Text c="red"  fz={{base: 14,sm: 16}}>{redCs}</Text>
                       </Table.Td>
                     </Table.Tr>
                     {/* K/D/A 행 */}
                     <Table.Tr>
-                      <Table.Td className="px-5">
+                      <Table.Td>
                         <Text fw={400} fz={{ base: 12, sm: 14 }} c="var(--nar-text-tertiary-sub)">
                           K/D/A
                         </Text>
                       </Table.Td>
-                      <Table.Td ta="center" className="px-5">
+                      <Table.Td ta="center">
                         <Text c="blue" fz={{base: 14,sm: 16}}>
                           {blueKills}/{blueDeaths}/{blueAssists}
                         </Text>
                       </Table.Td>
                       <Table.Td
                         ta="center"
-                        className="bg-[var(--nar-bg-tertiary)] px-5"
+                        className="bg-[var(--nar-bg-tertiary)]"
                       >
                         <Text c="dimmed" fw={500} fz={{base: 14,sm: 16}}>
                           -
                         </Text>
                       </Table.Td>
-                      <Table.Td ta="center" className="px-5">
+                      <Table.Td ta="center">
                         <Text c="red" fz={{base: 14,sm: 16}}>
                           {redKills}/{redDeaths}/{redAssists}
                         </Text>

@@ -4,5 +4,8 @@ const CATEGORIES_PREFIX = {
 
 export const categoriesApiEndPoint = {
   getTeams: () => `${CATEGORIES_PREFIX.categories}/teams`,
-  getTree: () => `${CATEGORIES_PREFIX.categories}/tree`,
+  getTree: (year?: number) =>
+    year
+      ? `${CATEGORIES_PREFIX.categories}/tree?year=${year}`
+      : `${CATEGORIES_PREFIX.categories}/tree`,
 };

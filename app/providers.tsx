@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
 import { DiscordFloatingButton } from "@/src/shared/ui/discord-floating-button";
 import { Layout } from "@/src/shared/ui/layout";
+import { IconChevronDown } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
@@ -51,6 +52,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
           },
         },
       },
+      Select: {
+        defaultProps: {
+          rightSection: <IconChevronDown size={18} />,
+          checkIconPosition: "right",
+          style: { minWidth: 120 },
+        },
+      },
     },
   });
 
@@ -68,7 +76,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <MantineProvider theme={theme} defaultColorScheme="dark">
+      <MantineProvider theme={theme}>
         <DiscordFloatingButton />
         <Layout>{children}</Layout>
       </MantineProvider>

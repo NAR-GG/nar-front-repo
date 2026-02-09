@@ -4,9 +4,9 @@ import { useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Container, Stack } from "@mantine/core";
 import type { ChampionData } from "@/entities/champions/model/champions.dto";
-import type { Mode, Filters } from "../model/types";
+import type { Mode, Filters } from "@/shared/types/filter.types";
 import { ChampionSelector } from "./champion-selector";
-import { FilterSection } from "./filter-section";
+import { FilterSection } from "@/shared/ui/filter-section";
 import { CombinationResults } from "./combination-results";
 import { MatchupResults } from "./matchup-results";
 import { ChampionGrid } from "./champion-grid";
@@ -27,7 +27,7 @@ export function ChampionsMetaComponent() {
   const [currentMode, setCurrentMode] = useState<Mode>("team");
 
   const [filters, setFilters] = useState<Filters>({
-    year: 2025,
+    year: 2026,
     split: null,
     leagueName: null,
     teamName: null,

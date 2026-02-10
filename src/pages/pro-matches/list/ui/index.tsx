@@ -5,14 +5,15 @@ import { useRouter } from "next/navigation";
 import {
   Container,
   Stack,
-  Group,
   Flex,
   Text,
   Center,
   Pagination,
   Loader,
   Paper,
+  em,
 } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { gamesQueries } from "@/entities/games/model/games.queries";
@@ -27,6 +28,7 @@ import dayjs from "dayjs";
 
 export function MatchListPage() {
   const router = useRouter();
+  const isMobile = useMediaQuery("(max-width: 768px)");
   const { getChampionImageUrl } = useChampionImage();
   const { data } = useQuery(combinationsQueries.lastUpdate());
 
@@ -145,41 +147,31 @@ export function MatchListPage() {
             ))}
 
             {matchData.totalPages > 1 && (
-              <Center mt="xl">
+              <div className="flex justify-center mt-6">
                 <Pagination
                   total={matchData.totalPages}
                   value={activePage}
                   onChange={setActivePage}
-                  size="md"
+                  size={isMobile ? "sm" : "md"}
                   withControls
                   nextIcon={() => (
-                    <div className="flex items-center justify-center px-2 py-1">
-                      <Text
-                        fz={14}
-                        fw={500}
-                        mb={3}
-                        c="var(--nar-text-tertiary-sub)"
-                      >
+                    <span className="flex items-center gap-1">
+                      <span style={{ fontSize: 14, fontWeight: 500 }}>
                         next
-                      </Text>
+                      </span>
                       <IconChevronRight size={23} />
-                    </div>
+                    </span>
                   )}
                   previousIcon={() => (
-                    <div className="flex items-center justify-center px-2 py-1">
+                    <span className="flex items-center gap-1">
                       <IconChevronLeft size={23} />
-                      <Text
-                        fz={14}
-                        fw={500}
-                        mb={3}
-                        c="var(--nar-text-tertiary-sub)"
-                      >
+                      <span style={{ fontSize: 14, fontWeight: 500 }}>
                         prev
-                      </Text>
-                    </div>
+                      </span>
+                    </span>
                   )}
                 />
-              </Center>
+              </div>
             )}
           </Stack>
         ) : (

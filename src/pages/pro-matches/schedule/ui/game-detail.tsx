@@ -118,7 +118,7 @@ export function GameDetail({
                             className="flex flex-col items-center w-[46px] sm:w-full"
                           >
                             <Avatar
-                              src={getChampionImageUrl(player.championName)}
+                              src={getChampionImageUrl(player.championName) || null}
                               size={46}
                               radius="md"
                             />
@@ -171,7 +171,7 @@ export function GameDetail({
                             className="flex flex-col items-center w-[46px] sm:w-full"
                           >
                             <Avatar
-                              src={getChampionImageUrl(player.championName)}
+                              src={getChampionImageUrl(player.championName) || null}
                               size={46}
                               radius="md"
                             />

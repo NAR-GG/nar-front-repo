@@ -97,13 +97,17 @@ export function SearchBox() {
                               className="w-full py-[13px] px-[14px] bg-[#FBFBFB] flex items-center justify-between cursor-pointer hover:bg-[var(--mantine-color-gray-1)]"
                             >
                               <div className="flex items-center gap-[5px] md:gap-[20px]">
-                                <Image
-                                  src={result.blueTeamImageUrl}
-                                  alt={result.blueTeamName}
-                                  width={44}
-                                  height={44}
-                                  className="w-[36px] h-[36px] md:w-[44px] md:h-[44px]"
-                                />
+                                {result.blueTeamImageUrl ? (
+                                  <Image
+                                    src={result.blueTeamImageUrl}
+                                    alt={result.blueTeamName}
+                                    width={44}
+                                    height={44}
+                                    className="w-[36px] h-[36px] md:w-[44px] md:h-[44px]"
+                                  />
+                                ) : (
+                                  <div className="w-[36px] h-[36px] md:w-[44px] md:h-[44px] rounded-full bg-[var(--nar-bg-tertiary)]" />
+                                )}
                                 <Text
                                   c="var(--mantine-color-gray-8)"
                                   fw={600}
@@ -118,13 +122,17 @@ export function SearchBox() {
                                 >
                                   VS
                                 </Text>
-                                <Image
-                                  src={result.redTeamImageUrl}
-                                  alt={result.redTeamName}
-                                  width={44}
-                                  height={44}
-                                  className="w-[36px] h-[36px] md:w-[44px] md:h-[44px]"
-                                />
+                                {result.redTeamImageUrl ? (
+                                  <Image
+                                    src={result.redTeamImageUrl}
+                                    alt={result.redTeamName}
+                                    width={44}
+                                    height={44}
+                                    className="w-[36px] h-[36px] md:w-[44px] md:h-[44px]"
+                                  />
+                                ) : (
+                                  <div className="w-9 h-9 md:w-11 md:h-11 rounded-full bg-(--nar-bg-tertiary)" />
+                                )}
                                 <Text
                                   c="var(--mantine-color-gray-8)"
                                   fw={600}

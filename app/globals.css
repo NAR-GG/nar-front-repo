@@ -233,7 +233,7 @@
 
   /* NavChip */
   --nar-navchip-bg-default: var(--nar-dark-800);
-  --nar-navchip-bg-pressed: var(--nar-gray-400);
+  --nar-navchip-bg-pressed: var(--nar-dark-400);
   --nar-navchip-bg-line: var(--nar-dark-900);
 
   /* Button More */
@@ -682,11 +682,20 @@ code {
   border-radius: 10px !important;
 }
 
+.mantine-Pagination-root,
+.mantine-Pagination-root.mantine-Group-root {
+  flex-wrap: nowrap !important;
+  gap: 0 !important;
+  align-items: center !important;
+}
+
 .mantine-Pagination-control {
   border: none !important;
   background-color: transparent !important;
   color: var(--nar-text-tertiary-sub) !important;
   font-weight: 600 !important;
+  min-width: 28px !important;
+  padding: 0 4px !important;
 }
 
 .mantine-Pagination-control:hover {

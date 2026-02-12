@@ -11,7 +11,6 @@ import {
   Pagination,
   Loader,
   Paper,
-  em,
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";

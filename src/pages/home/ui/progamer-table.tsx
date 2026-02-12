@@ -95,7 +95,11 @@ export function ProgamerTop5Table({ data, mode }: ProgamerTop5TableProps) {
 
               <Table.Td className={TD_CLASS}>
                 <Group gap={13} wrap="nowrap" style={{ minWidth: 0 }}>
-                  <Avatar src={row.playerImageUrl} size={46} radius={0} />
+                  <Avatar
+                    src={`https://api.nar.kr${row.playerImageUrl}`}
+                    size={46}
+                    radius={0}
+                  />
                   <Text
                     fw={600}
                     fz={16}

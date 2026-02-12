@@ -84,7 +84,9 @@ export function MatchCard({
           c="var(--nar-text-tertiary-sub)"
           className="whitespace-nowrap"
         >
-          {tournamentTitle}
+          {tournamentTitle.length > 10
+            ? `${tournamentTitle.slice(0, 10)}...`
+            : tournamentTitle}
         </Text>
       </div>
 

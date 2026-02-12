@@ -14,18 +14,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "imgnews.pstatic.net",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "mimgnews.pstatic.net",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "static.lolesports.com",
-        pathname: "/**",
+        hostname: "**",
       },
     ],
   },

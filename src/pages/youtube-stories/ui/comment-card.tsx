@@ -27,11 +27,11 @@ export function CommentCard({
         style={{ flexShrink: 0 }}
       />
       <Stack gap={4} style={{ flex: 1 }}>
-        <Group gap={8}>
-          <Text fw={600} fz={14} c="dark.9">
+        <Group gap={18}>
+          <Text fw={400} fz={16} c="var(--nar-text-primary)">
             {nickname}
           </Text>
-          <Text fz={12} c="gray.5">
+          <Text fz={12} c="var(--nar-text-tertiary-sub)">
             {timeAgo}
           </Text>
         </Group>
@@ -47,8 +47,8 @@ export function CommentCard({
             답글
           </Text> */}
           <Flex gap={4} align="center">
-            <IconHeart size={14} color="var(--mantine-color-gray-5)" />
-            <Text fz={12} c="gray.5">
+            <IconHeart size={14} color="var(--nar-text-2)" />
+            <Text fz={12} c="var(--nar-text-2)">
               {likeCount}
             </Text>
           </Flex>

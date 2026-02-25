@@ -1,7 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import { Avatar, Button, Group, Paper, Text } from "@mantine/core";
+import {
+  Avatar,
+  Button,
+  Group,
+  Paper,
+  SegmentedControl,
+  Select,
+  Text,
+} from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import type { ChampionData } from "@/entities/champions/model/champions.dto";
 import type { Mode } from "@/shared/types/filter.types";
@@ -48,7 +56,7 @@ export function ChampionSelector({
     index: number,
     onRemove: (champion: ChampionData) => void,
     onEmptyClick: (index: number) => void,
-    slotType: string
+    slotType: string,
   ) => (
     <div
       key={`${slotType}-${index}`}
@@ -150,7 +158,7 @@ export function ChampionSelector({
         0,
         on1v1ChampionRemove,
         onEmpty1v1SlotClick,
-        "1v1"
+        "1v1",
       )}
 
       <div
@@ -176,7 +184,7 @@ export function ChampionSelector({
         1,
         on1v1ChampionRemove,
         onEmpty1v1SlotClick,
-        "1v1"
+        "1v1",
       )}
     </div>
   );
@@ -197,37 +205,26 @@ export function ChampionSelector({
           i,
           onChampionRemove,
           onEmptySlotClick,
-          "team"
-        )
+          "team",
+        ),
       )}
     </div>
   );
 
   return (
-    <Paper p={isMobile ? "xs" : "md"} withBorder radius={RADIUS}>
+    <div>
       <Group justify="center" mb="md" gap="xs">
-        <Button
+        <SegmentedControl
           radius={RADIUS}
           size={isMobile ? "xs" : "sm"}
-          variant={currentMode === "team" ? "filled" : "default"}
-          color="blue"
-          onClick={() => handleTabChange("team")}
-        >
-          팀 조합
-        </Button>
-
-        <Button
-          radius={RADIUS}
-          size={isMobile ? "xs" : "sm"}
-          variant={currentMode === "1v1" ? "filled" : "default"}
-          color="red"
-          onClick={() => handleTabChange("1v1")}
-        >
-          1vs1
-        </Button>
+          value={currentMode}
+          onChange={(value) => handleTabChange(value as Mode)}
+          data={[
+            { label: "팀 조합", value: "team" },
+            { label: "1vs1", value: "1v1" },
+          ]}
+        />
       </Group>
-
-      {currentMode === "team" ? renderTeam() : render1v1()}
 
       <Text
         size="xs"
@@ -240,6 +237,7 @@ export function ChampionSelector({
           ? "최대 5명의 챔피언으로 팀을 구성하세요"
           : "1vs1 분석할 챔피언 2명을 선택하세요"}
       </Text>
-    </Paper>
+      {currentMode === "team" ? renderTeam() : render1v1()}
+    </div>
   );
 }

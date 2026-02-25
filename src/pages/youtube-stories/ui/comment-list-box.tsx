@@ -10,6 +10,7 @@ import {
 } from "@mantine/core";
 import { IconX } from "@tabler/icons-react";
 import { CommentCard } from "./comment-card";
+import Comment from "@/shared/assets/icons/comment.svg";
 
 interface Comment {
   id: number;
@@ -25,6 +26,8 @@ interface CommentListBoxProps {
   onClose: () => void;
   isLoading?: boolean;
   isMobile?: boolean;
+  selectedVideoTitle?: string | null;
+  hideCloseButton?: boolean;
 }
 
 export function CommentListBox({
@@ -32,7 +35,13 @@ export function CommentListBox({
   onClose,
   isLoading = false,
   isMobile = false,
+  selectedVideoTitle = null,
+  hideCloseButton = false,
 }: CommentListBoxProps) {
+  const hasSelectedVideo = Boolean(selectedVideoTitle);
+  const visibleComments = hasSelectedVideo ? comments : [];
+  const commentCount = hasSelectedVideo ? comments.length : 0;
+
   return (
     <Paper
       radius="md"
@@ -45,26 +54,42 @@ export function CommentListBox({
         flexDirection: "column",
       }}
     >
-      <Flex justify="space-between" align="center" mb="sm">
-        <Text fw={600} fz={16}>
-          댓글 {comments.length}
+      <Flex gap={8} align="center" mb="sm">
+        <Comment />
+        <Text fw={400} fz={20} c="var(--nar-text-secondary)">
+          댓글 {commentCount}
         </Text>
-        <IconX
-          size={20}
-          style={{ cursor: "pointer" }}
-          color="var(--mantine-color-gray-6)"
-          onClick={onClose}
-        />
+        {!hideCloseButton && (
+          <IconX
+            size={20}
+            style={{ cursor: "pointer" }}
+            color="var(--mantine-color-gray-6)"
+            onClick={onClose}
+          />
+        )}
       </Flex>
-
-      <Divider mb="sm" />
-
+      <Text
+        c={
+          hasSelectedVideo
+            ? "var(--nar-text-tertiary)"
+            : "var(--nar-text-tertiary-sub)"
+        }
+        fz={16}
+        fw={500}
+        mb="sm"
+      >
+        {hasSelectedVideo
+          ? `“${selectedVideoTitle}”`
+          : "해당 스토리의 댓글을 클릭하여 확인해보세요."}
+      </Text>
       <ScrollArea style={{ flex: 1 }} type="auto" offsetScrollbars>
         {isLoading ? (
           <Center py="xl">
             <Loader size="sm" />
           </Center>
-        ) : comments.length === 0 ? (
+        ) : !hasSelectedVideo ? (
+          <Center py="xl"></Center>
+        ) : visibleComments.length === 0 ? (
           <Center py="xl">
             <Text c="dimmed" fz={14}>
               댓글이 없습니다.
@@ -72,7 +97,7 @@ export function CommentListBox({
           </Center>
         ) : (
           <Stack gap={0}>
-            {comments.map((comment) => (
+            {visibleComments.map((comment) => (
               <CommentCard
                 key={comment.id}
                 profileUrl={comment.profileUrl}

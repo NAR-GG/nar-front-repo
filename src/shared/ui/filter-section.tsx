@@ -47,13 +47,6 @@ export function FilterSection({
     return currentMode === "1v1" ? "매치업 보기" : "조합 보기";
   };
 
-  const getSelectedCountText = () => {
-    if (currentMode === "1v1") {
-      return `선택된 챔피언: ${selectedChampions.filter(Boolean).length}/2`;
-    }
-    return `선택된 챔피언: ${selectedChampions.filter(Boolean).length}/5`;
-  };
-
   const leagueOptions = useMemo(() => {
     if (!categoryData) return [];
 
@@ -336,11 +329,8 @@ export function FilterSection({
           {showSearchButton && (
             <Flex justify="flex-end">
               <Group gap="md" align="center">
-                <Text size="sm" c="dimmed">
-                  {getSelectedCountText()}
-                </Text>
                 <Button
-                  leftSection={<IconSearch size={16} />}
+                  rightSection={<IconSearch size={16} />}
                   onClick={onCombinationSearch}
                   disabled={selectedChampions.filter(Boolean).length === 0}
                 >
@@ -410,15 +400,15 @@ export function FilterSection({
 
           {showSearchButton && (
             <Group gap="md" align="center">
-              <Text size="sm" c="dimmed">
-                {getSelectedCountText()}
-              </Text>
               <Button
-                leftSection={<IconSearch size={16} />}
+                rightSection={<IconSearch size={16} />}
                 onClick={onCombinationSearch}
+                className="bg-(--nar-button-disabled-bg)! py-px! pl-[13px]! rounded-[10px]!"
                 disabled={selectedChampions.filter(Boolean).length === 0}
               >
-                {getButtonText()}
+                <Text c="var(--nar-button-disabled-text)" fz={14} fw={400}>
+                  {getButtonText()}
+                </Text>
               </Button>
             </Group>
           )}

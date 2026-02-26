@@ -38,6 +38,7 @@ export function FilterSection({
   showSearchButton = true,
 }: FilterSectionProps) {
   const isMobile = useMediaQuery("(max-width: 768px)");
+  const isSearchDisabled = selectedChampions.filter(Boolean).length === 0;
 
   const { data: categoryData, isLoading } = useQuery(
     categoriesQueries.tree(filters.year),
@@ -332,7 +333,8 @@ export function FilterSection({
                 <Button
                   rightSection={<IconSearch size={16} />}
                   onClick={onCombinationSearch}
-                  disabled={selectedChampions.filter(Boolean).length === 0}
+                  disabled={isSearchDisabled}
+                  className={`${!isSearchDisabled ? "bg-(--nar-purple-1)!" : ""} rounded-[10px]!`}
                 >
                   {getButtonText()}
                 </Button>
@@ -403,10 +405,18 @@ export function FilterSection({
               <Button
                 rightSection={<IconSearch size={16} />}
                 onClick={onCombinationSearch}
-                className="bg-(--nar-button-disabled-bg)! py-px! pl-[13px]! rounded-[10px]!"
-                disabled={selectedChampions.filter(Boolean).length === 0}
+                className={`${isSearchDisabled ? "bg-(--nar-button-disabled-bg)!" : "bg-(--nar-purple-1)!"} py-px! pl-[13px]! rounded-[10px]!`}
+                disabled={isSearchDisabled}
               >
-                <Text c="var(--nar-button-disabled-text)" fz={14} fw={400}>
+                <Text
+                  c={
+                    isSearchDisabled
+                      ? "var(--nar-button-disabled-text)"
+                      : "var(--nar-button-active-text)"
+                  }
+                  fz={14}
+                  fw={400}
+                >
                   {getButtonText()}
                 </Text>
               </Button>

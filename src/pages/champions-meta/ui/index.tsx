@@ -176,6 +176,7 @@ export function ChampionsMetaComponent() {
           onEmpty1v1SlotClick={handleEmpty1v1SlotClick}
           currentMode={currentMode}
           onModeChange={handleModeChange}
+          highlightSlot={currentSlotIndex}
         />
 
         {showResults ? (

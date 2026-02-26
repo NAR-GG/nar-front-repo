@@ -53,7 +53,7 @@ export function MatchupResults({
       patch: filters.patch ?? undefined,
       page: page - 1,
       size: pageSize,
-    })
+    }),
   );
 
   const gameDetails = data?.data?.content ?? [];
@@ -73,14 +73,9 @@ export function MatchupResults({
     );
 
     const backButton = (
-      <Button
-        size="sm"
-        color="gray"
-        leftSection={<IconArrowLeft size={16} />}
-        onClick={onBackToSelection}
-      >
+      <button className="btn-sm btn-gray" onClick={onBackToSelection}>
         돌아가기
-      </Button>
+      </button>
     );
 
     if (isMobile) {
@@ -235,7 +230,7 @@ export function MatchupResults({
             <Stack gap="sm">
               {gameDetails.map((game: GameDetail, index: number) => {
                 const champion1Team = game.blueTeam?.players?.some(
-                  (p) => p.championName === champion1
+                  (p) => p.championName === champion1,
                 )
                   ? game.blueTeam
                   : game.redTeam;
@@ -251,12 +246,12 @@ export function MatchupResults({
                     position: string;
                     playerName: string;
                     championName: string;
-                  }[]
+                  }[],
                 ) =>
                   [...players].sort(
                     (a, b) =>
                       positionOrder.indexOf(a.position) -
-                      positionOrder.indexOf(b.position)
+                      positionOrder.indexOf(b.position),
                   );
 
                 return (
@@ -322,7 +317,7 @@ export function MatchupResults({
                                   <Avatar
                                     key={idx}
                                     src={getChampionImageUrl(
-                                      player.championName
+                                      player.championName,
                                     )}
                                     size={28}
                                     radius="sm"
@@ -333,7 +328,7 @@ export function MatchupResults({
                                           : "1px solid #e9ecef",
                                     }}
                                   />
-                                )
+                                ),
                               )}
                             </Group>
                           </Stack>
@@ -362,7 +357,7 @@ export function MatchupResults({
                                   <Avatar
                                     key={idx}
                                     src={getChampionImageUrl(
-                                      player.championName
+                                      player.championName,
                                     )}
                                     size={28}
                                     radius="sm"
@@ -373,7 +368,7 @@ export function MatchupResults({
                                           : "1px solid #e9ecef",
                                     }}
                                   />
-                                )
+                                ),
                               )}
                             </Group>
                           </Stack>
@@ -404,7 +399,7 @@ export function MatchupResults({
                                   <Group key={idx} gap={4} wrap="nowrap">
                                     <Avatar
                                       src={getChampionImageUrl(
-                                        player.championName
+                                        player.championName,
                                       )}
                                       size={32}
                                       radius="sm"
@@ -431,7 +426,7 @@ export function MatchupResults({
                                       {player.playerName}
                                     </Text>
                                   </Group>
-                                )
+                                ),
                               )}
                             </Group>
                           </Stack>
@@ -479,7 +474,7 @@ export function MatchupResults({
                                     </Text>
                                     <Avatar
                                       src={getChampionImageUrl(
-                                        player.championName
+                                        player.championName,
                                       )}
                                       size={32}
                                       radius="sm"
@@ -491,7 +486,7 @@ export function MatchupResults({
                                       }}
                                     />
                                   </Group>
-                                )
+                                ),
                               )}
                             </Group>
                           </Stack>

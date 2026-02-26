@@ -1,10 +1,11 @@
 "use client";
 
-import { Stack, Group, Text, Badge, Paper, Avatar } from "@mantine/core";
-import { useMediaQuery } from "@mantine/hooks";
+import { Stack, Group, Text, Avatar } from "@mantine/core";
 import type { ChampionInfo } from "../model/types";
 import { sortByPosition } from "@/shared/lib/sort-by-position";
 import { useChampionImage } from "@/shared/lib/use-champion-image";
+import { IconChevronRight, IconClock } from "@tabler/icons-react";
+import { useRouter } from "next/navigation";
 
 interface GameDetailFromApi {
   gameId: number;
@@ -41,7 +42,7 @@ interface MatchHistoryProps {
 }
 
 export function MatchHistory({ gameDetails }: MatchHistoryProps) {
-  const isMobile = useMediaQuery("(max-width: 768px)");
+  const router = useRouter();
   const { getChampionImageUrl } = useChampionImage();
 
   const formatGameTime = (seconds: number) => {
@@ -58,266 +59,177 @@ export function MatchHistory({ gameDetails }: MatchHistoryProps) {
     );
   }
 
+  const onNavigateToRecord = (gameId: number) => {
+    router.push(`/pro-matches/${gameId}/record`);
+  };
+
   return (
     <Stack gap="xs" mt="sm">
-      <Text size="sm" fw={600} c="dimmed" mb="xs">
-        플레이 기록 ({gameDetails.length}게임)
-      </Text>
-
       <Stack gap="sm">
         {gameDetails.map((game, index) => {
           if (!game || !game.ourTeam || !game.opponentTeam) {
             return (
-              <Paper key={index} p="sm" bg="#f8f9fa" radius="md">
+              <div key={index} className="bg-(--nar-bg-tertiary) px-2 py-4">
                 <Text size="sm" c="red" ta="center">
                   게임 데이터가 불완전합니다.
                 </Text>
-              </Paper>
+              </div>
             );
           }
 
           const { ourTeam, opponentTeam } = game;
-          const weWon = ourTeam?.isWin ?? false;
-
-          const ourTeamSide = ourTeam?.side;
-          const opponentTeamSide = opponentTeam?.side;
+          const ourTeamSide = (ourTeam?.side || "").toLowerCase();
+          const opponentTeamSide = (opponentTeam?.side || "").toLowerCase();
 
           if (!ourTeamSide || !opponentTeamSide) {
             return (
-              <Paper key={index} p="sm" bg="#f8f9fa" radius="md">
+              <div key={index} className="bg-(--nar-bg-tertiary) px-2 py-4">
                 <Text size="sm" c="red" ta="center">
                   팀 사이드 정보가 없습니다.
                 </Text>
-              </Paper>
+              </div>
             );
           }
 
-          const blueTeam = ourTeamSide === "Blue" ? ourTeam : opponentTeam;
-          const redTeam = ourTeamSide === "Red" ? ourTeam : opponentTeam;
-          const ourTeamIsBlue = ourTeamSide === "Blue";
-
-          const blueTeamName = blueTeam?.teamName || "알 수 없는 팀";
-          const redTeamName = redTeam?.teamName || "알 수 없는 팀";
-
-          const renderHeader = () => {
-            const teamNames = ourTeamIsBlue ? (
-              <>
-                <Text
-                  component="span"
-                  fw={700}
-                  style={{
-                    backgroundColor: weWon ? "#2196f3" : "#f44336",
-                    color: "white",
-                    padding: "2px 6px",
-                    borderRadius: "4px",
-                  }}
-                >
-                  {blueTeamName}
-                </Text>
-                {" vs "}
-                <Text component="span" c="black" fw={600}>
-                  {redTeamName}
-                </Text>
-              </>
-            ) : (
-              <>
-                <Text component="span" c="black" fw={600}>
-                  {blueTeamName}
-                </Text>
-                {" vs "}
-                <Text
-                  component="span"
-                  fw={700}
-                  style={{
-                    backgroundColor: weWon ? "#2196f3" : "#f44336",
-                    color: "white",
-                    padding: "2px 6px",
-                    borderRadius: "4px",
-                  }}
-                >
-                  {redTeamName}
-                </Text>
-              </>
-            );
-
-            const badge = (
-              <Badge size="sm" color={weWon ? "blue" : "red"} variant="filled">
-                {weWon ? "승리" : "패배"}
-              </Badge>
-            );
-
-            const leaguePatch = (
-              <Text size="xs" c="dimmed">
-                {game.league || "알 수 없음"} • {game.patch || "알 수 없음"}
-              </Text>
-            );
-
-            const gameTime = (
-              <Text size="xs" c="dimmed">
-                {game.gameLengthSeconds
-                  ? formatGameTime(game.gameLengthSeconds)
-                  : "00:00"}
-              </Text>
-            );
-
-            const gameDate = (
-              <Text size="xs" c="dimmed">
-                {game.gameDate || "날짜 없음"}
-              </Text>
-            );
-
-            if (isMobile) {
-              return (
-                <Stack gap="xs">
-                  <Group justify="space-between" align="center">
-                    <Group gap="sm">
-                      <Text size="sm" fw={600}>
-                        {teamNames}
-                      </Text>
-                      {badge}
-                    </Group>
-                  </Group>
-                  <Group justify="space-between" align="center">
-                    {leaguePatch}
-                    <Group gap="xs">
-                      {gameTime}
-                      {gameDate}
-                    </Group>
-                  </Group>
-                </Stack>
-              );
-            } else {
-              return (
-                <Group justify="space-between" align="center">
-                  <Group gap="sm">
-                    <Text size="sm" fw={600}>
-                      {teamNames}
-                    </Text>
-                    {badge}
-                    {leaguePatch}
-                  </Group>
-                  <Group gap="xs">
-                    {gameTime}
-                    {gameDate}
-                  </Group>
-                </Group>
-              );
-            }
-          };
+          const blueTeam = ourTeamSide === "blue" ? ourTeam : opponentTeam;
+          const redTeam = ourTeamSide === "red" ? ourTeam : opponentTeam;
 
           return (
-            <Paper key={index} p="sm" bg="#f8f9fa" radius="md">
-              <Stack gap="xs">
-                {renderHeader()}
-
-                <Group justify="center" align="flex-start" gap="md">
-                  <Stack gap="xs" align="center">
-                    <Text size="xs" fw={600}>
-                      {blueTeamName}
-                    </Text>
-                    <div style={{ display: "flex", gap: "8px" }}>
-                      {(blueTeam?.players || []).length > 0 ? (
-                        sortByPosition(blueTeam.players).map((player, idx) => (
-                          <div
-                            key={idx}
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              alignItems: "center",
-                              width: "50px",
-                            }}
-                          >
-                            <Avatar
-                              src={getChampionImageUrl(
-                                player?.championName || ""
-                              )}
-                              size={40}
-                              radius="md"
-                            />
-                            <Text
-                              size="xs"
-                              mt={4}
-                              style={{
-                                textAlign: "center",
-                                width: "100%",
-                                whiteSpace: "nowrap",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                              }}
-                            >
-                              {player?.playerName || "알 수 없음"}
-                            </Text>
-                          </div>
-                        ))
-                      ) : (
-                        <Text size="xs" c="dimmed">
-                          플레이어 정보 없음
+            <div
+              key={index}
+              className="bg-(--nar-bg-tertiary) px-2 pb-[38px] pt-[13px] flex flex-col gap-6"
+            >
+              <div className="flex items-center justify-between h-[31px] border-b border-(--nar-line)">
+                <Text fz={14} fw={600} c="var(--nar-text-tertiary-sub)">
+                  {game.league} • Patch {game.patch}
+                </Text>
+                <div className="flex items-center gap-[7px]">
+                  <IconClock
+                    width={16}
+                    height={16}
+                    color="var(--nar-text-tertiary-sub)"
+                  />
+                  <Text fz={14} fw={600} c="var(--nar-text-tertiary-sub)">
+                    {formatGameTime(game.gameLengthSeconds)}
+                  </Text>
+                </div>
+              </div>
+              <div className="flex items-center justify-center w-full relative">
+                <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
+                  <div className="flex flex-col items-center gap-6">
+                    <Group gap="xs" align="center">
+                      <Text size="xs" fw={600} fz={16}>
+                        {blueTeam.teamName}{" "}
+                        <Text
+                          component="span"
+                          c={
+                            blueTeam.isWin
+                              ? "var(--nar-text-red)"
+                              : "var(--nar-text-4)"
+                          }
+                          fw={600}
+                          fz={16}
+                        >
+                          ({blueTeam.isWin ? "승" : "패"})
                         </Text>
-                      )}
+                      </Text>
+                    </Group>
+                    <div
+                      className={`flex gap-1 sm:gap-4 ${blueTeam.isWin ? "bg-(--nar-red-opacity10) rounded-[8px] py-[6px] px-3" : ""}`}
+                    >
+                      {sortByPosition(blueTeam.players || []).map((player) => (
+                        <div
+                          key={`${game.gameId}-blue-${player.playerName}`}
+                          className="flex flex-col items-center w-[46px] sm:w-full"
+                        >
+                          <Avatar
+                            src={
+                              getChampionImageUrl(player.championName) || null
+                            }
+                            size={46}
+                            radius="md"
+                          />
+                          <Text
+                            size="xs"
+                            mt={2}
+                            fz={16}
+                            fw={400}
+                            c="var(--nar-text-primary)"
+                            className="text-center w-full whitespace-nowrap overflow-hidden text-ellipsis"
+                          >
+                            {player.playerName}
+                          </Text>
+                        </div>
+                      ))}
                     </div>
-                  </Stack>
+                  </div>
 
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      height: "40px",
-                      paddingTop: "20px",
-                    }}
-                  >
-                    <Text size="sm" fw={600} c="dimmed">
+                  <div className="flex items-center justify-center">
+                    <Text
+                      size="sm"
+                      fw={700}
+                      fz={26}
+                      c="var(--nar-text-tertiary-sub)"
+                    >
                       vs
                     </Text>
                   </div>
 
-                  <Stack gap="xs" align="center">
-                    <Text size="xs" fw={600}>
-                      {redTeamName}
-                    </Text>
-                    <div style={{ display: "flex", gap: "8px" }}>
-                      {(redTeam?.players || []).length > 0 ? (
-                        sortByPosition(redTeam.players).map((player, idx) => (
-                          <div
-                            key={idx}
-                            style={{
-                              display: "flex",
-                              flexDirection: "column",
-                              alignItems: "center",
-                              width: "50px",
-                            }}
-                          >
-                            <Avatar
-                              src={getChampionImageUrl(
-                                player?.championName || ""
-                              )}
-                              size={40}
-                              radius="md"
-                            />
-                            <Text
-                              size="xs"
-                              mt={4}
-                              style={{
-                                textAlign: "center",
-                                width: "100%",
-                                whiteSpace: "nowrap",
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                              }}
-                            >
-                              {player?.playerName || "알 수 없음"}
-                            </Text>
-                          </div>
-                        ))
-                      ) : (
-                        <Text size="xs" c="dimmed">
-                          플레이어 정보 없음
+                  <div className="flex flex-col items-center gap-6">
+                    <Group gap="xs" align="center">
+                      <Text size="xs" fw={600} fz={16}>
+                        {redTeam.teamName}{" "}
+                        <Text
+                          component="span"
+                          c={
+                            redTeam.isWin
+                              ? "var(--nar-text-red)"
+                              : "var(--nar-text-4)"
+                          }
+                          fw={600}
+                          fz={16}
+                        >
+                          ({redTeam.isWin ? "승" : "패"})
                         </Text>
-                      )}
+                      </Text>
+                    </Group>
+                    <div
+                      className={`flex gap-1 sm:gap-4 ${redTeam.isWin ? "bg-(--nar-red-opacity10) rounded-[8px]" : ""}`}
+                    >
+                      {sortByPosition(redTeam.players || []).map((player) => (
+                        <div
+                          key={`${game.gameId}-red-${player.playerName}`}
+                          className="flex flex-col items-center w-[46px] sm:w-full"
+                        >
+                          <Avatar
+                            src={
+                              getChampionImageUrl(player.championName) || null
+                            }
+                            size={46}
+                            radius="md"
+                          />
+                          <Text
+                            size="xs"
+                            fz={16}
+                            fw={400}
+                            mt={2}
+                            c="var(--nar-text-primary)"
+                            className="text-center w-full whitespace-nowrap overflow-hidden text-ellipsis"
+                          >
+                            {player.playerName}
+                          </Text>
+                        </div>
+                      ))}
                     </div>
-                  </Stack>
-                </Group>
-              </Stack>
-            </Paper>
+                  </div>
+                </div>
+                <IconChevronRight
+                  className="hover:cursor-pointer absolute right-0"
+                  onClick={() => onNavigateToRecord(game.gameId)}
+                  color="var(--nar-icon-GNB-default)"
+                />
+              </div>
+            </div>
           );
         })}
       </Stack>

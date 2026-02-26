@@ -1,27 +1,28 @@
 "use client";
 
-import Image from "next/image";
-import {
-  Avatar,
-  Button,
-  Group,
-  Paper,
-  SegmentedControl,
-  Select,
-  Text,
-} from "@mantine/core";
+import { Avatar, Group, SegmentedControl, Text } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import type { ChampionData } from "@/entities/champions/model/champions.dto";
 import type { Mode } from "@/shared/types/filter.types";
+import NarGrayTop from "@/shared/assets/icons/nar_gray_top.svg";
+import NarGrayJungle from "@/shared/assets/icons/nar_gray_jungle.svg";
+import NarGrayMid from "@/shared/assets/icons/nar_gray_mid.svg";
+import NarGrayBottom from "@/shared/assets/icons/nar_gray_bottom.svg";
+import NarGraySupport from "@/shared/assets/icons/nar_gray_support.svg";
+import NarTop from "@/shared/assets/icons/nar_top.svg";
+import NarJungle from "@/shared/assets/icons/nar_jungle.svg";
+import NarMid from "@/shared/assets/icons/nar_mid.svg";
+import NarBottom from "@/shared/assets/icons/nar_bottom.svg";
+import NarSupport from "@/shared/assets/icons/nar_support.svg";
 
 const RADIUS = "sm";
 
-const POSITION_IMAGES = [
-  { name: "탑", image: "/images/top-dark.svg" },
-  { name: "정글", image: "/images/jungle-dark.svg" },
-  { name: "미드", image: "/images/mid-dark.svg" },
-  { name: "원딜", image: "/images/bottom-dark.svg" },
-  { name: "서폿", image: "/images/support-dark.svg" },
+const POSITION_ICONS = [
+  { name: "탑", inactiveIcon: NarGrayTop, activeIcon: NarTop },
+  { name: "정글", inactiveIcon: NarGrayJungle, activeIcon: NarJungle },
+  { name: "미드", inactiveIcon: NarGrayMid, activeIcon: NarMid },
+  { name: "원딜", inactiveIcon: NarGrayBottom, activeIcon: NarBottom },
+  { name: "서폿", inactiveIcon: NarGraySupport, activeIcon: NarSupport },
 ];
 
 interface ChampionSelectorProps {
@@ -33,6 +34,7 @@ interface ChampionSelectorProps {
   onEmpty1v1SlotClick: (slotIndex: number) => void;
   currentMode: Mode;
   onModeChange: (mode: Mode) => void;
+  highlightSlot?: number | null;
 }
 
 export function ChampionSelector({
@@ -44,6 +46,7 @@ export function ChampionSelector({
   onEmpty1v1SlotClick,
   currentMode = "team",
   onModeChange,
+  highlightSlot = null,
 }: ChampionSelectorProps) {
   const isMobile = useMediaQuery("(max-width: 768px)");
 
@@ -86,8 +89,8 @@ export function ChampionSelector({
             mt={4}
             truncate="end"
             style={{
-              maxWidth: isMobile ? 56 : 80,
-              fontSize: isMobile ? "9px" : "12px",
+              maxWidth: isMobile ? 32 : 53,
+              fontSize: isMobile ? "14px" : "16px",
               lineHeight: "1.2",
               whiteSpace: "nowrap",
               overflow: "hidden",
@@ -101,41 +104,52 @@ export function ChampionSelector({
       ) : (
         <>
           <div
-            style={{
-              width: isMobile ? 56 : 80,
-              height: isMobile ? 56 : 80,
-              borderRadius: "var(--mantine-radius-sm)",
-              backgroundColor: "#f8f9fa",
-              border: "1px dashed #ced4da",
-              cursor: "pointer",
-              transition: "all .15s ease",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
+            className={`${
+              slotType === "1v1" ? "bg-(--nar-bg-tertiary)" : ""
+            } flex h-14 w-14 items-center justify-center cursor-pointer transition-all duration-150 md:h-20 md:w-20`}
             onClick={() => onEmptyClick?.(index)}
           >
-            {slotType === "team" && (
-              <Image
-                src={POSITION_IMAGES[index].image}
-                alt={POSITION_IMAGES[index].name}
-                width={isMobile ? 36 : 50}
-                height={isMobile ? 36 : 50}
-                style={{ opacity: 0.6 }}
-              />
-            )}
+            {(() => {
+              const iconData = POSITION_ICONS[index];
+              const isActive = highlightSlot === index;
+              const ActiveIcon = iconData?.activeIcon;
+              const InactiveIcon = iconData?.inactiveIcon;
+
+              if (slotType !== "team") return null;
+
+              if (isActive && ActiveIcon) {
+                return (
+                  <ActiveIcon
+                    width={isMobile ? 32 : 53}
+                    height={isMobile ? 32 : 53}
+                  />
+                );
+              }
+
+              if (InactiveIcon) {
+                return (
+                  <InactiveIcon
+                    width={isMobile ? 32 : 53}
+                    height={isMobile ? 32 : 53}
+                  />
+                );
+              }
+
+              return null;
+            })()}
           </div>
           <Text
-            size="xs"
-            c="dimmed"
+            fz={isMobile ? 14 : 16}
+            c="var(--nar-text-tertiary-sub)"
             mt={4}
             style={{
-              fontSize: isMobile ? "9px" : "12px",
               textAlign: "center",
-              maxWidth: isMobile ? 56 : 80,
+              maxWidth:
+                slotType === "1v1" ? (isMobile ? 84 : 96) : isMobile ? 32 : 53,
+              whiteSpace: slotType === "1v1" ? "nowrap" : "normal",
             }}
           >
-            {slotType === "team" ? POSITION_IMAGES[index].name : "챔피언 선택"}
+            {slotType === "team" ? POSITION_ICONS[index].name : "챔피언 선택"}
           </Text>
         </>
       )}
@@ -161,21 +175,15 @@ export function ChampionSelector({
         "1v1",
       )}
 
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          height: isMobile ? 56 : 80,
-          paddingTop: 0,
-        }}
-      >
+      <div className={`${isMobile ? "h-8" : "h-[53px]"} flex items-end pt-0`}>
         <Text
           fw={700}
-          c="gray.6"
+          fz={18}
+          c="var(--nar-text-tertiary-sub)"
           mx={isMobile ? 4 : 8}
           style={{ userSelect: "none", fontSize: isMobile ? 14 : 18 }}
         >
-          VS
+          vs
         </Text>
       </div>
 
@@ -231,11 +239,12 @@ export function ChampionSelector({
         c="dimmed"
         ta="center"
         mt="md"
+        mb={24}
         style={{ fontSize: isMobile ? "10px" : "12px" }}
       >
         {currentMode === "team"
-          ? "최대 5명의 챔피언으로 팀을 구성하세요"
-          : "1vs1 분석할 챔피언 2명을 선택하세요"}
+          ? "최대 5명의 챔피언으로 팀을 구성해보세요."
+          : "* 1:1 분석할 챔피언 2명을 선택하세요"}
       </Text>
       {currentMode === "team" ? renderTeam() : render1v1()}
     </div>

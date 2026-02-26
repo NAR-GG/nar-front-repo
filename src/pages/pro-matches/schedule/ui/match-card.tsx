@@ -94,7 +94,7 @@ export function MatchCard({ match }: MatchCardProps) {
           </Text>
         </div>
 
-        <div className="hidden sm:block ml-auto md:ml-0 md:order-3 md:flex-1 md:basis-0 md:flex md:justify-end shrink-0">
+        <div className="hidden md:block ml-auto md:ml-0 md:order-3 md:flex-1 md:basis-0 md:flex md:justify-end shrink-0">
           {renderButton()}
         </div>
 
@@ -184,8 +184,8 @@ export function MatchCard({ match }: MatchCardProps) {
           </div>
         </div>
 
-        <div className="sm:hidden flex items-center justify-center gap-[10px]">
-          {renderButton(true)}
+        <div className="md:hidden basis-full w-full flex items-center justify-start gap-[10px]">
+          <div className="flex-1 min-w-0">{renderButton(true)}</div>
           {match.isSynced && isMobile && (
             <button
               type="button"

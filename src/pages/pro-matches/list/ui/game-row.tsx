@@ -96,11 +96,11 @@ export const GameRow = ({
                 </Text>
               </Text>
             </Group>
-            <div className="flex gap-1 sm:gap-4">
+            <div className="flex gap-[12.5px] lg:gap-4">
               {sortByPosition(blueTeam.players).map((player) => (
                 <div
                   key={player.playerName}
-                  className="flex flex-col items-center w-[46px] sm:w-full"
+                  className="flex flex-col items-center w-[46px]"
                 >
                   <Avatar
                     src={getChampionImageUrl(player.championName) || null}
@@ -145,11 +145,11 @@ export const GameRow = ({
                 </Text>
               </Text>
             </Group>
-            <div className="flex gap-1 sm:gap-4">
+            <div className="flex gap-[12.5px] lg:gap-4">
               {sortByPosition(redTeam.players).map((player) => (
                 <div
                   key={player.playerName}
-                  className="flex flex-col items-center w-[46px] sm:w-full"
+                  className="flex flex-col items-center w-[46px]"
                 >
                   <Avatar
                     src={getChampionImageUrl(player.championName) || null}

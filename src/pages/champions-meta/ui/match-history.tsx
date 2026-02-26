@@ -135,12 +135,12 @@ export function MatchHistory({ gameDetails }: MatchHistoryProps) {
                       </Text>
                     </Group>
                     <div
-                      className={`flex gap-1 sm:gap-4 ${blueTeam.isWin ? "bg-(--nar-red-opacity10) rounded-[8px] py-[6px] px-3" : ""}`}
+                      className={`flex gap-[12.5px] lg:gap-4 ${blueTeam.isWin ? "bg-(--nar-red-opacity10) rounded-[8px] py-[6px] px-3" : ""}`}
                     >
                       {sortByPosition(blueTeam.players || []).map((player) => (
                         <div
                           key={`${game.gameId}-blue-${player.playerName}`}
-                          className="flex flex-col items-center w-[46px] sm:w-full"
+                          className="flex flex-col items-center w-[46px]"
                         >
                           <Avatar
                             src={
@@ -194,12 +194,12 @@ export function MatchHistory({ gameDetails }: MatchHistoryProps) {
                       </Text>
                     </Group>
                     <div
-                      className={`flex gap-1 sm:gap-4 ${redTeam.isWin ? "bg-(--nar-red-opacity10) rounded-[8px]" : ""}`}
+                      className={`flex gap-[12.5px] lg:gap-4 ${redTeam.isWin ? "bg-(--nar-red-opacity10) rounded-[8px]" : ""}`}
                     >
                       {sortByPosition(redTeam.players || []).map((player) => (
                         <div
                           key={`${game.gameId}-red-${player.playerName}`}
-                          className="flex flex-col items-center w-[46px] sm:w-full"
+                          className="flex flex-col items-center w-[46px]"
                         >
                           <Avatar
                             src={

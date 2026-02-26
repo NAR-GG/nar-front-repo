@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Container, Stack } from "@mantine/core";
+import { Container, Paper, Stack, Text } from "@mantine/core";
 import type { ChampionData } from "@/entities/champions/model/champions.dto";
 import type { Mode, Filters } from "@/shared/types/filter.types";
 import { ChampionSelector } from "./champion-selector";
@@ -44,11 +44,11 @@ export function ChampionsMetaComponent() {
 
     if (currentMode === "team") {
       const isAlreadySelected = selectedChampions.some(
-        (c) => c && c.id === champion.id
+        (c) => c && c.id === champion.id,
       );
       if (isAlreadySelected) {
         const newSelected = selectedChampions.filter(
-          (c) => c && c.id !== champion.id
+          (c) => c && c.id !== champion.id,
         );
         setSelectedChampions(newSelected);
       } else {
@@ -63,11 +63,11 @@ export function ChampionsMetaComponent() {
       }
     } else {
       const isAlreadySelected = selected1v1Champions.some(
-        (c) => c && c.id === champion.id
+        (c) => c && c.id === champion.id,
       );
       if (isAlreadySelected) {
         const newSelected = selected1v1Champions.filter(
-          (c) => c && c.id !== champion.id
+          (c) => c && c.id !== champion.id,
         );
         setSelected1v1Champions(newSelected);
       } else {
@@ -86,7 +86,7 @@ export function ChampionsMetaComponent() {
   const handleChampionRemove = (championToRemove: ChampionData) => {
     if (!championToRemove?.id) return;
     const newSelected = selectedChampions.filter(
-      (c) => c && c.id !== championToRemove.id
+      (c) => c && c.id !== championToRemove.id,
     );
     setSelectedChampions(newSelected);
   };
@@ -94,14 +94,17 @@ export function ChampionsMetaComponent() {
   const handle1v1ChampionRemove = (championToRemove: ChampionData) => {
     if (!championToRemove?.id) return;
     const newSelected = selected1v1Champions.filter(
-      (c) => c && c.id !== championToRemove.id
+      (c) => c && c.id !== championToRemove.id,
     );
     setSelected1v1Champions(newSelected);
   };
 
   const scrollToChampionGrid = () => {
     setTimeout(() => {
-      championGridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      championGridRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
     }, 100);
   };
 
@@ -150,8 +153,20 @@ export function ChampionsMetaComponent() {
   };
 
   return (
-    <Container size="xl" px={{ base: 16, sm: 24, md: 32 }}>
+    <Paper p={20} withBorder radius={24}>
       <Stack gap="xl">
+        <Text fz={22} fw={700} lh={1.4} c="var(--nar-text-tertiary)">
+          챔피언 조합 검색
+        </Text>
+        <FilterSection
+          filters={filters}
+          onFiltersChange={setFilters}
+          selectedChampions={
+            currentMode === "team" ? selectedChampions : selected1v1Champions
+          }
+          onCombinationSearch={handleCombinationSearch}
+          currentMode={currentMode}
+        />
         <ChampionSelector
           selectedChampions={selectedChampions}
           selected1v1Champions={selected1v1Champions}
@@ -161,16 +176,7 @@ export function ChampionsMetaComponent() {
           onEmpty1v1SlotClick={handleEmpty1v1SlotClick}
           currentMode={currentMode}
           onModeChange={handleModeChange}
-        />
-
-        <FilterSection
-          filters={filters}
-          onFiltersChange={setFilters}
-          selectedChampions={
-            currentMode === "team" ? selectedChampions : selected1v1Champions
-          }
-          onCombinationSearch={handleCombinationSearch}
-          currentMode={currentMode}
+          highlightSlot={currentSlotIndex}
         />
 
         {showResults ? (
@@ -194,13 +200,15 @@ export function ChampionsMetaComponent() {
             <ChampionGrid
               onChampionSelect={handleChampionSelect}
               selectedChampions={
-                currentMode === "team" ? selectedChampions : selected1v1Champions
+                currentMode === "team"
+                  ? selectedChampions
+                  : selected1v1Champions
               }
               highlightSlot={currentSlotIndex}
             />
           </div>
         )}
       </Stack>
-    </Container>
+    </Paper>
   );
 }

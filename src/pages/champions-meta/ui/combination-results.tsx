@@ -40,7 +40,7 @@ export function CombinationResults({
 }: CombinationResultsProps) {
   const { getChampionImageUrl } = useChampionImage();
   const [expandedCards, setExpandedCards] = useState<Record<number, boolean>>(
-    {}
+    {},
   );
   const [sort, setSort] = useState<SortType>("frequency");
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -48,12 +48,12 @@ export function CombinationResults({
 
   const safeSelectedChampions = useMemo(
     () => selectedChampions.filter((c): c is ChampionData => c !== null),
-    [selectedChampions]
+    [selectedChampions],
   );
 
   const championNames = useMemo(
     () => safeSelectedChampions.map((c) => c.championNameEn),
-    [safeSelectedChampions]
+    [safeSelectedChampions],
   );
 
   const {
@@ -93,7 +93,7 @@ export function CombinationResults({
       const totalCount = lastPage?.data?.totalCount ?? 0;
       const loadedCount = allPages.reduce(
         (acc, page) => acc + (page?.data?.content?.length ?? 0),
-        0
+        0,
       );
       return loadedCount < totalCount ? allPages.length : undefined;
     },
@@ -103,7 +103,7 @@ export function CombinationResults({
 
   const allCombinations = useMemo(
     () => data?.pages.flatMap((page) => page?.data?.content ?? []) ?? [],
-    [data]
+    [data],
   );
 
   const totalCount = data?.pages[0]?.data?.totalCount ?? 0;
@@ -132,18 +132,22 @@ export function CombinationResults({
   if (safeSelectedChampions.length === 0) {
     return (
       <Paper p="md" withBorder radius="md">
-        <Stack gap="md" align="center">
-          <Text ta="center" c="dimmed">
+        <div className="flex min-h-[240px] w-full flex-col items-center justify-center">
+          <Text c="var(--nar-text-secondary)" fz={16} fw={600}>
             유효한 챔피언 데이터가 없습니다.
+          </Text>
+          <Text c="var(--nar-text-tertiary-sub)" fz={13} fw={600} mt={7}>
+            챔피언을 다시 선택해주세요.
           </Text>
           <Button
             leftSection={<IconArrowLeft size={16} />}
             onClick={onBackToSelection}
             variant="light"
+            mt={16}
           >
             챔피언 선택하러 가기
           </Button>
-        </Stack>
+        </div>
       </Paper>
     );
   }
@@ -167,13 +171,6 @@ export function CombinationResults({
 
   // 헤더 렌더링
   const renderHeader = () => {
-    const loadText = (
-      <Text size="sm" c="dimmed">
-        {safeSelectedChampions.length}개 챔피언 조합 • 총 {totalCount}개 중{" "}
-        {allCombinations.length}개 로드
-      </Text>
-    );
-
     const sortSelect = (
       <Select
         size="sm"
@@ -191,23 +188,22 @@ export function CombinationResults({
     );
 
     const backButton = (
-      <Button
-        size="sm"
-        color="gray"
-        leftSection={<IconArrowLeft size={16} />}
-        onClick={onBackToSelection}
-      >
+      <button className="btn-sm btn-gray" onClick={onBackToSelection}>
         돌아가기
-      </Button>
+      </button>
     );
 
     if (isMobile) {
       return (
         <Stack gap="xs">
-          <Title order={2} c="dark">
-            조합 분석 결과
-          </Title>
-          {loadText}
+          <Group gap={8} align="center">
+            <Title order={2} fz={22} fw={600} c="var(--nar-text-primary)">
+              조합 분석 결과
+            </Title>
+            <Text c="var(--nar-text-tertiary-sub)" fz={14} fw={400}>
+              총 {totalCount}개 검색 결과
+            </Text>
+          </Group>
           <Group justify="flex-end" gap="xs">
             {sortSelect}
             {backButton}
@@ -218,11 +214,15 @@ export function CombinationResults({
 
     return (
       <Group justify="space-between" align="center">
-        <Title order={2} c="dark">
-          조합 분석 결과
-        </Title>
+        <Group gap={8} align="center">
+          <Title order={2} fz={22} fw={600} c="var(--nar-text-primary)">
+            조합 분석 결과
+          </Title>
+          <Text c="var(--nar-text-tertiary-sub)" fz={14} fw={400}>
+            총 {totalCount}개 검색 결과
+          </Text>
+        </Group>
         <Group>
-          {loadText}
           {sortSelect}
           {backButton}
         </Group>

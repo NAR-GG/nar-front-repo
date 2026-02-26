@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { Group, Avatar, Text, Button, Stack, Progress } from "@mantine/core";
+import { Group, Avatar, Text, Stack } from "@mantine/core";
 import { IconChevronDown, IconChevronUp } from "@tabler/icons-react";
 import { useMediaQuery } from "@mantine/hooks";
 import type { ChampionData } from "@/entities/champions/model/champions.dto";
@@ -33,7 +33,8 @@ export function CombinationCard({
   const winPercentage = totalGames > 0 ? (wins / totalGames) * 100 : 0;
   const lossPercentage = totalGames > 0 ? (losses / totalGames) * 100 : 0;
   // API에서 winRate가 100.0 형태(이미 퍼센트)로 오면 그대로 사용, 0~1 사이면 *100
-  const displayWinRate = winRate > 1 ? Math.round(winRate) : Math.round(winRate * 100);
+  const displayWinRate =
+    winRate > 1 ? Math.round(winRate) : Math.round(winRate * 100);
 
   const orderedChampions = useMemo(() => {
     if (!selectedChampions || selectedChampions.length === 0) {
@@ -54,7 +55,7 @@ export function CombinationCard({
       .filter((c): c is ChampionInfo => c !== undefined);
 
     const remaining = champions.filter(
-      (champion) => !selectedChampionNames.includes(champion.championNameEn)
+      (champion) => !selectedChampionNames.includes(champion.championNameEn),
     );
 
     return [...selectedInOrder, ...remaining];
@@ -62,192 +63,125 @@ export function CombinationCard({
 
   return (
     <Stack gap="xs">
-      {isMobile ? (
-        <>
-          <Group justify="space-between" align="center" wrap="nowrap">
-            <Group gap="xs">
-              {orderedChampions.map((champion, index) => (
-                <Avatar
-                  key={index}
-                  src={champion.imageUrl}
-                  size={32}
-                  radius="md"
-                />
-              ))}
-            </Group>
-
-            <Button
-              variant="light"
-              size="sm"
-              color="gray"
-              style={{
-                flexShrink: 0,
-                borderRadius: "8px",
-                padding: "8px 12px",
-              }}
-            >
-              {isExpanded ? (
-                <IconChevronUp size={16} />
-              ) : (
-                <IconChevronDown size={16} />
-              )}
-            </Button>
-          </Group>
-
-          <Group gap="xs" align="center">
-            <Progress.Root size="md" style={{ flex: 1, height: "20px" }}>
-              <Progress.Section
-                value={winPercentage}
-                color="#5383e8"
-                style={{ borderRadius: "2px 0 0 2px" }}
-              >
-                <Progress.Label
-                  style={{
-                    color: "white",
-                    fontSize: "10px",
-                    fontWeight: 600,
-                  }}
-                >
-                  {wins}승
-                </Progress.Label>
-              </Progress.Section>
-              <Progress.Section
-                value={lossPercentage}
-                color="#e84057"
-                style={{ borderRadius: "0 2px 2px 0" }}
-              >
-                <Progress.Label
-                  style={{
-                    color: "white",
-                    fontSize: "10px",
-                    fontWeight: 600,
-                  }}
-                >
-                  {losses}패
-                </Progress.Label>
-              </Progress.Section>
-            </Progress.Root>
-
-            <Text size="sm" fw={600} c={displayWinRate >= 50 ? "#5383e8" : "#e84057"}>
-              {displayWinRate}%
-            </Text>
-          </Group>
-
-          <Group gap="xs" justify="center">
-            <Text size="xs" c="dimmed">
-              {totalGames}게임
-            </Text>
-            <Text size="xs" c="dimmed">
-              최근: {recentGame}
-            </Text>
-            <Text size="xs" c="dimmed">
-              패치: {latestPatch}
-            </Text>
-          </Group>
-        </>
-      ) : (
-        <Group justify="space-between" align="center" wrap="nowrap">
-          <Group gap="sm" style={{ flex: 1 }}>
-            <Group gap="xs">
-              {orderedChampions.map((champion, index) => (
-                <Avatar
-                  key={index}
-                  src={champion.imageUrl}
-                  size={44}
-                  radius="md"
-                />
-              ))}
-            </Group>
-
+      <Group
+        justify="flex-start"
+        align={isMobile ? "flex-start" : "center"}
+        wrap={isMobile ? "wrap" : "nowrap"}
+        style={{ width: "100%" }}
+      >
+        <div
+          className={
+            isMobile
+              ? "order-2 grid w-full grid-cols-5 gap-x-4"
+              : "order-none flex gap-4"
+          }
+        >
+          {orderedChampions.map((champion, index) => (
             <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "12px",
-                flex: 1,
-              }}
+              key={index}
+              className={`flex flex-col items-center gap-1 ${isMobile ? "w-[46px]" : "w-11"}`}
             >
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  minWidth: "180px",
-                }}
-              >
-                <Progress.Root size="xl" style={{ flex: 1, height: "24px" }}>
-                  <Progress.Section
-                    value={winPercentage}
-                    color="#5383e8"
-                    style={{ borderRadius: "2px 0 0 2px" }}
-                  >
-                    <Progress.Label
-                      style={{
-                        color: "white",
-                        fontSize: "12px",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {wins}승
-                    </Progress.Label>
-                  </Progress.Section>
-                  <Progress.Section
-                    value={lossPercentage}
-                    color="#e84057"
-                    style={{ borderRadius: "0 2px 2px 0" }}
-                  >
-                    <Progress.Label
-                      style={{
-                        color: "white",
-                        fontSize: "12px",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {losses}패
-                    </Progress.Label>
-                  </Progress.Section>
-                </Progress.Root>
-              </div>
-
+              <Avatar
+                src={champion.imageUrl}
+                size={isMobile ? 46 : 44}
+                radius="md"
+              />
               <Text
-                size="sm"
-                fw={600}
-                c={displayWinRate >= 50 ? "#5383e8" : "#e84057"}
+                fz={isMobile ? 12 : 14}
+                c="var(--nar-text-secondary)"
+                className="w-full overflow-hidden text-ellipsis whitespace-nowrap text-center"
               >
-                {displayWinRate}%
+                {champion.championNameKr}
               </Text>
             </div>
+          ))}
+        </div>
 
-            <Group gap="md">
-              <Text size="sm" c="dimmed">
-                {totalGames}게임
-              </Text>
-              <Text size="sm" c="dimmed">
-                최근: {recentGame}
-              </Text>
-              <Text size="xs" c="dimmed">
-                패치: {latestPatch}
-              </Text>
-            </Group>
-          </Group>
-
-          <Button
-            variant="light"
-            size="xs"
-            color="gray"
-            rightSection={
-              isExpanded ? (
-                <IconChevronUp size={14} />
-              ) : (
-                <IconChevronDown size={14} />
-              )
-            }
-            style={{ flexShrink: 0 }}
+        <div
+          className={`${isMobile ? "order-3 w-full" : "ml-5"} flex items-center gap-3`}
+        >
+          <div
+            className={`${isMobile ? "flex-1" : "w-[253px]"} flex h-7 overflow-hidden rounded-[6px]`}
+            style={{ backgroundColor: "var(--nar-bg-primary)" }}
           >
-            상세정보
-          </Button>
+            {wins > 0 && (
+              <div
+                className="relative flex items-center justify-start px-2"
+                style={{
+                  width: `${winPercentage}%`,
+                }}
+              >
+                <div
+                  className="absolute inset-0 z-0"
+                  style={{
+                    backgroundColor: "var(--nar-red-600)",
+                    opacity: 0.5,
+                  }}
+                />
+                <Text
+                  className="relative z-10"
+                  fz={isMobile ? 12 : 14}
+                  fw={600}
+                  c="var(--nar-bg-primary)"
+                >
+                  {wins}승
+                </Text>
+              </div>
+            )}
+            {losses > 0 && (
+              <div
+                className="relative flex items-center justify-end px-2"
+                style={{
+                  width: `${lossPercentage}%`,
+                }}
+              >
+                <div
+                  className="absolute inset-0 z-0"
+                  style={{
+                    backgroundColor: "var(--nar-text-tertiary-sub)",
+                    opacity: 0.5,
+                  }}
+                />
+                <Text
+                  className="relative z-10"
+                  fz={isMobile ? 12 : 14}
+                  fw={600}
+                  c="var(--nar-bg-primary)"
+                >
+                  {losses}패
+                </Text>
+              </div>
+            )}
+          </div>
+          <Text fz={16} fw={600} c="var(--nar-red-700)">
+            {displayWinRate.toFixed(1)}%
+          </Text>
+        </div>
+
+        <Group
+          gap={isMobile ? 8 : 16}
+          className={isMobile ? "order-1 w-full" : "ml-auto"}
+        >
+          <Text fz={14} fw={500} c="var(--nar-text-tertiary-sub)">
+            최근 : {recentGame}
+          </Text>
+          <Text fz={14} fw={500} c="var(--nar-text-tertiary-sub)">
+            패치: {latestPatch}
+          </Text>
         </Group>
-      )}
+      </Group>
+
+      <button
+        type="button"
+        className="inline-flex items-center justify-center rounded-[8px] border-[1.5px] text-[14px] whitespace-nowrap transition-colors duration-150 focus:outline-none border-[var(--nar-button-more-line)] bg-[var(--nar-button-more-bg)] text-[var(--nar-button-more-text)] btn-sm w-full"
+      >
+        총 {totalGames}경기 상세 보기
+        {isExpanded ? (
+          <IconChevronUp size={14} className="ml-1" />
+        ) : (
+          <IconChevronDown size={14} className="ml-1" />
+        )}
+      </button>
     </Stack>
   );
 }

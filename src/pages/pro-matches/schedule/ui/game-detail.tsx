@@ -90,7 +90,7 @@ export function GameDetail({
                     />
                   </Group>
 
-                  <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
+                  <div className="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-6">
                     {/* Blue Team */}
                     <Stack gap="xs" align="center">
                       <Group gap="xs" align="center">
@@ -111,14 +111,16 @@ export function GameDetail({
                           </Text>
                         </Text>
                       </Group>
-                      <div className="flex gap-1 sm:gap-4">
+                      <div className="flex gap-[12.5px] lg:gap-4">
                         {sortByPosition(game.blueTeam.players).map((player) => (
                           <div
                             key={player.playerName}
-                            className="flex flex-col items-center w-[46px] sm:w-full"
+                            className="flex flex-col items-center w-[46px]"
                           >
                             <Avatar
-                              src={getChampionImageUrl(player.championName) || null}
+                              src={
+                                getChampionImageUrl(player.championName) || null
+                              }
                               size={46}
                               radius="md"
                             />
@@ -164,14 +166,16 @@ export function GameDetail({
                           </Text>
                         </Text>
                       </Group>
-                      <div className="flex gap-1 sm:gap-4">
+                      <div className="flex gap-[12.5px] lg:gap-4">
                         {sortByPosition(game.redTeam.players).map((player) => (
                           <div
                             key={player.playerName}
-                            className="flex flex-col items-center w-[46px] sm:w-full"
+                            className="flex flex-col items-center w-[46px]"
                           >
                             <Avatar
-                              src={getChampionImageUrl(player.championName) || null}
+                              src={
+                                getChampionImageUrl(player.championName) || null
+                              }
                               size={46}
                               radius="md"
                             />

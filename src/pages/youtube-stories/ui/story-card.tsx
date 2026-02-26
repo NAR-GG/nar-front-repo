@@ -10,6 +10,49 @@ import {
   Text,
   Anchor,
 } from "@mantine/core";
+import Comment from "@/shared/assets/icons/comment.svg";
+import ThumbUp from "@/shared/assets/icons/thumb-up.svg";
+
+function CommentIcon({
+  isSelected,
+  gradientId,
+}: {
+  isSelected: boolean;
+  gradientId: string;
+}) {
+  if (!isSelected) {
+    return <Comment />;
+  }
+
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+    >
+      <path
+        d="M6 14H18V12H6V14ZM6 11H18V9H6V11ZM6 8H18V6H6V8ZM22 22L18 18H4C3.45 18 2.97917 17.8042 2.5875 17.4125C2.19583 17.0208 2 16.55 2 16V4C2 3.45 2.19583 2.97917 2.5875 2.5875C2.97917 2.19583 3.45 2 4 2H20C20.55 2 21.0208 2.19583 21.4125 2.5875C21.8042 2.97917 22 3.45 22 4V22ZM4 16H18.85L20 17.125V4H4V16Z"
+        fill={`url(#${gradientId})`}
+      />
+      <defs>
+        <linearGradient
+          id={gradientId}
+          x1="0.53125"
+          y1="-3.65217"
+          x2="26.3024"
+          y2="-3.45889"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="var(--logo-gradient-start)" />
+          <stop offset="0.372489" stopColor="var(--logo-gradient-mid)" />
+          <stop offset="1" stopColor="var(--logo-gradient-end)" />
+        </linearGradient>
+      </defs>
+    </svg>
+  );
+}
 
 interface StoryCardProps {
   badgeLabel: string;
@@ -23,7 +66,8 @@ interface StoryCardProps {
   isMobile: boolean;
   likeCount: number;
   commentCount: number;
-  onMessage: (value: string) => void;
+  onMessage: () => void;
+  isCommentSelected: boolean;
 }
 
 export function StoryCard({
@@ -39,86 +83,99 @@ export function StoryCard({
   likeCount,
   commentCount,
   onMessage,
+  isCommentSelected,
 }: StoryCardProps) {
-  const badgeColor = badgeLabel === "SHORTS" ? "#EE6787" : "#8775FB";
+  const badgeClassName =
+    badgeLabel === "PRO_TEAMS" ? "badge-mini-hub" : "badge-mini-hub-line";
+  const commentGradientId = `comment-selected-gradient-${youtubeVideoId}`;
 
   return (
-    <Flex
-      gap="xs"
-      style={isMobile ? { minWidth: 0, overflow: "hidden" } : undefined}
+    <Paper
+      radius={24}
+      p={isMobile ? "sm" : undefined}
+      style={{
+        minWidth: isMobile ? 0 : undefined,
+        overflow: "hidden",
+        borderRadius: 24,
+        paddingTop: isMobile ? undefined : 24,
+        paddingLeft: isMobile ? undefined : 24,
+        paddingRight: isMobile ? undefined : 32,
+        paddingBottom: isMobile ? undefined : 30,
+        transition: "border-color 0.15s ease",
+        cursor: "pointer",
+      }}
+      bg={"var(--nar-bg-tertiary)"}
+      withBorder
+      styles={{
+        root: {
+          "&:hover": {
+            borderColor: "var(--nar-line-2, #DEE2E6)",
+          },
+        },
+      }}
     >
-      <Avatar
-        radius="xl"
-        size={isMobile ? 36 : 48}
-        src={channelProfileUrl}
-        alt={channelName}
-        style={{ flexShrink: 0 }}
-      />
-      <Stack
-        gap={3}
-        style={
-          isMobile ? { flex: 1, minWidth: 0, overflow: "hidden" } : undefined
-        }
+      <Flex
+        gap="xs"
+        style={isMobile ? { minWidth: 0, overflow: "hidden" } : undefined}
       >
-        <Group gap={5}>
-          <Badge size="xs" radius="sm" color={badgeColor} fw={700}>
-            {badgeLabel}
-          </Badge>
-          <Text size="sm" c="hsl(0, 0%, 51%)">
-            {channelName}
-          </Text>
-        </Group>
-        <Group
-          gap={6}
-          justify="flex-end"
-          align="flex-end"
-          style={isMobile ? { minWidth: 0 } : undefined}
+        <Avatar
+          radius="xl"
+          size={isMobile ? 31 : 51}
+          src={channelProfileUrl}
+          alt={channelName}
+          style={{ flexShrink: 0 }}
+        />
+        <Stack
+          gap={3}
+          style={
+            isMobile ? { flex: 1, minWidth: 0, overflow: "hidden" } : undefined
+          }
         >
-          <Anchor
-            href={videoUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            underline="never"
-            style={{ textDecoration: "none" }}
+          <Group gap={5}>
+            <Text size="sm" c="var(--nar-text-secondary)" fz={16}>
+              {channelName}
+            </Text>
+            <Badge className={badgeClassName}>{badgeLabel}</Badge>
+          </Group>
+          <Group
+            gap={6}
+            justify="flex-start"
+            align="flex-start"
+            style={isMobile ? { minWidth: 0 } : undefined}
           >
-            <Paper
-              radius="md"
-              p={isMobile ? 6 : 8}
-              w={isMobile ? "100%" : 267}
-              withBorder
+            <Anchor
+              href={videoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              underline="never"
               style={{
-                minWidth: isMobile ? 0 : undefined,
-                overflow: isMobile ? "hidden" : undefined,
-                border: "1px solid #D9D9D9",
-                borderRadius: 8,
-                transition: "border-color 0.15s ease",
-                cursor: "pointer",
-              }}
-              styles={{
-                root: {
-                  "&:hover": {
-                    borderColor: "#5383E8",
-                  },
-                },
+                textDecoration: "none",
+                display: "block",
+                width: isMobile ? "100%" : 357,
+                flexShrink: 0,
               }}
             >
               <Stack gap={6}>
                 <Stack gap={2}>
-                  <Text fz={11} c="hsl(0, 0%, 51%)">
-                    새로운 동영상이 업로드 되었습니다.
-                  </Text>
+                  <Flex align="center">
+                    <Text fz={12} c="var(--nar-text-tertiary-sub)">
+                      {isMobile ? timeAgo : `${timeAgo}`}
+                    </Text>
+                    <div className="bg-[var(--nar-text-tertiary-sub)] w-1 h-1 rounded-full mx-2"></div>
+                    <Text fz={12} c="var(--nar-text-tertiary-sub)">
+                      새로운 동영상이 업로드 되었습니다.
+                    </Text>
+                  </Flex>
+
                   <Flex gap={5}>
                     <Text
-                      fz={12}
+                      fz={16}
                       fw={600}
-                      c="hsl(0, 0%, 51%)"
-                      style={{ flexShrink: 0 }}
+                      truncate="end"
+                      w="100%"
+                      c="var(--nar-text-tertiary)"
                     >
-                      제목
-                    </Text>
-                    <Divider orientation="vertical" />
-                    <Text fz={12} fw={600} truncate="end" w="100%" c="var(--mantine-color-text)">
-                      {title}
+                      {`"${title}"`}
                     </Text>
                   </Flex>
                 </Stack>
@@ -126,15 +183,15 @@ export function StoryCard({
                   src={thumbnailUrl}
                   alt={title}
                   radius={6}
-                  h={isMobile ? "auto" : 125}
-                  w="100%"
+                  h={isMobile ? "auto" : 201}
+                  w={isMobile ? "100%" : 357}
                   fit="cover"
-                  style={isMobile ? { aspectRatio: "16/9" } : undefined}
+                  style={{ aspectRatio: "16/9" }}
                 />
               </Stack>
               <Flex gap={24} mt={8} align="center">
                 <Flex gap={4} align="center">
-                  <Image src="/icons/thumb-up.svg" alt="좋아요" h={24} w={24} />
+                  <ThumbUp />
                   <Text fz={14} c="dark.9">
                     {likeCount}
                   </Text>
@@ -146,30 +203,35 @@ export function StoryCard({
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    onMessage(youtubeVideoId);
+                    onMessage();
                   }}
                 >
-                  <Image src="/icons/messages.svg" alt="채팅" h={24} w={24} />
-                  <Text fz={14} c="dark.9">
+                  <CommentIcon
+                    isSelected={isCommentSelected}
+                    gradientId={commentGradientId}
+                  />
+                  <Text
+                    fz={14}
+                    c={isCommentSelected ? undefined : "dark.9"}
+                    style={
+                      isCommentSelected
+                        ? {
+                            background: "var(--nar_gradients)",
+                            WebkitBackgroundClip: "text",
+                            WebkitTextFillColor: "transparent",
+                          }
+                        : undefined
+                    }
+                  >
                     {commentCount}
                   </Text>
                 </Flex>
               </Flex>
-            </Paper>
-          </Anchor>
-          {!isMobile && (
-            <Text size="xs" c="hsl(0, 0%, 51%)">
-              ({timeAgo})
-            </Text>
-          )}
-        </Group>
-        {isMobile && (
-          <Text size="xs" c="hsl(0, 0%, 51%)" ta="right">
-            {timeAgo}
-          </Text>
-        )}
-      </Stack>
-    </Flex>
+            </Anchor>
+          </Group>
+        </Stack>
+      </Flex>
+    </Paper>
   );
 }
 

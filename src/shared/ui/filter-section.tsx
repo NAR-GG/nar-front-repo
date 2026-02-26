@@ -38,6 +38,7 @@ export function FilterSection({
   showSearchButton = true,
 }: FilterSectionProps) {
   const isMobile = useMediaQuery("(max-width: 768px)");
+  const isSearchDisabled = selectedChampions.filter(Boolean).length === 0;
 
   const { data: categoryData, isLoading } = useQuery(
     categoriesQueries.tree(filters.year),
@@ -45,13 +46,6 @@ export function FilterSection({
 
   const getButtonText = () => {
     return currentMode === "1v1" ? "매치업 보기" : "조합 보기";
-  };
-
-  const getSelectedCountText = () => {
-    if (currentMode === "1v1") {
-      return `선택된 챔피언: ${selectedChampions.filter(Boolean).length}/2`;
-    }
-    return `선택된 챔피언: ${selectedChampions.filter(Boolean).length}/5`;
   };
 
   const leagueOptions = useMemo(() => {
@@ -336,13 +330,11 @@ export function FilterSection({
           {showSearchButton && (
             <Flex justify="flex-end">
               <Group gap="md" align="center">
-                <Text size="sm" c="dimmed">
-                  {getSelectedCountText()}
-                </Text>
                 <Button
-                  leftSection={<IconSearch size={16} />}
+                  rightSection={<IconSearch size={16} />}
                   onClick={onCombinationSearch}
-                  disabled={selectedChampions.filter(Boolean).length === 0}
+                  disabled={isSearchDisabled}
+                  className={`${!isSearchDisabled ? "bg-(--nar-purple-1)!" : ""} rounded-[10px]!`}
                 >
                   {getButtonText()}
                 </Button>
@@ -410,15 +402,23 @@ export function FilterSection({
 
           {showSearchButton && (
             <Group gap="md" align="center">
-              <Text size="sm" c="dimmed">
-                {getSelectedCountText()}
-              </Text>
               <Button
-                leftSection={<IconSearch size={16} />}
+                rightSection={<IconSearch size={16} />}
                 onClick={onCombinationSearch}
-                disabled={selectedChampions.filter(Boolean).length === 0}
+                className={`${isSearchDisabled ? "bg-(--nar-button-disabled-bg)!" : "bg-(--nar-purple-1)!"} py-px! pl-[13px]! rounded-[10px]!`}
+                disabled={isSearchDisabled}
               >
-                {getButtonText()}
+                <Text
+                  c={
+                    isSearchDisabled
+                      ? "var(--nar-button-disabled-text)"
+                      : "var(--nar-button-active-text)"
+                  }
+                  fz={14}
+                  fw={400}
+                >
+                  {getButtonText()}
+                </Text>
               </Button>
             </Group>
           )}

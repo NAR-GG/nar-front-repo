@@ -40,6 +40,8 @@ export function ChampionTop5Table({
   const TD_CLASS = "bg-(--nar-bg-cont-livebox) !py-[12px]";
   const TH_CLASS = "!py-[12px] !border-b-0";
   const TR_CLASS = "!border-b-0";
+  const STICKY_HEADER_CLASS = "sticky top-0 z-20 bg-(--nar-bg-cont-livebox)";
+  const STICKY_FIRST_COL_CLASS = "sticky left-0 z-10 bg-(--nar-bg-cont-livebox)";
 
   const winColumn: Column = {
     key: "win",
@@ -73,7 +75,7 @@ export function ChampionTop5Table({
       key={`${mode}-${row.rank}-${row.championName}`}
       className={TR_CLASS}
     >
-      <Table.Td className={cn({ TD_CLASS }, "align-center")}>
+      <Table.Td className={cn(TD_CLASS, STICKY_FIRST_COL_CLASS, "align-center")}>
         <div className="w-6 h-6 flex items-center justify-center">
           <Text fw={600} fz={18} c="var(--nar-text-secondary)" lineClamp={1}>
             {row.rank}
@@ -126,7 +128,9 @@ export function ChampionTop5Table({
       >
         <Table.Thead>
           <Table.Tr className={TR_CLASS}>
-            <Table.Th className={TH_CLASS}>
+            <Table.Th
+              className={`${TH_CLASS} ${STICKY_HEADER_CLASS} ${STICKY_FIRST_COL_CLASS} z-30`}
+            >
               <div className="w-[24px] h-[24px] flex items-center justify-center">
                 <Text fw={600} fz={18} c="var(--nar-text-4)" lineClamp={1}>
                   #
@@ -134,14 +138,17 @@ export function ChampionTop5Table({
               </div>
             </Table.Th>
 
-            <Table.Th className={TH_CLASS}>
+            <Table.Th className={`${TH_CLASS} ${STICKY_HEADER_CLASS}`}>
               <Text fw={600} fz={14} c="var(--nar-text-4)" lineClamp={1}>
                 라인 / 챔피언
               </Text>
             </Table.Th>
 
             {columns.map((col) => (
-              <Table.Th key={col.key} className={TH_CLASS}>
+              <Table.Th
+                key={col.key}
+                className={`${TH_CLASS} ${STICKY_HEADER_CLASS}`}
+              >
                 <Text fw={600} fz={14} c="var(--nar-text-4)" lineClamp={1}>
                   {col.header}
                 </Text>

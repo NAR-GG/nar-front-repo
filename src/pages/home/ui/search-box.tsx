@@ -18,9 +18,9 @@ export function SearchBox() {
   const placeholder = "검색어를 입력해주세요.";
   const [isInfoOpen, setIsInfoOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
-  const [debouncedSearch] = useDebouncedValue(searchValue, 500);
+  const [debouncedSearch] = useDebouncedValue(searchValue, 300);
 
-  const { data: searchResults } = useQuery({
+  const { data: searchResults, isFetching } = useQuery({
     ...searchQueries.authComplate({ q: debouncedSearch, limit: 10 }),
     enabled: debouncedSearch.length > 0,
   });
@@ -57,7 +57,7 @@ export function SearchBox() {
                 />
               </div>
               <div className="relative z-10 rounded-[24px] overflow-hidden bg-(--nar-searchbar-bg)">
-                <div className="flex items-center justify-between w-full text-[14px] md:text-[18px] px-[32px] py-[15.5px] md:py-[12px]">
+                <div className="flex items-center justify-between w-full text-[14px] md:text-[18px] px-[32px] py-[9.5px] md:py-[12px]">
                   <input
                     type="text"
                     placeholder={placeholder}
@@ -160,6 +160,20 @@ export function SearchBox() {
                             </div>
                           ))}
                         </>
+                      )}
+                    {debouncedSearch.length > 0 &&
+                      !isFetching &&
+                      searchResults?.suggestions?.length === 0 && (
+                        <div className="w-full py-[18px] px-[14px] bg-[#FBFBFB]">
+                          <Text
+                            c="var(--nar-text-tertiary-sub)"
+                            fw={600}
+                            fz={{ base: 14, md: 16 }}
+                            ta="center"
+                          >
+                            검색 결과가 없습니다.
+                          </Text>
+                        </div>
                       )}
                   </div>
                 )}

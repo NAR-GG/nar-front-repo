@@ -21,6 +21,10 @@ import NarCalendar from "@/shared/assets/icons/nar_calendar.svg";
 import Lck from "@/shared/assets/images/lck-home.svg";
 import Lpl from "@/shared/assets/images/lpl-home.svg";
 import Lec from "@/shared/assets/images/lec-home.svg";
+import Ljl from "@/shared/assets/images/lgl-home.svg";
+import Lcs from "@/shared/assets/images/lcs-home.svg";
+import Msi from "@/shared/assets/images/msi-home.svg";
+import Worlds from "@/shared/assets/images/worlds-home.svg";
 import { useQuery, useQueries } from "@tanstack/react-query";
 import { scheduleQueries } from "@/entities/schedule/model/schedule.queries";
 import clsx from "clsx";
@@ -407,7 +411,15 @@ export const SchedulePageComponent = () => {
               </div>
             ) : (
               (() => {
-                const leagueOrder = ["LCK", "LPL", "LEC"];
+                const leagueOrder = [
+                  "LCK",
+                  "LPL",
+                  "LEC",
+                  "LJL",
+                  "LCS",
+                  "MSI",
+                  "WORLDS",
+                ];
                 const uniqueLeagues = [
                   ...new Set(scheduleData.matches.map((m) => m.leagueInfo)),
                 ].sort((a, b) => {
@@ -423,6 +435,10 @@ export const SchedulePageComponent = () => {
                   LCK: Lck,
                   LEC: Lec,
                   LPL: Lpl,
+                  LJL: Ljl,
+                  LCS: Lcs,
+                  MSI: Msi,
+                  WORLDS: Worlds,
                 };
 
                 return uniqueLeagues.map((leagueName) => {

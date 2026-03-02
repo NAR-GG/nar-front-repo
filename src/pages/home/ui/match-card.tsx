@@ -218,6 +218,7 @@ export function MatchCard({
               gameNumber: s.setNumber,
               vodUrl: s.vodUrl,
             }))}
+            fullWidth
           />
         ) : (
           <button

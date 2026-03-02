@@ -205,6 +205,7 @@ export function ChampionsMetaComponent() {
                   : selected1v1Champions
               }
               highlightSlot={currentSlotIndex}
+              currentMode={currentMode}
             />
           </div>
         )}

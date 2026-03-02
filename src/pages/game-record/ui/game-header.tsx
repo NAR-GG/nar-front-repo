@@ -8,6 +8,10 @@ import { ReplayButton } from "@/pages/home/ui/replay-button";
 import Lck from "@/shared/assets/images/lck-home.svg";
 import Lpl from "@/shared/assets/images/lpl-home.svg";
 import Lec from "@/shared/assets/images/lec-home.svg";
+import Ljl from "@/shared/assets/images/lgl-home.svg";
+import Lcs from "@/shared/assets/images/lcs-home.svg";
+import Msi from "@/shared/assets/images/msi-home.svg";
+import Worlds from "@/shared/assets/images/worlds-home.svg";
 import type {
   GameDetailPlayer,
   GameSetNav,
@@ -62,6 +66,10 @@ const leagueIconMap: Record<string, typeof Lck> = {
   LCK: Lck,
   LEC: Lec,
   LPL: Lpl,
+  LJL: Ljl,
+  LCS: Lcs,
+  MSI: Msi,
+  WORLDS: Worlds,
 };
 
 export function GameHeader({

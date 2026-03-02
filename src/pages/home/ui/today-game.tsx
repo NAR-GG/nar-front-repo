@@ -4,6 +4,10 @@ import { Paper, Text, Button } from "@mantine/core";
 import Lck from "@/src/shared/assets/images/lck-home.svg";
 import Lpl from "@/src/shared/assets/images/lpl-home.svg";
 import Lec from "@/src/shared/assets/images/lec-home.svg";
+import Ljl from "@/src/shared/assets/images/lgl-home.svg";
+import Lcs from "@/src/shared/assets/images/lcs-home.svg";
+import Msi from "@/src/shared/assets/images/msi-home.svg";
+import Worlds from "@/src/shared/assets/images/worlds-home.svg";
 
 import clsx from "clsx";
 import { useState } from "react";
@@ -106,7 +110,15 @@ export function TodayGame() {
 
       {scheduleData && scheduleData.length > 0 ? (
         (() => {
-          const leagueOrder = ["LCK", "LPL"];
+          const leagueOrder = [
+            "LCK",
+            "LPL",
+            "LEC",
+            "LJL",
+            "LCS",
+            "MSI",
+            "WORLDS",
+          ];
           const uniqueLeagues = [
             ...new Set(scheduleData.map((m) => m.leagueName)),
           ].sort((a, b) => {
@@ -131,6 +143,10 @@ export function TodayGame() {
               LCK: Lck,
               LEC: Lec,
               LPL: Lpl,
+              LJL: Ljl,
+              LCS: Lcs,
+              MSI: Msi,
+              WORLDS: Worlds,
             };
             const leagueKey = Object.keys(leagueIconMap).find((key) =>
               leagueName.includes(key),

@@ -1,4 +1,5 @@
 import { Group, Table, Text, Avatar } from "@mantine/core";
+import playerImageMap from "@/shared/config/player-image-map.json";
 
 export type Top5Mode = "kda" | "gpm" | "dpm";
 
@@ -38,8 +39,16 @@ export function ProgamerTop5Table({ data, mode }: ProgamerTop5TableProps) {
   const TD_CLASS = "bg-(--nar-bg-cont-livebox) !py-[12px]";
   const TH_CLASS = "!py-[12px] !border-b-0";
   const TR_CLASS = "!border-b-0";
+  const STICKY_HEADER_CLASS = "sticky top-0 z-20 bg-(--nar-bg-cont-livebox)";
+  const STICKY_FIRST_COL_CLASS = "sticky left-0 z-10 bg-(--nar-bg-cont-livebox)";
 
   const config = MODE_CONFIG[mode];
+  const getPlayerImageSrc = (row: ProgamerTop5Row) => {
+    const mapped = playerImageMap[row.playerName as keyof typeof playerImageMap];
+    if (mapped) return mapped;
+    if (!row.playerImageUrl) return undefined;
+    return row.playerImageUrl;
+  };
 
   return (
     <Table.ScrollContainer h={384} minWidth={346}>
@@ -51,7 +60,9 @@ export function ProgamerTop5Table({ data, mode }: ProgamerTop5TableProps) {
       >
         <Table.Thead>
           <Table.Tr className={TR_CLASS}>
-            <Table.Th className={TH_CLASS}>
+            <Table.Th
+              className={`${TH_CLASS} ${STICKY_HEADER_CLASS} ${STICKY_FIRST_COL_CLASS} z-30`}
+            >
               <div className="w-[24px] h-[24px] flex items-center justify-center">
                 <Text fw={600} fz={18} c="var(--nar-text-4)" lineClamp={1}>
                   #
@@ -59,19 +70,19 @@ export function ProgamerTop5Table({ data, mode }: ProgamerTop5TableProps) {
               </div>
             </Table.Th>
 
-            <Table.Th className={TH_CLASS}>
+            <Table.Th className={`${TH_CLASS} ${STICKY_HEADER_CLASS}`}>
               <Text fw={600} fz={14} c="var(--nar-text-4)" lineClamp={1}>
                 소속 / 플레이어
               </Text>
             </Table.Th>
 
-            <Table.Th className={TH_CLASS}>
+            <Table.Th className={`${TH_CLASS} ${STICKY_HEADER_CLASS}`}>
               <Text fw={600} fz={14} c="var(--nar-text-4)" lineClamp={1}>
                 경기 수
               </Text>
             </Table.Th>
 
-            <Table.Th className={TH_CLASS}>
+            <Table.Th className={`${TH_CLASS} ${STICKY_HEADER_CLASS}`}>
               <Text fw={600} fz={14} c="var(--nar-text-4)" lineClamp={1}>
                 {config.header}
               </Text>
@@ -85,7 +96,7 @@ export function ProgamerTop5Table({ data, mode }: ProgamerTop5TableProps) {
               key={`${mode}-${row.rank}-${row.playerName}`}
               className={TR_CLASS}
             >
-              <Table.Td className={TD_CLASS}>
+              <Table.Td className={`${TD_CLASS} ${STICKY_FIRST_COL_CLASS}`}>
                 <div className="w-[24px] h-[24px] flex items-center justify-center">
                   <Text fw={600} fz={18} c="var(--nar-text-secondary)">
                     {row.rank}
@@ -96,7 +107,7 @@ export function ProgamerTop5Table({ data, mode }: ProgamerTop5TableProps) {
               <Table.Td className={TD_CLASS}>
                 <Group gap={13} wrap="nowrap" style={{ minWidth: 0 }}>
                   <Avatar
-                    src={`https://api.nar.kr${row.playerImageUrl}`}
+                    src={getPlayerImageSrc(row)}
                     size={46}
                     radius={0}
                   />

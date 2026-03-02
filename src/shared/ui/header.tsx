@@ -18,7 +18,11 @@ const isMatch = (
   match?: (p: string) => boolean,
 ) => (match ? match(pathname) : pathname.startsWith(href));
 
-function useHeaderNav(pathname: string, hoverParentKey: string | null) {
+function useHeaderNav(
+  pathname: string,
+  hoverParentKey: string | null,
+  pinnedParentKey: string | null,
+) {
   const routeParent = useMemo<NavItem | undefined>(() => {
     return NAV_ITEMS.find((item) => {
       if (!item.children?.length) return false;
@@ -28,14 +32,18 @@ function useHeaderNav(pathname: string, hoverParentKey: string | null) {
 
   const activeSubParent = useMemo<NavItem | undefined>(() => {
     if (routeParent) return routeParent;
+    if (pinnedParentKey) {
+      return NAV_ITEMS.find((i) => i.key === pinnedParentKey);
+    }
     if (!hoverParentKey) return undefined;
     return NAV_ITEMS.find((i) => i.key === hoverParentKey);
-  }, [routeParent, hoverParentKey]);
+  }, [routeParent, pinnedParentKey, hoverParentKey]);
 
   const subMenuList: SubNavItem[] = activeSubParent?.children ?? [];
 
   const isVisibleSubHeader =
-    subMenuList.length > 0 && (routeParent != null || hoverParentKey != null);
+    subMenuList.length > 0 &&
+    (routeParent != null || pinnedParentKey != null || hoverParentKey != null);
 
   return { routeParent, subMenuList, isVisibleSubHeader };
 }
@@ -43,10 +51,12 @@ function useHeaderNav(pathname: string, hoverParentKey: string | null) {
 function DesktopNav({
   pathname,
   onHoverItem,
+  onTogglePinItem,
   onGo,
 }: {
   pathname: string;
   onHoverItem: (item: NavItem) => void;
+  onTogglePinItem: (item: NavItem) => void;
   onGo: (href: string) => void;
 }) {
   return (
@@ -74,7 +84,10 @@ function DesktopNav({
                 hasChildren && "select-none",
               )}
               onClick={() => {
-                if (hasChildren) return;
+                if (hasChildren) {
+                  onTogglePinItem(item);
+                  return;
+                }
                 onGo(item.href);
               }}
             >
@@ -267,6 +280,7 @@ export function Header() {
   const router = useRouter();
 
   const [hoverParentKey, setHoverParentKey] = useState<string | null>(null);
+  const [pinnedParentKey, setPinnedParentKey] = useState<string | null>(null);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -275,26 +289,40 @@ export function Header() {
   const { routeParent, subMenuList, isVisibleSubHeader } = useHeaderNav(
     pathname,
     hoverParentKey,
+    pinnedParentKey,
   );
 
   const headerHeightClass = "h-[49.9px] lg:h-[98px] xl:h-[92px]";
   const subHeaderHeightClass = "h-[27.9px] lg:h-[44px]";
 
-  const go = useCallback((href: string) => router.push(href), [router]);
+  const go = useCallback(
+    (href: string) => {
+      setPinnedParentKey(null);
+      setHoverParentKey(null);
+      router.push(href);
+    },
+    [router],
+  );
 
   const closeSubHeader = useCallback(() => {
-    if (routeParent) return;
+    if (routeParent || pinnedParentKey) return;
     setHoverParentKey(null);
-  }, [routeParent]);
+  }, [routeParent, pinnedParentKey]);
 
   const handleMainHover = useCallback(
     (item: NavItem) => {
-      if (routeParent) return;
+      if (routeParent || pinnedParentKey) return;
       if (item.children?.length) setHoverParentKey(item.key);
       else setHoverParentKey(null);
     },
-    [routeParent],
+    [routeParent, pinnedParentKey],
   );
+
+  const togglePinnedSubHeader = useCallback((item: NavItem) => {
+    if (!item.children?.length) return;
+    setPinnedParentKey((prev) => (prev === item.key ? null : item.key));
+    setHoverParentKey(null);
+  }, []);
 
   const closeMobileMenu = useCallback(() => {
     setIsMenuOpen(false);
@@ -303,7 +331,7 @@ export function Header() {
   return (
     <>
       <div
-        className="fixed top-0 left-0 w-full z-50"
+        className="fixed top-0 left-0 w-full z-[100]"
         onMouseLeave={closeSubHeader}
       >
         <div
@@ -328,6 +356,7 @@ export function Header() {
               <DesktopNav
                 pathname={pathname}
                 onHoverItem={handleMainHover}
+                onTogglePinItem={togglePinnedSubHeader}
                 onGo={go}
               />
             </div>

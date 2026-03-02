@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
   SimpleGrid,
   TextInput,
@@ -18,6 +18,7 @@ import { useMediaQuery } from "@mantine/hooks";
 import { useQuery } from "@tanstack/react-query";
 import { championsQueries } from "@/entities/champions/model/champions.queries";
 import type { ChampionData } from "@/entities/champions/model/champions.dto";
+import type { Mode } from "@/shared/types/filter.types";
 import { championPositions } from "../model/champion-positions";
 import NarGrayTop from "@/shared/assets/icons/nar_gray_top.svg";
 import NarGrayAll from "@/shared/assets/icons/nar_gray_all.svg";
@@ -36,6 +37,7 @@ interface ChampionGridProps {
   onChampionSelect: (champion: ChampionData) => void;
   selectedChampions: (ChampionData | null)[];
   highlightSlot: number | null;
+  currentMode: Mode;
 }
 
 type PositionId = "*" | "TOP" | "JUG" | "MID" | "ADC" | "SUP";
@@ -74,6 +76,8 @@ const positions: Position[] = [
 export function ChampionGrid({
   onChampionSelect,
   selectedChampions,
+  highlightSlot,
+  currentMode,
 }: ChampionGridProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPosition, setSelectedPosition] = useState<PositionId>("*");
@@ -101,6 +105,16 @@ export function ChampionGrid({
       return matchesSearch && matchesPosition;
     });
   }, [champions, searchTerm, selectedPosition]);
+
+  useEffect(() => {
+    if (currentMode !== "team" || highlightSlot == null) return;
+
+    const slotToPosition: PositionId[] = ["TOP", "JUG", "MID", "ADC", "SUP"];
+    const nextPosition = slotToPosition[highlightSlot];
+    if (nextPosition) {
+      setSelectedPosition(nextPosition);
+    }
+  }, [currentMode, highlightSlot]);
 
   const isChampionSelected = (champion: ChampionData) => {
     return selectedChampions.some((c) => c && c.id === champion.id);

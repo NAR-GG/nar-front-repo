@@ -6,7 +6,7 @@ import { Top5Progamer } from "./top5-progamer";
 
 export default function HomeLayout() {
   return (
-    <section className="mx-auto w-full px-4 pb-16 pt-6">
+    <section className="mx-auto w-full pb-16">
       <div className="hidden xl:grid grid-cols-[65.84%_31.94%] gap-6">
         <div className="flex flex-col gap-[40px]">
           <div className="min-w-0">

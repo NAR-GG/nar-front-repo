@@ -117,7 +117,10 @@ function YoutubeStoriesComponent() {
   }, [commentsMutation.data]);
 
   useEffect(() => {
-    if (stories.length > prevStoriesCountRef.current && prevStoriesCountRef.current > 0) {
+    if (
+      stories.length > prevStoriesCountRef.current &&
+      prevStoriesCountRef.current > 0
+    ) {
       requestAnimationFrame(() => {
         storiesViewportRef.current?.scrollTo({
           top: storiesViewportRef.current.scrollHeight,
@@ -129,7 +132,7 @@ function YoutubeStoriesComponent() {
   }, [stories.length]);
 
   return (
-    <Container size="md" px={{ base: 12, sm: 24, md: 32 }}>
+    <Container size="md" px={{ base: 0, sm: 24, md: 32 }}>
       <Stack gap={4}>
         <Group gap="xs">
           <Image
@@ -292,7 +295,10 @@ function YoutubeStoriesComponent() {
                             selectedVideoId === story.youtubeVideoId
                           }
                           onMessage={() =>
-                            handleOpenComments(story.youtubeVideoId, story.title)
+                            handleOpenComments(
+                              story.youtubeVideoId,
+                              story.title,
+                            )
                           }
                         />
                       ))}

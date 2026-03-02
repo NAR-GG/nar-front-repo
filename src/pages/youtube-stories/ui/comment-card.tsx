@@ -37,7 +37,7 @@ export function CommentCard({
         </Group>
         <Text
           fz={14}
-          c="dark.7"
+          c="var(--nar-text-tertiary)"
           style={{ lineHeight: 1.5, whiteSpace: "pre-wrap" }}
         >
           {content.replace(/<br\s*\/?>/gi, "\n")}

@@ -67,7 +67,7 @@ export function MatchCard({ match }: MatchCardProps) {
         type="button"
         disabled={isUnstarted || isCompleted}
         onClick={isLive ? handleLiveClick : undefined}
-        className={`btn-sm ${isMobileView ? "flex-1" : ""} ${
+        className={`btn-sm ${isMobileView ? "w-full" : ""} ${
           isLive ? "btn-gray" : "btn-line"
         } ${isUnstarted || isCompleted ? "btn-disabled" : ""}`}
       >

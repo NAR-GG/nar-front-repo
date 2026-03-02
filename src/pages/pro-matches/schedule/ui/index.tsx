@@ -216,7 +216,7 @@ export const SchedulePageComponent = () => {
   };
 
   return (
-    <Container size="xl" px={{ base: 12, sm: 24, md: 32 }}>
+    <Container size="xl" px={{ base: 0, sm: 24, md: 32 }}>
       <Stack gap="lg" mt="md">
         <Paper withBorder radius={24}>
           <div className="flex relative items-center justify-center pt-5 sm:pt-10 pb-5.75 gap-5">
@@ -340,7 +340,8 @@ export const SchedulePageComponent = () => {
                       boxShadow: `0 2px 0 ${isDisabled ? "var(--nar-searchbar-text-con)" : "var(--nar-text-tertiary-sub)"}`,
                     }}
                   >
-                    <span
+                    <Text
+                      lineClamp={1}
                       className={clsx(
                         "text-sm sm:text-base",
                         isSelected ? "font-bold" : "font-normal",
@@ -360,7 +361,7 @@ export const SchedulePageComponent = () => {
                       }
                     >
                       {isToday ? "오늘" : DAY_NAMES[dayIndex]}
-                    </span>
+                    </Text>
                     <span
                       className={clsx(
                         "text-base sm:text-lg",

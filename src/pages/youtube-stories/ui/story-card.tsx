@@ -192,7 +192,7 @@ export function StoryCard({
               <Flex gap={24} mt={8} align="center">
                 <Flex gap={4} align="center">
                   <ThumbUp />
-                  <Text fz={14} c="dark.9">
+                  <Text fz={14} c="var(--nar-text-2)">
                     {likeCount}
                   </Text>
                 </Flex>
@@ -212,7 +212,7 @@ export function StoryCard({
                   />
                   <Text
                     fz={14}
-                    c={isCommentSelected ? undefined : "dark.9"}
+                    c={isCommentSelected ? undefined : "var(--nar-text-2)"}
                     style={
                       isCommentSelected
                         ? {

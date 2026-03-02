@@ -4,7 +4,6 @@ import {
   Stack,
   Group,
   Text,
-  Button,
   Center,
   Avatar,
   Loader,
@@ -76,6 +75,7 @@ export function GameDetail({
                         fz={16}
                         size="sm"
                         c="var(--nar-text-primary)"
+                        lineClamp={1}
                       >
                         Game {game.gameNumber}
                       </Text>

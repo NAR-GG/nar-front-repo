@@ -1,10 +1,11 @@
 "use client";
 
-import { Paper, Stack, Group, Text, Avatar, Box } from "@mantine/core";
+import { Group, Text, Avatar, Box } from "@mantine/core";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { IconClock, IconDots } from "@tabler/icons-react";
 import { ReplayButton } from "@/pages/home/ui/replay-button";
+import { CommonTabs } from "@/shared/ui/common-tabs";
 import Lck from "@/shared/assets/images/lck-home.svg";
 import Lpl from "@/shared/assets/images/lpl-home.svg";
 import Lec from "@/shared/assets/images/lec-home.svg";
@@ -345,35 +346,20 @@ export function GameHeader({
           </div>
         </div>
 
-        <div className="flex items-center gap-[3px]">
-          {setNav.sets.map((set) => {
-            const isActive = set.gameId === gameId;
-            return (
-              <button
-                key={set.setNumber}
-                onClick={() => handleGameSelect(set.gameId)}
-                className={`rounded-t-lg px-[14px] py-[7px] transition-colors
-                    ${
-                      isActive
-                        ? "bg-[var(--nar-bg-tertiary)] border border-b-0 border-[var(--nar-line)]"
-                        : "bg-[var(--nar-navchip-bg-defualt)] border-none"
-                    }`}
-              >
-                <Text
-                  fw={600}
-                  fz={16}
-                  c={
-                    isActive
-                      ? "var(--nar-text-secondary)"
-                      : "var(--nar-text-tertiary-sub)"
-                  }
-                >
-                  Game {set.setNumber}
-                </Text>
-              </button>
-            );
-          })}
-        </div>
+        <CommonTabs
+          variant="set-nav"
+          value={gameId}
+          items={setNav.sets.map((set) => ({
+            id: set.setNumber,
+            label: `Game ${set.setNumber}`,
+            value: set.gameId,
+          }))}
+          onChange={(nextValue) => {
+            if (typeof nextValue === "number") {
+              handleGameSelect(nextValue);
+            }
+          }}
+        />
 
         <div className="bg-(--nar-bg-tertiary) p-[10px] pb-5 flex flex-col gap-[10px] rounded-tr-[14px] border border-(--nar-line) border-b-0">
           <div className="flex items-center justify-between border-b border-(--nar-line) pt-[5px] pb-2">

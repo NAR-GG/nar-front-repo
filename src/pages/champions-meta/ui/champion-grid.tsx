@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import {
   SimpleGrid,
   TextInput,
@@ -19,19 +19,11 @@ import { useQuery } from "@tanstack/react-query";
 import { championsQueries } from "@/entities/champions/model/champions.queries";
 import type { ChampionData } from "@/entities/champions/model/champions.dto";
 import type { Mode } from "@/shared/types/filter.types";
+import {
+  PositionFilter,
+  type PositionFilterId,
+} from "@/shared/ui/position-filter";
 import { championPositions } from "../model/champion-positions";
-import NarGrayTop from "@/shared/assets/icons/nar_gray_top.svg";
-import NarGrayAll from "@/shared/assets/icons/nar_gray_all.svg";
-import NarGrayJungle from "@/shared/assets/icons/nar_gray_jungle.svg";
-import NarGrayMid from "@/shared/assets/icons/nar_gray_mid.svg";
-import NarGrayBottom from "@/shared/assets/icons/nar_gray_bottom.svg";
-import NarGraySupport from "@/shared/assets/icons/nar_gray_support.svg";
-import NarAll from "@/shared/assets/icons/nar_all.svg";
-import NarTop from "@/shared/assets/icons/nar_top.svg";
-import NarJungle from "@/shared/assets/icons/nar_jungle.svg";
-import NarMid from "@/shared/assets/icons/nar_mid.svg";
-import NarBottom from "@/shared/assets/icons/nar_bottom.svg";
-import NarSupport from "@/shared/assets/icons/nar_support.svg";
 
 interface ChampionGridProps {
   onChampionSelect: (champion: ChampionData) => void;
@@ -40,38 +32,7 @@ interface ChampionGridProps {
   currentMode: Mode;
 }
 
-type PositionId = "*" | "TOP" | "JUG" | "MID" | "ADC" | "SUP";
-
-interface Position {
-  id: PositionId;
-  name: string;
-  inactiveIcon?: React.FC<React.SVGProps<SVGSVGElement>>;
-  activeIcon?: React.FC<React.SVGProps<SVGSVGElement>>;
-}
-
-const positions: Position[] = [
-  { id: "*", name: "전체", inactiveIcon: NarGrayAll, activeIcon: NarAll },
-  { id: "TOP", name: "탑", inactiveIcon: NarGrayTop, activeIcon: NarTop },
-  {
-    id: "JUG",
-    name: "정글",
-    inactiveIcon: NarGrayJungle,
-    activeIcon: NarJungle,
-  },
-  { id: "MID", name: "미드", inactiveIcon: NarGrayMid, activeIcon: NarMid },
-  {
-    id: "ADC",
-    name: "원딜",
-    inactiveIcon: NarGrayBottom,
-    activeIcon: NarBottom,
-  },
-  {
-    id: "SUP",
-    name: "서포터",
-    inactiveIcon: NarGraySupport,
-    activeIcon: NarSupport,
-  },
-];
+type PositionId = PositionFilterId;
 
 export function ChampionGrid({
   onChampionSelect,
@@ -82,6 +43,12 @@ export function ChampionGrid({
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPosition, setSelectedPosition] = useState<PositionId>("*");
   const isMobile = useMediaQuery("(max-width: 768px)");
+  const slotToPosition: PositionId[] = ["TOP", "JUG", "MID", "ADC", "SUP"];
+  const autoSelectedPosition =
+    currentMode === "team" && highlightSlot != null
+      ? slotToPosition[highlightSlot] ?? null
+      : null;
+  const effectiveSelectedPosition = autoSelectedPosition ?? selectedPosition;
 
   const {
     data: champions = [],
@@ -99,22 +66,14 @@ export function ChampionGrid({
           .includes(searchTerm.toLowerCase());
 
       const matchesPosition =
-        selectedPosition === "*" ||
-        championPositions[champion.championNameEn]?.includes(selectedPosition);
+        effectiveSelectedPosition === "*" ||
+        championPositions[champion.championNameEn]?.includes(
+          effectiveSelectedPosition,
+        );
 
       return matchesSearch && matchesPosition;
     });
-  }, [champions, searchTerm, selectedPosition]);
-
-  useEffect(() => {
-    if (currentMode !== "team" || highlightSlot == null) return;
-
-    const slotToPosition: PositionId[] = ["TOP", "JUG", "MID", "ADC", "SUP"];
-    const nextPosition = slotToPosition[highlightSlot];
-    if (nextPosition) {
-      setSelectedPosition(nextPosition);
-    }
-  }, [currentMode, highlightSlot]);
+  }, [champions, searchTerm, effectiveSelectedPosition]);
 
   const isChampionSelected = (champion: ChampionData) => {
     return selectedChampions.some((c) => c && c.id === champion.id);
@@ -136,63 +95,6 @@ export function ChampionGrid({
       </Alert>
     );
   }
-
-  const renderPositionFilter = () => (
-    <div
-      style={{
-        display: "flex",
-        width: isMobile ? "100%" : "auto",
-        maxWidth: isMobile ? "100%" : "auto",
-      }}
-    >
-      {positions.map(
-        (
-          { id, name, inactiveIcon: InactiveIcon, activeIcon: ActiveIcon },
-          index,
-        ) => (
-          <div
-            key={id}
-            style={{
-              padding: isMobile ? "8px 4px" : "12px 14px",
-              cursor: "pointer",
-              backgroundColor: "transparent",
-              border: "1px solid #e9ecef",
-              borderLeft: index === 0 ? "1px solid #e9ecef" : "none",
-              borderRight: "1px solid #e9ecef",
-              borderRadius:
-                index === 0
-                  ? "6px 0 0 6px"
-                  : index === positions.length - 1
-                    ? "0 6px 6px 0"
-                    : "0",
-              transition: "all 0.2s",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              height: "44px",
-              flex: isMobile ? "1" : "unset",
-              minWidth: isMobile ? 0 : "50px",
-              overflow: "hidden",
-            }}
-            onClick={() => setSelectedPosition(id)}
-            title={name}
-          >
-            {selectedPosition === id && ActiveIcon ? (
-              <ActiveIcon
-                width={isMobile ? 20 : 24}
-                height={isMobile ? 20 : 24}
-              />
-            ) : InactiveIcon ? (
-              <InactiveIcon
-                width={isMobile ? 20 : 24}
-                height={isMobile ? 20 : 24}
-              />
-            ) : null}
-          </div>
-        ),
-      )}
-    </div>
-  );
 
   return (
     <Paper
@@ -226,7 +128,11 @@ export function ChampionGrid({
                 paddingBottom: "4px",
               }}
             >
-              {renderPositionFilter()}
+              <PositionFilter
+                selectedId={effectiveSelectedPosition}
+                onSelect={setSelectedPosition}
+                isMobile
+              />
             </div>
           </Stack>
         ) : (
@@ -239,7 +145,10 @@ export function ChampionGrid({
               styles={searchInputStyles}
               style={{ width: 300 }}
             />
-            {renderPositionFilter()}
+            <PositionFilter
+              selectedId={effectiveSelectedPosition}
+              onSelect={setSelectedPosition}
+            />
           </Group>
         )}
 

@@ -1,12 +1,15 @@
 export interface Team {
-  id: number;
+  code: string;
   name: string;
+  imageUrl: string;
+  score: number;
 }
 
 export interface Split {
   name: string;
   leagueId: number;
   teams: Team[];
+  patches: string[];
 }
 
 export interface League {

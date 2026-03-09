@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 77 77" fill="none">
+  <path d="M28.3684 28.1875H48.6316V48.8125H28.3684V28.1875Z" fill="var(--nar-bg-playercard-line2)"/>
+  <path d="M8.74343 77H77V7.52457L62.1403 22.6496V62.5625H22.9276L8.74343 77Z" fill="var(--nar-bg-playercard-line2)"/>
+  <path d="M53.0143 14.4375H14.8596V53.2735L0 68.3985V0H67.1986L53.0143 14.4375Z" fill="var(--nar-bg-playercard-line2)"/>
+  <path d="M8.74343 77H77V7.52457L62.1403 22.6496V62.5625H22.9276L8.74343 77Z" fill="var(--nar-bg-playercard-line)"/>
+</svg>

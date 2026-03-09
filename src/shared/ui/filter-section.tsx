@@ -23,19 +23,21 @@ import { CustomMultiSelect } from "./custom-multi-select";
 interface FilterSectionProps {
   filters: Filters;
   onFiltersChange: (filters: Filters) => void;
-  selectedChampions: (ChampionData | null)[];
-  onCombinationSearch: () => void;
-  currentMode: Mode;
+  selectedChampions?: (ChampionData | null)[];
+  onCombinationSearch?: () => void;
+  currentMode?: Mode;
   showSearchButton?: boolean;
+  variant?: "default" | "players";
 }
 
 export function FilterSection({
   filters,
   onFiltersChange,
-  selectedChampions,
+  selectedChampions = [],
   onCombinationSearch,
-  currentMode,
+  currentMode = "team",
   showSearchButton = true,
+  variant = "default",
 }: FilterSectionProps) {
   const isMobile = useMediaQuery("(max-width: 768px)");
   const isSearchDisabled = selectedChampions.filter(Boolean).length === 0;
@@ -131,6 +133,69 @@ export function FilterSection({
       label: teamName,
     }));
   }, [categoryData, filters.leagueNames, filters.splitNames, filters.year]);
+
+  const playerSplitOptions = useMemo(() => {
+    if (!categoryData) return [];
+
+    const season = categoryData.seasons.find((s) => s.year === filters.year);
+    if (!season) return [];
+
+    const targetLeagueName =
+      filters.leagueName ?? filters.leagueNames?.[0] ?? "LCK";
+
+    const league = season.leagues.find((l) => l.name === targetLeagueName);
+    if (!league) return [];
+
+    const uniqueSplits = [
+      ...new Set(
+        league.splits
+          .filter((split) => split.name && split.name.trim() !== "")
+          .map((split) => split.name),
+      ),
+    ];
+
+    return uniqueSplits.map((splitName) => ({
+      value: splitName,
+      label: splitName,
+    }));
+  }, [categoryData, filters.year, filters.leagueName, filters.leagueNames]);
+
+  const playerPatchOptions = useMemo(() => {
+    if (!categoryData) return [];
+
+    const season = categoryData.seasons.find((s) => s.year === filters.year);
+    if (!season) return [];
+
+    const targetLeagueName =
+      filters.leagueName ?? filters.leagueNames?.[0] ?? "LCK";
+    const league = season.leagues.find((l) => l.name === targetLeagueName);
+    if (!league) return [];
+
+    const targetSplits = league.splits.filter((split) => {
+      if (!split.name || split.name.trim() === "") return false;
+      if (!filters.split) return true;
+      return split.name === filters.split;
+    });
+
+    const uniquePatches = [
+      ...new Set(
+        targetSplits.flatMap((split) =>
+          (split.patches ?? []).filter((patch) => Boolean(patch?.trim())),
+        ),
+      ),
+    ];
+
+    return uniquePatches.map((patch) => ({
+      value: patch,
+      label: patch,
+    }));
+  }, [
+    categoryData,
+    filters.year,
+    filters.leagueName,
+    filters.leagueNames,
+    filters.split,
+  ]);
 
   const handleFilterChange = useCallback(
     (field: keyof Filters, value: string[]) => {
@@ -270,6 +335,84 @@ export function FilterSection({
           <Text c="dimmed">필터 옵션을 불러오는 중...</Text>
         </Group>
       </Paper>
+    );
+  }
+
+  if (variant === "players") {
+    return (
+      <Group gap="md" align="end" wrap="wrap">
+        <Box style={{ width: 192 }}>
+          <Select
+            label="년도"
+            data={[
+              { value: "2025", label: "2025" },
+              { value: "2026", label: "2026" },
+            ]}
+            value={filters.year.toString()}
+            onChange={(v) =>
+              onFiltersChange({
+                ...filters,
+                year: parseInt(v || "2026", 10),
+                split: null,
+                patch: null,
+              })
+            }
+          />
+        </Box>
+
+        <Box style={{ width: 192 }}>
+          <Select
+            label="스플릿"
+            placeholder="스플릿 선택"
+            data={playerSplitOptions}
+            value={filters.split}
+            onChange={(v) =>
+              onFiltersChange({
+                ...filters,
+                split: v ?? null,
+                patch: null,
+              })
+            }
+            clearable
+          />
+        </Box>
+
+        <Box style={{ width: 192 }}>
+          <Select
+            label="패치"
+            placeholder="패치 선택"
+            data={playerPatchOptions}
+            value={filters.patch}
+            onChange={(v) =>
+              onFiltersChange({
+                ...filters,
+                patch: v ?? null,
+              })
+            }
+            clearable
+            searchable
+            disabled={playerPatchOptions.length === 0}
+          />
+        </Box>
+
+        <Box style={{ width: 192 }}>
+          <Select
+            label="진영"
+            data={[
+              { value: "ALL", label: "ALL" },
+              { value: "BLUE", label: "BLUE" },
+              { value: "RED", label: "RED" },
+            ]}
+            value={filters.side ?? "ALL"}
+            onChange={(v) =>
+              onFiltersChange({
+                ...filters,
+                side: (v as "ALL" | "BLUE" | "RED") ?? "ALL",
+              })
+            }
+          />
+        </Box>
+      </Group>
     );
   }
 

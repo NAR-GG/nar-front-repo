@@ -1,4 +1,5 @@
 import "./globals.css";
+import "./player-card-hover-tilt.css";
 import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { ColorSchemeScript, mantineHtmlProps } from "@mantine/core";

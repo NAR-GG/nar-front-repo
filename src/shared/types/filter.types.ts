@@ -13,6 +13,7 @@ export interface Filters {
   leagueName: string | null;
   teamName: string | null;
   patch: string | null;
+  side?: "ALL" | "BLUE" | "RED";
   leagueNames: string[];
   splitNames: string[];
   teamNames: string[];

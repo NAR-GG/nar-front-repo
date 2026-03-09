@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { IconDots } from "@tabler/icons-react";
 import { Text } from "@mantine/core";
+import { CommonTabs } from "@/shared/ui/common-tabs";
 
 interface ReplayButtonProps {
   games: {
@@ -76,23 +77,21 @@ export function ReplayButton({ games, fullWidth = false }: ReplayButtonProps) {
   const activeBorder = "var(--nar-red-500)";
 
   const dropdownContent = isDropdownOpen && gamesWithVod.length > 0 && (
-    <div
-      ref={containerRef}
-      style={dropdownStyle}
-      className="min-w-[100px] bg-[var(--nar-button-2-bg)] rounded-lg py-1 shadow-lg"
-    >
-      {gamesWithVod.map((game) => (
-        <div
-          className="group px-4 h-[34px] flex items-center justify-center cursor-pointer whitespace-nowrap"
-          key={game.gameNumber}
-          onClick={() => handleGameSelect(game.vodUrl!)}
-        >
-          <span className="text-[14px] font-normal text-(--nar-button-2-text) group-hover:text-(--nar-red-500) transition-colors">
-            Game {game.gameNumber}
-          </span>
-        </div>
-      ))}
-    </div>
+    <CommonTabs
+      variant="dropdown"
+      items={gamesWithVod.map((game) => ({
+        id: game.gameNumber,
+        label: `Game ${game.gameNumber}`,
+        value: game.vodUrl,
+      }))}
+      onChange={(nextValue) => {
+        if (typeof nextValue === "string") {
+          handleGameSelect(nextValue);
+        }
+      }}
+      containerStyle={dropdownStyle}
+      containerRef={containerRef}
+    />
   );
 
   return (

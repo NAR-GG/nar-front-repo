@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 77 77" fill="none">
+  <path d="M0 0H57.2431L43.0589 14.4375H14.8596V43.1403L0 58.2653V0Z" fill="var(--nar-bg-playercard-line2)"/>
+  <path d="M19.7985 77H77V18.7768L62.1403 33.9018V62.5625H33.9827L19.7985 77Z" fill="var(--nar-bg-playercard-line2)"/>
+  <path d="M77 12.5332L13.666 77H0V64.5068L63.376 0H77V12.5332Z" fill="var(--nar-bg-playercard-line)"/>
+</svg>

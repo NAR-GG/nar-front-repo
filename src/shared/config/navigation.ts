@@ -28,6 +28,20 @@ export const NAV_ITEMS: NavItem[] = [
     ],
   },
   {
+    key: "team-players",
+    label: "팀/선수",
+    href: "/team-players",
+    match: (p) => p.startsWith("/team-players"),
+    children: [
+      {
+        key: "player-list",
+        label: "선수리스트",
+        href: "/team-players/player-list",
+        match: (p) => p === "/team-players/player-list",
+      },
+    ],
+  },
+  {
     key: "champions-meta",
     label: "챔피언/메타",
     href: "/champions-meta",

@@ -31,12 +31,13 @@ function useHeaderNav(
   }, [pathname]);
 
   const activeSubParent = useMemo<NavItem | undefined>(() => {
-    if (routeParent) return routeParent;
+    if (hoverParentKey) {
+      return NAV_ITEMS.find((i) => i.key === hoverParentKey);
+    }
     if (pinnedParentKey) {
       return NAV_ITEMS.find((i) => i.key === pinnedParentKey);
     }
-    if (!hoverParentKey) return undefined;
-    return NAV_ITEMS.find((i) => i.key === hoverParentKey);
+    return routeParent;
   }, [routeParent, pinnedParentKey, hoverParentKey]);
 
   const subMenuList: SubNavItem[] = activeSubParent?.children ?? [];
@@ -286,7 +287,7 @@ export function Header() {
 
   const [openParentKey, setOpenParentKey] = useState<string | null>(null);
 
-  const { routeParent, subMenuList, isVisibleSubHeader } = useHeaderNav(
+  const { subMenuList, isVisibleSubHeader } = useHeaderNav(
     pathname,
     hoverParentKey,
     pinnedParentKey,
@@ -297,25 +298,21 @@ export function Header() {
 
   const go = useCallback(
     (href: string) => {
-      setPinnedParentKey(null);
-      setHoverParentKey(null);
       router.push(href);
     },
     [router],
   );
 
   const closeSubHeader = useCallback(() => {
-    if (routeParent || pinnedParentKey) return;
     setHoverParentKey(null);
-  }, [routeParent, pinnedParentKey]);
+  }, []);
 
   const handleMainHover = useCallback(
     (item: NavItem) => {
-      if (routeParent || pinnedParentKey) return;
       if (item.children?.length) setHoverParentKey(item.key);
       else setHoverParentKey(null);
     },
-    [routeParent, pinnedParentKey],
+    [],
   );
 
   const togglePinnedSubHeader = useCallback((item: NavItem) => {

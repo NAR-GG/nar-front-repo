@@ -425,7 +425,7 @@ export function PlayerCard({ player, onActiveChange }: PlayerCardProps) {
     "--card-opacity": `${cardOpacity}`,
     "--background-x": `${backgroundX}%`,
     "--background-y": `${backgroundY}%`,
-    "--rotate-x": `${rotateX + rotateDelta + faceRotation}deg`,
+    "--rotate-x": `${rotateX + rotateDelta}deg`,
     "--rotate-y": `${rotateY}deg`,
     "--card-scale": `${cardScale}`,
     "--translate-x": `${translateX}px`,
@@ -463,8 +463,13 @@ export function PlayerCard({ player, onActiveChange }: PlayerCardProps) {
                 "transform 1000ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 400ms ease",
             }}
           >
-            <div className="absolute inset-0 [backface-visibility:hidden]">
-              {isInViewport ? (
+            <div
+              className="absolute inset-0 transition-opacity duration-300"
+              style={{
+                opacity: faceRotation === 0 ? 1 : 0,
+              }}
+            >
+              {active || isInViewport ? (
                 <PlayerCardFace player={player} />
               ) : (
                 <div className="relative h-[302px] w-[193px] overflow-hidden rounded-[8px] bg-[#12051d]">
@@ -479,14 +484,19 @@ export function PlayerCard({ player, onActiveChange }: PlayerCardProps) {
                 </div>
               )}
             </div>
-            <div className="absolute inset-0 [backface-visibility:visible] [transform:rotateY(180deg)]">
+            <div
+              className="absolute inset-0 transition-opacity duration-300"
+              style={{
+                opacity: faceRotation === 180 ? 1 : 0,
+              }}
+            >
               <div
                 className="absolute left-1/2 top-1/2 origin-center"
                 style={{
                   transform: `translate(-50%, -50%) scale(${BACK_BASE_SCALE})`,
                 }}
               >
-                <BackCardSurface player={player} />
+                {active ? <BackCardSurface player={player} /> : null}
               </div>
             </div>
           </div>

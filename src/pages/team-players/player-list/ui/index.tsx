@@ -114,7 +114,7 @@ export function PlayerListPageComponent() {
                 />
               </div>
 
-              <div className="flex flex-col items-end sm:flex-row sm:items-center justify-between gap-4 px-[21px] py-[14px] rounded-[14px] bg-(--nar-BG-last)">
+              <div className="flex flex-col items-stretch sm:flex-row sm:items-center justify-between gap-4 px-[21px] py-[14px] rounded-[14px] bg-(--nar-BG-last)">
                 {isMobile ? (
                   <>
                     <TextInput
@@ -131,11 +131,12 @@ export function PlayerListPageComponent() {
                           borderRadius: "10px",
                         },
                       }}
-                      style={{ width: 231 }}
+                      style={{ width: 231, alignSelf: "flex-end" }}
                     />
                     <PositionFilter
                       selectedId={selectedPosition}
                       onSelect={setSelectedPosition}
+                      isMobile
                     />
                   </>
                 ) : (

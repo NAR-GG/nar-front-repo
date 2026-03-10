@@ -237,6 +237,8 @@ export function PlayerCard({ player, onActiveChange }: PlayerCardProps) {
   const [faceRotation, setFaceRotation] = useState(0);
   const [translateX, setTranslateX] = useState(0);
   const [translateY, setTranslateY] = useState(0);
+  const [originLeft, setOriginLeft] = useState(0);
+  const [originTop, setOriginTop] = useState(0);
 
   const closeCard = useCallback(() => {
     setActive(false);
@@ -247,6 +249,8 @@ export function PlayerCard({ player, onActiveChange }: PlayerCardProps) {
     setFaceRotation(0);
     setRotateX(0);
     setRotateY(0);
+    setOriginLeft(0);
+    setOriginTop(0);
     setPointerX(50);
     setPointerY(50);
     setCardOpacity(0);
@@ -284,6 +288,8 @@ export function PlayerCard({ player, onActiveChange }: PlayerCardProps) {
     const updateCenter = () => {
       if (!slotRef.current) return;
       const rect = slotRef.current.getBoundingClientRect();
+      setOriginLeft(round(rect.left));
+      setOriginTop(round(rect.top));
       setTranslateX(round(window.innerWidth / 2 - rect.left - rect.width / 2));
       setTranslateY(round(window.innerHeight / 2 - rect.top - rect.height / 2));
     };
@@ -315,6 +321,17 @@ export function PlayerCard({ player, onActiveChange }: PlayerCardProps) {
         window.clearTimeout(repositionTimerRef.current);
         repositionTimerRef.current = null;
       }
+    };
+  }, [active]);
+
+  useEffect(() => {
+    if (!active) return;
+
+    const { overflow } = document.body.style;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = overflow;
     };
   }, [active]);
 
@@ -433,6 +450,8 @@ export function PlayerCard({ player, onActiveChange }: PlayerCardProps) {
     "--hover-tilt-x": `${pointerX / 100}`,
     "--hover-tilt-y": `${pointerY / 100}`,
     "--hover-tilt-opacity": `${cardOpacity}`,
+    left: active ? `${originLeft}px` : undefined,
+    top: active ? `${originTop}px` : undefined,
     transform: `translate3d(${translateX}px, ${translateY}px, ${cardScale * 150}px) scale(${cardScale})`,
     transformStyle: "preserve-3d",
     transition: "transform 1000ms cubic-bezier(0.22, 1, 0.36, 1)",
@@ -444,7 +463,18 @@ export function PlayerCard({ player, onActiveChange }: PlayerCardProps) {
       className="relative mx-auto h-[302px] w-[193px]"
       style={{ zIndex: active ? 999 : interacting ? 120 : 1 }}
     >
-      <div className="absolute inset-0" style={dynamicStyles}>
+      {active ? (
+        <button
+          type="button"
+          aria-label="선수 카드 닫기"
+          onClick={closeCard}
+          className="fixed inset-0 bg-[var(--nar-dark-opacity62)]"
+        />
+      ) : null}
+      <div
+        className={active ? "fixed h-[302px] w-[193px]" : "absolute inset-0"}
+        style={dynamicStyles}
+      >
         <button
           ref={cardRef}
           type="button"

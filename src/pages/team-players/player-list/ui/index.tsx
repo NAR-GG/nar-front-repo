@@ -179,7 +179,7 @@ export function PlayerListPageComponent() {
                 <>
                   {isMobile ? (
                     <div
-                      className={`-mx-1 flex snap-x snap-mandatory gap-4 px-1 pb-2 ${isCardExpanded ? "overflow-visible" : "overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"}`}
+                      className={`-mx-1 flex snap-x snap-mandatory gap-4 px-1 pb-2 ${isCardExpanded ? "overflow-x-hidden touch-none" : "overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"}`}
                     >
                       {filteredPlayers.map((player: PlayerCardData) => (
                         <div

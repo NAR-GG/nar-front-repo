@@ -468,7 +468,7 @@ export function PlayerCard({ player, onActiveChange }: PlayerCardProps) {
           type="button"
           aria-label="선수 카드 닫기"
           onClick={closeCard}
-          className="fixed inset-0 bg-[var(--nar-dark-opacity62)]"
+          className="fixed inset-0 bg-[var(--nar-bg-playercard)]"
         />
       ) : null}
       <div

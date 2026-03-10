@@ -88,6 +88,7 @@
   --nar-BG-badge-REDOP: var(--nar-red-opacity10);
   --nar-bg-playercard-line: var(--nar-dark-opacity62);
   --nar-bg-playercard-line2: var(--nar-dark-opacity15);
+  --nar-bg-playercard: var(--nar-white-opacity62);
 
   /* Text */
   --nar-text-primary: var(--nar-dark-900);
@@ -190,8 +191,6 @@
   );
   --nar-gradi-card-start: rgba(255, 255, 255, 0.78);
   --nar-gradi-card-end: rgba(230, 221, 243, 0.78);
-  --nar-BG-playercard-line:           
-;
 }
 
 [data-mantine-color-scheme="dark"] {
@@ -233,6 +232,7 @@
   --nar-BG-badge-REDOP: var(--nar-red-opacity80);
   --nar-bg-playercard-line: var(--nar-white-opacity62);
   --nar-bg-playercard-line2: var(--nar-white-opacity15);
+  --nar-bg-playercard: var(--nar-dark-opacity62);
 
   /* Text */
   --nar-text-primary: var(--nar-white);

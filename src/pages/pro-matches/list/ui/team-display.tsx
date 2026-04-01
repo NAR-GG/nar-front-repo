@@ -1,7 +1,7 @@
 "use client";
 
 import { Stack, Group, Text, Avatar } from "@mantine/core";
-import type { GameTeam } from "@/entities/games/model/games.dto";
+import type { GameTeam } from "@/entities/games/api/games.dto";
 import { TEAM_NAME_MAP } from "../model/types";
 import { sortByPosition } from "@/shared/lib/sort-by-position";
 

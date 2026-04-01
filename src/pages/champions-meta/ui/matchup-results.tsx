@@ -16,12 +16,15 @@ import {
   Badge,
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
-import { IconArrowLeft } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { combinationsQueries } from "@/entities/combinations/model/combinations.queries";
-import type { GameDetail } from "@/entities/combinations/model/combinations.dto";
-import type { Filters } from "../model/types";
+import type { Filters } from "@/shared/types/filter.types";
 import { useChampionImage } from "@/shared/lib/use-champion-image";
+import { sortByPosition } from "@/shared/lib/sort-by-position";
+import {
+  mapMatchUp1v1DataToViewModel,
+  resolveMatchupTeams,
+} from "../model/champions-meta.mapper";
 
 interface MatchupResultsProps {
   champion1?: string;
@@ -56,19 +59,16 @@ export function MatchupResults({
     }),
   );
 
-  const gameDetails = data?.data?.content ?? [];
-  const totalCount = data?.data?.totalMatches ?? 0;
-  const winRateForChampion1 = data?.data?.winRateForChampion1 ?? 0;
-  const totalPages = Math.ceil(totalCount / pageSize);
+  const vm = data?.data
+    ? mapMatchUp1v1DataToViewModel(data.data, getChampionImageUrl)
+    : null;
 
-  const champion1WinRate = Math.round(winRateForChampion1 * 100);
-  const champion2WinRate = 100 - champion1WinRate;
+  const totalPages = Math.ceil((vm?.totalMatches ?? 0) / pageSize);
 
-  // 헤더 렌더링
   const renderHeader = () => {
     const loadText = (
       <Text size="sm" c="dimmed">
-        총 {totalCount}경기
+        총 {vm?.totalMatches ?? 0}경기
       </Text>
     );
 
@@ -130,13 +130,12 @@ export function MatchupResults({
     >
       <LoadingOverlay visible={isLoading} />
 
-      {!isLoading && (
+      {!isLoading && vm && (
         <Stack gap="sm">
           {renderHeader()}
 
           <Divider color="#e9ecef" size="sm" />
 
-          {/* 승률 비교 섹션 */}
           <Paper p="lg" radius="md" bg="gray.0">
             <Stack gap="md" align="center">
               <Group gap="xl" justify="center" align="center">
@@ -152,9 +151,9 @@ export function MatchupResults({
                   <Text
                     size={isMobile ? "lg" : "xl"}
                     fw={700}
-                    c={champion1WinRate >= 50 ? "#5383e8" : "#e84057"}
+                    c={vm.champion1WinRatePct >= 50 ? "#5383e8" : "#e84057"}
                   >
-                    {champion1WinRate}%
+                    {vm.champion1WinRatePct}%
                   </Text>
                 </Stack>
 
@@ -174,45 +173,34 @@ export function MatchupResults({
                   <Text
                     size={isMobile ? "lg" : "xl"}
                     fw={700}
-                    c={champion2WinRate >= 50 ? "#5383e8" : "#e84057"}
+                    c={vm.champion2WinRatePct >= 50 ? "#5383e8" : "#e84057"}
                   >
-                    {champion2WinRate}%
+                    {vm.champion2WinRatePct}%
                   </Text>
                 </Stack>
               </Group>
 
-              <Progress.Root
-                size="xl"
-                style={{ width: "100%", height: "28px" }}
-              >
+              <Progress.Root size="xl" style={{ width: "100%", height: "28px" }}>
                 <Progress.Section
-                  value={champion1WinRate}
+                  value={vm.champion1WinRatePct}
                   color="#5383e8"
                   style={{ borderRadius: "4px 0 0 4px" }}
                 >
                   <Progress.Label
-                    style={{
-                      color: "white",
-                      fontSize: "12px",
-                      fontWeight: 600,
-                    }}
+                    style={{ color: "white", fontSize: "12px", fontWeight: 600 }}
                   >
-                    {champion1WinRate}%
+                    {vm.champion1WinRatePct}%
                   </Progress.Label>
                 </Progress.Section>
                 <Progress.Section
-                  value={champion2WinRate}
+                  value={vm.champion2WinRatePct}
                   color="#e84057"
                   style={{ borderRadius: "0 4px 4px 0" }}
                 >
                   <Progress.Label
-                    style={{
-                      color: "white",
-                      fontSize: "12px",
-                      fontWeight: 600,
-                    }}
+                    style={{ color: "white", fontSize: "12px", fontWeight: 600 }}
                   >
-                    {champion2WinRate}%
+                    {vm.champion2WinRatePct}%
                   </Progress.Label>
                 </Progress.Section>
               </Progress.Root>
@@ -221,38 +209,18 @@ export function MatchupResults({
 
           <Divider color="#e9ecef" size="sm" />
 
-          {/* 매치 기록 */}
-          {gameDetails.length === 0 ? (
+          {vm.games.length === 0 ? (
             <Text ta="center" c="dimmed" py="xl">
               매치 기록이 없습니다.
             </Text>
           ) : (
             <Stack gap="sm">
-              {gameDetails.map((game: GameDetail, index: number) => {
-                const champion1Team = game.blueTeam?.players?.some(
-                  (p) => p.championName === champion1,
-                )
-                  ? game.blueTeam
-                  : game.redTeam;
-                const champion2Team =
-                  champion1Team === game.blueTeam
-                    ? game.redTeam
-                    : game.blueTeam;
-                const champion1Won = champion1Team?.isWin ?? false;
-
-                const positionOrder = ["TOP", "JUG", "MID", "ADC", "SUP"];
-                const sortPlayers = (
-                  players: {
-                    position: string;
-                    playerName: string;
-                    championName: string;
-                  }[],
-                ) =>
-                  [...players].sort(
-                    (a, b) =>
-                      positionOrder.indexOf(a.position) -
-                      positionOrder.indexOf(b.position),
-                  );
+              {vm.games.map((game, index) => {
+                const { champion1Team, champion2Team } = resolveMatchupTeams(
+                  game,
+                  champion1 ?? "",
+                );
+                const champion1Won = champion1Team.isWin;
 
                 return (
                   <Paper
@@ -270,7 +238,6 @@ export function MatchupResults({
                     }}
                   >
                     <Stack gap="xs">
-                      {/* 헤더 */}
                       <Group justify="space-between" align="center">
                         <Group gap="xs">
                           <Badge
@@ -285,40 +252,33 @@ export function MatchupResults({
                           </Text>
                         </Group>
                         <Text size="xs" c="dimmed">
-                          {Math.floor(game.gameLengthSeconds / 60)}:
-                          {(game.gameLengthSeconds % 60)
-                            .toString()
-                            .padStart(2, "0")}
+                          {game.formattedGameLength}
                         </Text>
                       </Group>
 
                       <Divider size="xs" />
 
-                      {/* 팀 정보 */}
                       {isMobile ? (
                         <Stack gap="xs">
-                          {/* Champion1 팀 */}
                           <Stack gap={4}>
                             <Group gap="xs">
                               <Text
                                 size="sm"
                                 fw={600}
-                                c={champion1Team?.isWin ? "#5383e8" : "#e84057"}
+                                c={champion1Team.isWin ? "#5383e8" : "#e84057"}
                               >
-                                {champion1Team?.teamName}
+                                {champion1Team.teamName}
                               </Text>
                               <Badge size="xs" variant="light" color="blue">
                                 {champion1}
                               </Badge>
                             </Group>
                             <Group gap={4}>
-                              {sortPlayers(champion1Team?.players || []).map(
+                              {sortByPosition(champion1Team.players).map(
                                 (player, idx) => (
                                   <Avatar
                                     key={idx}
-                                    src={getChampionImageUrl(
-                                      player.championName,
-                                    )}
+                                    src={player.championImageUrl}
                                     size={28}
                                     radius="sm"
                                     style={{
@@ -337,28 +297,25 @@ export function MatchupResults({
                             vs
                           </Text>
 
-                          {/* Champion2 팀 */}
                           <Stack gap={4}>
                             <Group gap="xs">
                               <Text
                                 size="sm"
                                 fw={600}
-                                c={champion2Team?.isWin ? "#5383e8" : "#e84057"}
+                                c={champion2Team.isWin ? "#5383e8" : "#e84057"}
                               >
-                                {champion2Team?.teamName}
+                                {champion2Team.teamName}
                               </Text>
                               <Badge size="xs" variant="light" color="red">
                                 {champion2}
                               </Badge>
                             </Group>
                             <Group gap={4}>
-                              {sortPlayers(champion2Team?.players || []).map(
+                              {sortByPosition(champion2Team.players).map(
                                 (player, idx) => (
                                   <Avatar
                                     key={idx}
-                                    src={getChampionImageUrl(
-                                      player.championName,
-                                    )}
+                                    src={player.championImageUrl}
                                     size={28}
                                     radius="sm"
                                     style={{
@@ -379,28 +336,25 @@ export function MatchupResults({
                           align="flex-start"
                           wrap="nowrap"
                         >
-                          {/* Champion1 팀 */}
                           <Stack gap={4} style={{ flex: 1 }}>
                             <Group gap="xs">
                               <Text
                                 size="sm"
                                 fw={600}
-                                c={champion1Team?.isWin ? "#5383e8" : "#e84057"}
+                                c={champion1Team.isWin ? "#5383e8" : "#e84057"}
                               >
-                                {champion1Team?.teamName}
+                                {champion1Team.teamName}
                               </Text>
                               <Badge size="xs" variant="light" color="blue">
                                 {champion1}
                               </Badge>
                             </Group>
                             <Group gap={6}>
-                              {sortPlayers(champion1Team?.players || []).map(
+                              {sortByPosition(champion1Team.players).map(
                                 (player, idx) => (
                                   <Group key={idx} gap={4} wrap="nowrap">
                                     <Avatar
-                                      src={getChampionImageUrl(
-                                        player.championName,
-                                      )}
+                                      src={player.championImageUrl}
                                       size={32}
                                       radius="sm"
                                       style={{
@@ -439,7 +393,6 @@ export function MatchupResults({
                             vs
                           </Text>
 
-                          {/* Champion2 팀 */}
                           <Stack gap={4} style={{ flex: 1 }} align="flex-end">
                             <Group gap="xs">
                               <Badge size="xs" variant="light" color="red">
@@ -448,13 +401,13 @@ export function MatchupResults({
                               <Text
                                 size="sm"
                                 fw={600}
-                                c={champion2Team?.isWin ? "#5383e8" : "#e84057"}
+                                c={champion2Team.isWin ? "#5383e8" : "#e84057"}
                               >
-                                {champion2Team?.teamName}
+                                {champion2Team.teamName}
                               </Text>
                             </Group>
                             <Group gap={6} justify="flex-end">
-                              {sortPlayers(champion2Team?.players || []).map(
+                              {sortByPosition(champion2Team.players).map(
                                 (player, idx) => (
                                   <Group key={idx} gap={4} wrap="nowrap">
                                     <Text
@@ -473,9 +426,7 @@ export function MatchupResults({
                                       {player.playerName}
                                     </Text>
                                     <Avatar
-                                      src={getChampionImageUrl(
-                                        player.championName,
-                                      )}
+                                      src={player.championImageUrl}
                                       size={32}
                                       radius="sm"
                                       style={{

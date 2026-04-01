@@ -49,68 +49,29 @@ interface PositionFilterProps<T extends string = PositionFilterId> {
   items?: PositionFilterItem<T>[];
   selectedId: T;
   onSelect: (id: T) => void;
-  isMobile?: boolean;
 }
 
 export function PositionFilter<T extends string = PositionFilterId>({
   items,
   selectedId,
   onSelect,
-  isMobile = false,
 }: PositionFilterProps<T>) {
   const positionItems = (items ?? defaultPositionItems) as PositionFilterItem<T>[];
 
   return (
-    <div
-      style={{
-        display: "flex",
-        width: isMobile ? "100%" : "auto",
-        maxWidth: isMobile ? "100%" : "auto",
-      }}
-    >
+    <div className="flex w-full sm:w-auto">
       {positionItems.map(
-        (
-          { id, name, inactiveIcon: InactiveIcon, activeIcon: ActiveIcon },
-          index,
-        ) => (
+        ({ id, name, inactiveIcon: InactiveIcon, activeIcon: ActiveIcon }) => (
           <div
             key={id}
-            style={{
-              padding: isMobile ? "8px 4px" : "12px 14px",
-              cursor: "pointer",
-              backgroundColor: "var(--nar-bg-tertiary)",
-              border: "1px solid var(--nar-line-2)",
-              borderLeft:
-                index === 0 ? "1px solid var(--nar-line-2)" : "none",
-              borderRight: "1px solid var(--nar-line-2)",
-              borderRadius:
-                index === 0
-                  ? "6px 0 0 6px"
-                  : index === positionItems.length - 1
-                    ? "0 6px 6px 0"
-                    : "0",
-              transition: "all 0.2s",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              height: "44px",
-              flex: isMobile ? "1" : "unset",
-              minWidth: isMobile ? 0 : "50px",
-              overflow: "hidden",
-            }}
+            className="position-filter-btn first:border-l first:rounded-l-md last:rounded-r-md"
             onClick={() => onSelect(id)}
             title={name}
           >
             {selectedId === id && ActiveIcon ? (
-              <ActiveIcon
-                width={isMobile ? 20 : 24}
-                height={isMobile ? 20 : 24}
-              />
+              <ActiveIcon className="size-5 sm:size-6" />
             ) : InactiveIcon ? (
-              <InactiveIcon
-                width={isMobile ? 20 : 24}
-                height={isMobile ? 20 : 24}
-              />
+              <InactiveIcon className="size-5 sm:size-6" />
             ) : null}
           </div>
         ),

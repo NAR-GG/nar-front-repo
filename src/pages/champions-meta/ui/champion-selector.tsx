@@ -2,7 +2,7 @@
 
 import { Avatar, Group, SegmentedControl, Text } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
-import type { ChampionData } from "@/entities/champions/model/champions.dto";
+import type { ChampionData } from "@/entities/champions/api/champions.dto";
 import type { Mode } from "@/shared/types/filter.types";
 import NarGrayTop from "@/shared/assets/icons/nar_gray_top.svg";
 import NarGrayJungle from "@/shared/assets/icons/nar_gray_jungle.svg";

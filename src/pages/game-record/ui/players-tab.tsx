@@ -2,7 +2,7 @@
 
 import { Stack, Paper, Group, Text, Badge } from "@mantine/core";
 import { PlayerStatsTable } from "./player-stats-table";
-import type { GameDetailPlayer } from "@/entities/games/model/games.dto";
+import type { GameDetailPlayer } from "@/entities/games/api/games.dto";
 
 interface TeamData {
   name: string;

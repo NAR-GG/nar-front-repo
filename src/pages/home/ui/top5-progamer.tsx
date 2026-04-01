@@ -1,41 +1,28 @@
 "use client";
 
-import { Paper, Text, Skeleton } from "@mantine/core";
+import { Paper, Text } from "@mantine/core";
 import clsx from "clsx";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { homeQueries } from "@/entities/home/model/home.queries";
-import { ProgamerTop5Table, Top5Mode, ProgamerTop5Row } from "./progamer-table";
+import { ProgamerTop5Table } from "./progamer-table";
+import type { ProgamerTop5Mode } from "../model/home.viewmodel";
+import { toProgamerTop5ViewModels } from "../model/home.mapper";
+
+const MENU: { label: string; value: ProgamerTop5Mode }[] = [
+  { label: "K/DA", value: "kda" },
+  { label: "GPM", value: "gpm" },
+  { label: "DPM", value: "dpm" },
+];
 
 export function Top5Progamer() {
-  const [mode, setMode] = useState<Top5Mode>("kda");
-  const { data: playerData, isLoading } = useQuery(homeQueries.playerTop5());
+  const [mode, setMode] = useState<ProgamerTop5Mode>("kda");
+  const { data: playerData } = useQuery(homeQueries.playerTop5());
 
-  const MENU: { label: string; value: Top5Mode }[] = [
-    { label: "K/DA", value: "kda" },
-    { label: "GPM", value: "gpm" },
-    { label: "DPM", value: "dpm" },
-  ];
-
-  const tableData: ProgamerTop5Row[] = useMemo(() => {
-    if (!playerData) return [];
-
-    const players =
-      mode === "kda"
-        ? playerData.kdaTop5
-        : mode === "gpm"
-        ? playerData.gpmTop5
-        : playerData.dpmTop5;
-
-    return players.slice(0, 5).map((player, index) => ({
-      rank: index + 1,
-      playerName: player.playerName,
-      playerImageUrl: player.playerImgUrl,
-      teamName: player.teamName,
-      games: player.totalGames,
-      value: player.statValue,
-    }));
-  }, [playerData, mode]);
+  const tableData = useMemo(
+    () => (playerData ? toProgamerTop5ViewModels(playerData, mode) : []),
+    [playerData, mode],
+  );
 
   return (
     <Paper withBorder radius={24} className="overflow-hidden">
@@ -62,13 +49,13 @@ export function Top5Progamer() {
                 "flex flex-col w-[64px] items-center justify-center cursor-pointer pt-5 pb-1.75 px-2.5 gap-2.5 border-b-4",
                 isSelected
                   ? "border-transparent [border-image:var(--nar_gradients)_1]"
-                  : "border-transparent"
+                  : "border-transparent",
               )}
             >
               <span
                 className={clsx(
                   "text-[16px]",
-                  isSelected ? "font-bold" : "font-normal"
+                  isSelected ? "font-bold" : "font-normal",
                 )}
                 style={
                   isSelected

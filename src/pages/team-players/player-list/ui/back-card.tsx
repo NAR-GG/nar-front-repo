@@ -1,6 +1,6 @@
 import Image from "next/image";
 import CardFrame from "@/shared/assets/images/card-back-frame.svg";
-import type { PlayerCardData } from "@/entities/players/model/players.dto";
+import type { PlayerCardData } from "@/entities/players/api/players.dto";
 import NarPlayerBottom from "@/shared/assets/icons/nar_player_bottom.svg";
 import NarGrayBfx from "@/shared/assets/icons/nar_gray_bfx.svg";
 import NarGrayBrion from "@/shared/assets/icons/nar_gray_brion.svg";

@@ -1,15 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useState } from "react";
 import { Paper, SegmentedControl, Text, Skeleton } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { homeQueries } from "@/entities/home/model/home.queries";
-import type { CommunityData } from "@/entities/home/model/home.dto";
+import type { CommunityData } from "@/entities/home/api/home.dto";
 import { formatRelativeTime } from "@/shared/lib/format-date";
 import Eye from "@/shared/assets/icons/eye.svg";
 import ThumbUp from "@/shared/assets/icons/thumb-up.svg";
 
-function PostRow({ rank, post }: { rank: number; post: CommunityData }) {
+const PostRow = memo(function PostRow({ rank, post }: { rank: number; post: CommunityData }) {
   return (
     <a
       href={post.postUrl}
@@ -51,7 +51,7 @@ function PostRow({ rank, post }: { rank: number; post: CommunityData }) {
       </div>
     </a>
   );
-}
+});
 
 function PostListSkeleton() {
   return (

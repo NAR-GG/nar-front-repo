@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useCallback } from "react";
 import {
   SimpleGrid,
   TextInput,
@@ -17,13 +17,13 @@ import { IconSearch } from "@tabler/icons-react";
 import { useMediaQuery } from "@mantine/hooks";
 import { useQuery } from "@tanstack/react-query";
 import { championsQueries } from "@/entities/champions/model/champions.queries";
-import type { ChampionData } from "@/entities/champions/model/champions.dto";
+import type { ChampionData } from "@/entities/champions/api/champions.dto";
 import type { Mode } from "@/shared/types/filter.types";
 import {
   PositionFilter,
   type PositionFilterId,
 } from "@/shared/ui/position-filter";
-import { championPositions } from "../model/champion-positions";
+import { filterChampions, getSlotPosition } from "../lib/champion-grid.lib";
 
 interface ChampionGridProps {
   onChampionSelect: (champion: ChampionData) => void;
@@ -43,12 +43,7 @@ export function ChampionGrid({
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedPosition, setSelectedPosition] = useState<PositionId>("*");
   const isMobile = useMediaQuery("(max-width: 768px)");
-  const slotToPosition: PositionId[] = ["TOP", "JUG", "MID", "ADC", "SUP"];
-  const autoSelectedPosition =
-    currentMode === "team" && highlightSlot != null
-      ? slotToPosition[highlightSlot] ?? null
-      : null;
-  const effectiveSelectedPosition = autoSelectedPosition ?? selectedPosition;
+  const effectiveSelectedPosition = getSlotPosition(currentMode, highlightSlot) ?? selectedPosition;
 
   const {
     data: champions = [],
@@ -57,27 +52,11 @@ export function ChampionGrid({
     error,
   } = useQuery(championsQueries.list());
 
-  const filteredChampions = useMemo(() => {
-    return champions.filter((champion) => {
-      const matchesSearch =
-        champion.championNameKr.includes(searchTerm) ||
-        champion.championNameEn
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase());
+  const filteredChampions = filterChampions(champions, searchTerm, effectiveSelectedPosition);
 
-      const matchesPosition =
-        effectiveSelectedPosition === "*" ||
-        championPositions[champion.championNameEn]?.includes(
-          effectiveSelectedPosition,
-        );
-
-      return matchesSearch && matchesPosition;
-    });
-  }, [champions, searchTerm, effectiveSelectedPosition]);
-
-  const isChampionSelected = (champion: ChampionData) => {
+  const isChampionSelected = useCallback((champion: ChampionData) => {
     return selectedChampions.some((c) => c && c.id === champion.id);
-  };
+  }, [selectedChampions]);
 
   const searchInputStyles = {
     input: {
@@ -131,7 +110,6 @@ export function ChampionGrid({
               <PositionFilter
                 selectedId={effectiveSelectedPosition}
                 onSelect={setSelectedPosition}
-                isMobile
               />
             </div>
           </Stack>

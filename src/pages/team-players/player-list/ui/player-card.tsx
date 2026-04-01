@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Text } from "@mantine/core";
 import {
+  memo,
   useCallback,
   useEffect,
   useRef,
@@ -9,9 +10,10 @@ import {
   type CSSProperties,
   type SVGProps,
 } from "react";
-import type { PlayerCardData } from "@/entities/players/model/players.dto";
+import type { PlayerCardData } from "@/entities/players/api/players.dto";
 import { BackCardSurface } from "./back-card";
 import { PlayerCardEffects } from "@/pages/team-players/player-list/ui/player-card-effects";
+import { clamp, round, adjust, toAbsoluteImageUrl } from "../lib/player-card.lib";
 import CardFrame from "@/shared/assets/images/card-frame.svg";
 import MostBg from "@/shared/assets/images/most-bg.svg";
 import NarGrayBfx from "@/shared/assets/icons/nar_gray_bfx.svg";
@@ -79,28 +81,6 @@ const POSITION_ICON_MAP: Record<
   SUP: NarGraySupport,
 };
 
-const clamp = (value: number, min = 0, max = 100) =>
-  Math.min(max, Math.max(min, value));
-
-const round = (value: number) => Math.round(value * 100) / 100;
-
-const adjust = (
-  value: number,
-  fromMin: number,
-  fromMax: number,
-  toMin: number,
-  toMax: number,
-) => {
-  if (fromMax === fromMin) return toMin;
-  const progress = (value - fromMin) / (fromMax - fromMin);
-  return round(toMin + (toMax - toMin) * progress);
-};
-
-const toAbsoluteImageUrl = (url?: string | null) => {
-  if (!url) return null;
-  if (url.startsWith("http")) return url;
-  return `https://api.nar.kr${url}`;
-};
 
 function PlayerCardFace({ player }: PlayerCardProps) {
   const backgroundImageUrl = toAbsoluteImageUrl(
@@ -214,7 +194,7 @@ function PlayerCardFace({ player }: PlayerCardProps) {
   );
 }
 
-export function PlayerCard({ player, onActiveChange }: PlayerCardProps) {
+export const PlayerCard = memo(function PlayerCard({ player, onActiveChange }: PlayerCardProps) {
   const slotRef = useRef<HTMLDivElement | null>(null);
   const cardRef = useRef<HTMLButtonElement | null>(null);
   const faceToggleRef = useRef<HTMLButtonElement | null>(null);
@@ -514,4 +494,4 @@ export function PlayerCard({ player, onActiveChange }: PlayerCardProps) {
       </div>
     </div>
   );
-}
+});

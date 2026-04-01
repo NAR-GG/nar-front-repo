@@ -1,11 +1,13 @@
 "use client";
 
+import { memo, useCallback } from "react";
 import { Group, Text, Avatar, Box } from "@mantine/core";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { IconClock, IconDots } from "@tabler/icons-react";
 import { ReplayButton } from "@/pages/home/ui/replay-button";
 import { CommonTabs } from "@/shared/ui/common-tabs";
+import { formatGameTime } from "@/shared/lib/format-game-time";
 import Lck from "@/shared/assets/images/lck-home.svg";
 import Lpl from "@/shared/assets/images/lpl-home.svg";
 import Lec from "@/shared/assets/images/lec-home.svg";
@@ -17,12 +19,10 @@ import type {
   GameDetailPlayer,
   GameSetNav,
   GameBans,
-} from "@/entities/games/model/games.dto";
+} from "@/entities/games/api/games.dto";
+import type { GameInfoViewModel } from "../model/game-record.view-model";
 import { sortByPosition } from "@/shared/lib/sort-by-position";
-
-const hasVodInSets = (sets: GameSetNav["sets"] | undefined) => {
-  return sets?.some((s) => s.vodUrl && s.vodUrl.length > 0) ?? false;
-};
+import { formatDate, hasVodInSets } from "../lib/game-record.lib";
 
 interface TeamData {
   name: string;
@@ -31,20 +31,9 @@ interface TeamData {
   bans: string[];
 }
 
-interface GameInfo {
-  league: string;
-  matchTitle: string;
-  split: string;
-  playoffs: number;
-  date: string;
-  game: number;
-  patch: string;
-  gamelength: number;
-}
-
 interface GameHeaderProps {
   gameId: number;
-  gameInfo: GameInfo;
+  gameInfo: GameInfoViewModel;
   blueTeam: TeamData;
   redTeam: TeamData;
   setNav: GameSetNav;
@@ -52,16 +41,38 @@ interface GameHeaderProps {
   getChampionImageUrl: (name: string) => string;
 }
 
-const formatTime = (seconds: number) => {
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = seconds % 60;
-  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-};
-
-const formatDate = (dateString: string) => {
-  const date = new Date(dateString);
-  return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, "0")}/${String(date.getDate()).padStart(2, "0")}`;
-};
+const BannedChampion = memo(function BannedChampion({
+  championName,
+  size = 32,
+  getChampionImageUrl,
+}: {
+  championName: string;
+  size?: number;
+  getChampionImageUrl: (name: string) => string;
+}) {
+  return (
+    <Box style={{ position: "relative" }}>
+      <Avatar
+        src={getChampionImageUrl(championName)}
+        size={size}
+        radius="sm"
+        style={{ filter: "grayscale(50%)" }}
+      />
+      <Box
+        style={{
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          width: `calc(${size}px * 1.2)`,
+          height: "2px",
+          backgroundColor: "rgba(100, 100, 100, 0.8)",
+          transform: "translate(-50%, -50%) rotate(-45deg)",
+          borderRadius: "2px",
+        }}
+      />
+    </Box>
+  );
+});
 
 const leagueIconMap: Record<string, typeof Lck> = {
   LCK: Lck,
@@ -90,9 +101,12 @@ export function GameHeader({
   );
   const LeagueIcon = leagueKey ? leagueIconMap[leagueKey] : Lck;
 
-  const handleGameSelect = (gameId: number) => {
-    router.push(`/pro-matches/${gameId}/record`);
-  };
+  const handleGameSelect = useCallback(
+    (id: number) => {
+      router.push(`/pro-matches/${id}/record`);
+    },
+    [router],
+  );
 
   const renderButton = (isMobileView = false) => {
     if (hasVod) {
@@ -117,35 +131,6 @@ export function GameHeader({
       </button>
     );
   };
-
-  const BannedChampion = ({
-    championName,
-    size = 32,
-  }: {
-    championName: string;
-    size?: number;
-  }) => (
-    <Box style={{ position: "relative" }}>
-      <Avatar
-        src={getChampionImageUrl(championName)}
-        size={size}
-        radius="sm"
-        style={{ filter: "grayscale(50%)" }}
-      />
-      <Box
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          width: `calc(${size}px * 1.2)`,
-          height: "2px",
-          backgroundColor: "rgba(100, 100, 100, 0.8)",
-          transform: "translate(-50%, -50%) rotate(-45deg)",
-          borderRadius: "2px",
-        }}
-      />
-    </Box>
-  );
 
   const renderTeamDisplay = (team: TeamData, color: "blue" | "red") => {
     const isBlue = color === "blue";
@@ -181,7 +166,7 @@ export function GameHeader({
           {sortByPosition(team.players).map((player) => (
             <div
               key={player.participantid}
-              className="flex flex-col items-center gap-0.5 sm:gap-1 w-[46px]"
+              className="flex flex-col items-center gap-0.5 sm:gap-1 w-11.5"
             >
               <Avatar
                 src={getChampionImageUrl(player.champion)}
@@ -209,12 +194,20 @@ export function GameHeader({
         <div className="flex justify-center gap-1 sm:gap-2 mt-2">
           {banList.map((champion, idx) => (
             <div key={idx} className="hidden sm:block">
-              <BannedChampion championName={champion} size={36} />
+              <BannedChampion
+                championName={champion}
+                size={36}
+                getChampionImageUrl={getChampionImageUrl}
+              />
             </div>
           ))}
           {banList.map((champion, idx) => (
             <div key={idx} className="block sm:hidden">
-              <BannedChampion championName={champion} size={28} />
+              <BannedChampion
+                championName={champion}
+                size={28}
+                getChampionImageUrl={getChampionImageUrl}
+              />
             </div>
           ))}
         </div>
@@ -231,10 +224,7 @@ export function GameHeader({
         </Text>
       </div>
       <div>
-        <div
-          className="border-t border-(--nar-line-2) relative flex flex-col sm:flex-row sm:flex-wrap md:flex-nowrap md:items-center gap-5 overflow-hidden px-[14px] py-[24px]"
-          style={{ borderLeftColor: "var(--nar-bg-tertiary)" }}
-        >
+        <div className="border-t border-(--nar-line-2) relative flex flex-col sm:flex-row sm:flex-wrap md:flex-nowrap md:items-center gap-5 overflow-hidden px-[14px] py-[24px]">
           <div className="flex sm:flex-col sm:flex-row items-center md:flex-col md:items-start gap-2 sm:gap-2 md:gap-1 shrink-0 md:order-1 md:flex-1 md:basis-0">
             <span className="badge-default">지난경기</span>
             <Text
@@ -275,7 +265,6 @@ export function GameHeader({
                 </div>
               </div>
 
-              {/* 스코어 */}
               <div className="flex flex-col items-center shrink-0 mx-6">
                 <div className="flex items-center gap-3.5">
                   <Text
@@ -310,7 +299,6 @@ export function GameHeader({
                 </div>
               </div>
 
-              {/* 레드팀 */}
               <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4 flex-1 justify-start min-w-0 basis-0">
                 <div className="w-12.5 h-12.5 bg-[var(--nar-bg-teamlogobox)] rounded-lg shrink-0 flex items-center justify-center overflow-hidden">
                   {setNav.redTeam.imageUrl && (
@@ -377,7 +365,7 @@ export function GameHeader({
             <div className="flex items-center gap-[7px]">
               <IconClock size={16} color="var(--nar-text-tertiary-sub)" />
               <Text size="sm" c="var(--nar-text-tertiary-sub)" fw={600}>
-                {formatTime(gameInfo.gamelength)}
+                {formatGameTime(gameInfo.gamelength)}
               </Text>
             </div>
           </div>

@@ -6,7 +6,7 @@ import type {
   NewsData,
   PlayerTop5Data,
   ScheduleData,
-} from "../model/home.dto";
+} from "../api/home.dto";
 
 export const getChampionTop5 = async () => {
   const response = await publicApi.get<ChampionTop5Data>(

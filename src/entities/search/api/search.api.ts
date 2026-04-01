@@ -1,6 +1,6 @@
 import { publicApi } from "@/shared/lib/api-client";
 import { searchApiEndPoint } from "./search-endpoint";
-import type { SearchList } from "../model/search.dto";
+import type { SearchList } from "../api/search.dto";
 
 export const getAutoComplete = async ({
   q,

@@ -34,8 +34,14 @@ export const NAV_ITEMS: NavItem[] = [
     match: (p) => p.startsWith("/team-players"),
     children: [
       {
+        key: "team-list",
+        label: "팀 리스트",
+        href: "/team-players/team-list",
+        match: (p) => p === "/team-players/team-list",
+      },
+      {
         key: "player-list",
-        label: "선수리스트",
+        label: "선수 리스트",
         href: "/team-players/player-list",
         match: (p) => p === "/team-players/player-list",
       },

@@ -3,7 +3,7 @@ import { storyApiEndPoint } from "./story-endpoint";
 import type {
   StoryVideoListData,
   StoryCommentListData,
-} from "../model/story.dto";
+} from "../api/story.dto";
 
 export const getStoryVideos = async (params: Record<string, unknown>) => {
   const response = await publicApi.get<StoryVideoListData>(

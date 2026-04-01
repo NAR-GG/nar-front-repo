@@ -31,6 +31,7 @@ export interface GamePlayer {
 export interface GameTeam {
   teamName: string;
   isWin: boolean;
+  bans?: string[];
   players: GamePlayer[];
 }
 
@@ -38,6 +39,7 @@ export interface GameDetail {
   id: number;
   gameNumber: number;
   gameLengthSeconds: number;
+  vodUrl?: string;
   blueTeam: GameTeam;
   redTeam: GameTeam;
 }

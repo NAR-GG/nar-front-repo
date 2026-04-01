@@ -1,4 +1,4 @@
-import type { PlayerCardSide } from "../model/players.dto";
+import type { PlayerCardSide } from "../api/players.dto";
 
 const PLAYERS_PREFIX = {
   players: "/players",

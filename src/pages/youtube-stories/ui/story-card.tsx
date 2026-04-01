@@ -1,3 +1,4 @@
+import { memo } from "react";
 import {
   Avatar,
   Badge,
@@ -12,6 +13,7 @@ import {
 } from "@mantine/core";
 import Comment from "@/shared/assets/icons/comment.svg";
 import ThumbUp from "@/shared/assets/icons/thumb-up.svg";
+import type { StoryCardViewModel } from "../model/youtube-stories.viewmodel";
 
 function CommentIcon({
   isSelected,
@@ -55,38 +57,21 @@ function CommentIcon({
 }
 
 interface StoryCardProps {
-  badgeLabel: string;
-  channelName: string;
-  timeAgo: string;
-  title: string;
-  youtubeVideoId: string;
-  thumbnailUrl: string;
-  videoUrl: string;
-  channelProfileUrl: string;
+  story: StoryCardViewModel;
   isMobile: boolean;
-  likeCount: number;
-  commentCount: number;
   onMessage: () => void;
   isCommentSelected: boolean;
 }
 
-export function StoryCard({
-  badgeLabel,
-  channelName,
-  timeAgo,
-  title,
-  youtubeVideoId,
-  thumbnailUrl,
-  videoUrl,
-  channelProfileUrl,
+export const StoryCard = memo(function StoryCard({
+  story,
   isMobile,
-  likeCount,
-  commentCount,
   onMessage,
   isCommentSelected,
 }: StoryCardProps) {
+  const { channelType, youtubeVideoId, channelName, timeAgo, title, thumbnailUrl, videoUrl, channelProfileUrl, likeCount, commentCount } = story;
   const badgeClassName =
-    badgeLabel === "PRO_TEAMS" ? "badge-mini-hub" : "badge-mini-hub-line";
+    channelType === "PRO_TEAMS" ? "badge-mini-hub" : "badge-mini-hub-line";
   const commentGradientId = `comment-selected-gradient-${youtubeVideoId}`;
 
   return (
@@ -135,7 +120,7 @@ export function StoryCard({
             <Text size="sm" c="var(--nar-text-secondary)" fz={16}>
               {channelName}
             </Text>
-            <Badge className={badgeClassName}>{badgeLabel}</Badge>
+            <Badge className={badgeClassName}>{channelType}</Badge>
           </Group>
           <Group
             gap={6}
@@ -161,7 +146,7 @@ export function StoryCard({
                     <Text fz={12} c="var(--nar-text-tertiary-sub)">
                       {isMobile ? timeAgo : `${timeAgo}`}
                     </Text>
-                    <div className="bg-[var(--nar-text-tertiary-sub)] w-1 h-1 rounded-full mx-2"></div>
+                    <div className="bg-(--nar-text-tertiary-sub) w-1 h-1 rounded-full mx-2"></div>
                     <Text fz={12} c="var(--nar-text-tertiary-sub)">
                       새로운 동영상이 업로드 되었습니다.
                     </Text>
@@ -233,6 +218,4 @@ export function StoryCard({
       </Flex>
     </Paper>
   );
-}
-
-export default StoryCard;
+});

@@ -5,6 +5,7 @@ export interface ChampionData {
   championNameKr: string;
   championNameEn: string;
   imageUrl: string;
+  loadingImageUrl?: string;
 }
 
 export type ChampionListResponseDTO = ApiResponse<ChampionData[]>;

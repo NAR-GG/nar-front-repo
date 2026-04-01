@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Container, Paper, Stack, Text } from "@mantine/core";
-import type { ChampionData } from "@/entities/champions/model/champions.dto";
+import type { ChampionData } from "@/entities/champions/api/champions.dto";
 import type { Mode, Filters } from "@/shared/types/filter.types";
 import { ChampionSelector } from "./champion-selector";
 import { FilterSection } from "@/shared/ui/filter-section";
@@ -39,18 +39,22 @@ export function ChampionsMetaComponent() {
 
   const showResults = searchParams?.get("results") === "true";
 
-  const handleChampionSelect = (champion: ChampionData) => {
-    console.log("Champion clicked:", champion);
+  const scrollToChampionGrid = useCallback(() => {
+    setTimeout(() => {
+      championGridRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 100);
+  }, []);
 
+  const handleChampionSelect = useCallback((champion: ChampionData) => {
     if (currentMode === "team") {
       const isAlreadySelected = selectedChampions.some(
         (c) => c && c.id === champion.id,
       );
       if (isAlreadySelected) {
-        const newSelected = selectedChampions.filter(
-          (c) => c && c.id !== champion.id,
-        );
-        setSelectedChampions(newSelected);
+        setSelectedChampions(selectedChampions.filter((c) => c && c.id !== champion.id));
       } else {
         if (currentSlotIndex !== null) {
           const newSelected = [...selectedChampions];
@@ -66,10 +70,7 @@ export function ChampionsMetaComponent() {
         (c) => c && c.id === champion.id,
       );
       if (isAlreadySelected) {
-        const newSelected = selected1v1Champions.filter(
-          (c) => c && c.id !== champion.id,
-        );
-        setSelected1v1Champions(newSelected);
+        setSelected1v1Champions(selected1v1Champions.filter((c) => c && c.id !== champion.id));
       } else {
         if (currentSlotIndex !== null) {
           const newSelected = [...selected1v1Champions];
@@ -81,60 +82,45 @@ export function ChampionsMetaComponent() {
         }
       }
     }
-  };
+  }, [currentMode, selectedChampions, selected1v1Champions, currentSlotIndex]);
 
-  const handleChampionRemove = (championToRemove: ChampionData) => {
+  const handleChampionRemove = useCallback((championToRemove: ChampionData) => {
     if (!championToRemove?.id) return;
-    const newSelected = selectedChampions.filter(
-      (c) => c && c.id !== championToRemove.id,
-    );
-    setSelectedChampions(newSelected);
-  };
+    setSelectedChampions((prev) => prev.filter((c) => c && c.id !== championToRemove.id));
+  }, []);
 
-  const handle1v1ChampionRemove = (championToRemove: ChampionData) => {
+  const handle1v1ChampionRemove = useCallback((championToRemove: ChampionData) => {
     if (!championToRemove?.id) return;
-    const newSelected = selected1v1Champions.filter(
-      (c) => c && c.id !== championToRemove.id,
-    );
-    setSelected1v1Champions(newSelected);
-  };
+    setSelected1v1Champions((prev) => prev.filter((c) => c && c.id !== championToRemove.id));
+  }, []);
 
-  const scrollToChampionGrid = () => {
-    setTimeout(() => {
-      championGridRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }, 100);
-  };
-
-  const handleEmptySlotClick = (slotIndex: number) => {
+  const handleEmptySlotClick = useCallback((slotIndex: number) => {
     setCurrentMode("team");
     setCurrentSlotIndex(slotIndex);
     if (showResults) {
       router.push("/champions-meta");
     }
     scrollToChampionGrid();
-  };
+  }, [showResults, router, scrollToChampionGrid]);
 
-  const handleEmpty1v1SlotClick = (slotIndex: number) => {
+  const handleEmpty1v1SlotClick = useCallback((slotIndex: number) => {
     setCurrentMode("1v1");
     setCurrentSlotIndex(slotIndex);
     if (showResults) {
       router.push("/champions-meta");
     }
     scrollToChampionGrid();
-  };
+  }, [showResults, router, scrollToChampionGrid]);
 
-  const handleModeChange = (mode: Mode) => {
+  const handleModeChange = useCallback((mode: Mode) => {
     setCurrentMode(mode);
     setCurrentSlotIndex(null);
     if (showResults) {
       router.push("/champions-meta");
     }
-  };
+  }, [showResults, router]);
 
-  const handleCombinationSearch = () => {
+  const handleCombinationSearch = useCallback(() => {
     if (currentMode === "team" && selectedChampions.length < 1) {
       alert("최소 1개의 챔피언을 선택해주세요.");
       return;
@@ -143,14 +129,13 @@ export function ChampionsMetaComponent() {
       alert("1vs1을 위해 2개의 챔피언을 모두 선택해주세요.");
       return;
     }
-
     router.push("/champions-meta?results=true");
-  };
+  }, [currentMode, selectedChampions.length, selected1v1Champions.length, router]);
 
-  const handleBackToSelection = () => {
+  const handleBackToSelection = useCallback(() => {
     setCurrentSlotIndex(null);
     router.push("/champions-meta");
-  };
+  }, [router]);
 
   return (
     <Paper p={20} withBorder radius={24}>

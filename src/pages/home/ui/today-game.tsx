@@ -15,7 +15,7 @@ import { MatchCard } from "./match-card";
 import { useQuery } from "@tanstack/react-query";
 import { homeQueries } from "@/src/entities/home/model/home.queries";
 import dayjs, { toKST } from "@/shared/lib/dayjs";
-import { ScheduleData } from "@/src/entities/home/model/home.dto";
+import { ScheduleData } from "@/entities/home/api/home.dto";
 import { useRouter } from "next/navigation";
 
 export function TodayGame() {

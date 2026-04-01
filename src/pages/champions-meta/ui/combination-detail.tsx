@@ -3,17 +3,22 @@
 import { Text, LoadingOverlay } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { combinationsQueries } from "@/entities/combinations/model/combinations.queries";
-import type { ChampionInfo } from "../model/types";
+import type { GameDetail } from "@/entities/combinations/api/combinations.dto";
+import { mapGameDetailToMatchViewModel } from "../model/champions-meta.mapper";
+import { useChampionImage } from "@/shared/lib/use-champion-image";
+import type { ChampionInfoViewModel } from "../model/champions-meta.view-model";
 import { MatchHistory } from "./match-history";
 
 interface CombinationDetailProps {
   combination: {
     combinationId: string;
-    champions: ChampionInfo[];
+    champions: ChampionInfoViewModel[];
   };
 }
 
 export function CombinationDetail({ combination }: CombinationDetailProps) {
+  const { getChampionImageUrl } = useChampionImage();
+
   const {
     data: detailResponse,
     isLoading,
@@ -40,11 +45,14 @@ export function CombinationDetail({ combination }: CombinationDetailProps) {
     );
   }
 
-  const gameDetails = detailResponse?.data?.gameDetails || detailResponse?.data || [];
+  const rawGameDetails = detailResponse?.data?.gameDetails ?? [];
+  const gameDetails = rawGameDetails.map((g: GameDetail) =>
+    mapGameDetailToMatchViewModel(g, getChampionImageUrl),
+  );
 
   return (
     <MatchHistory
-      champions={combination.champions || []}
+      champions={combination.champions}
       gameDetails={gameDetails}
     />
   );

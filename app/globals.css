@@ -32,10 +32,11 @@
   --nar-gray-200: #e9ecef;
   --nar-gray-100: #f1f3f5;
   --nar-gray-50: #fafafa;
-  --nar-gray-0: #f8f9fa;
+  --nar-gray-0: #fcfdfe;
 
   --nar-purple-1: #7048e8;
   --nar-purple-2: #845ef7;
+  --nar-purple-3: #9775fe;
   --nar-red-500: #ff6b6b;
   --nar-red-600: #fa5252;
   --nar-red-700: #f03e3e;
@@ -370,7 +371,7 @@ code {
     text-[12px] font-medium
     rounded-[8px] px-[11.5px] py-[4px]
     border border-(--nar-line-2)
-    bg-[var(--nar_bg_tertiary)]
+    bg-[var(--nar-bg-tertiary)]
     text-[var(--nar-text-tertiary)];
 }
 
@@ -434,6 +435,31 @@ code {
     border-none
     bg-(--nar-tagchip-bg)
     text-[var(--nar-text-secondary)];
+}
+
+/* Nar Tag (Filter Tag Chip) */
+@utility nar-tag {
+  @apply inline-flex items-center gap-2
+    px-2 py-2
+    rounded-lg
+    text-[16px] font-medium
+    cursor-pointer
+    outline-none
+    transition-all duration-200
+    border border-[var(--nar-line)]
+    bg-[var(--nar-bg-tertiary)]
+    text-[var(--nar-text-purple)];
+}
+
+/* Position Filter Button */
+@utility position-filter-btn {
+  @apply flex items-center justify-center
+    h-11 cursor-pointer
+    bg-[var(--nar-bg-tertiary)]
+    border-y border-r border-[var(--nar-line-2)]
+    transition-all duration-200
+    flex-1 min-w-0 px-1 py-2
+    sm:flex-none sm:min-w-[50px] sm:px-[14px] sm:py-3;
 }
 
 .sticky-col-end {

@@ -16,7 +16,6 @@ import { useGameDataProcessor } from "../model/use-game-data-processor";
 import { GameHeader } from "./game-header";
 import { OverviewTab } from "./overview-tab";
 import { PlayersTab } from "./players-tab";
-import { ObjectivesTab } from "./objectives-tab";
 import { TimelineAnalysisTab } from "./timeline-analysis-tab";
 
 interface GameRecordPageProps {
@@ -65,8 +64,6 @@ export function GameRecordPage({ gameId }: GameRecordPageProps) {
     );
   }
 
-  const gameLengthInMin = gameInfo.gamelength / 60;
-
   return (
     <Container size="xl" px={{ base: 12, sm: 24, md: 32 }}>
       <Paper
@@ -107,17 +104,16 @@ export function GameRecordPage({ gameId }: GameRecordPageProps) {
             <PlayersTab
               blueTeam={blueTeam}
               redTeam={redTeam}
-              gameLengthInMin={gameLengthInMin}
+              gameLengthInMin={gameInfo.gamelengthInMin}
               getChampionImageUrl={getChampionImageUrl}
             />
           </Tabs.Panel>
           <Tabs.Panel value="timeline">
-            {gameData && (
-              <TimelineAnalysisTab
-                gameData={gameData}
-                getChampionImageUrl={getChampionImageUrl}
-              />
-            )}
+            <TimelineAnalysisTab
+              blueTeam={blueTeam}
+              redTeam={redTeam}
+              getChampionImageUrl={getChampionImageUrl}
+            />
           </Tabs.Panel>
         </Tabs>
       </Paper>

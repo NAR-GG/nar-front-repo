@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd /Users/yunhongbi/teamProject/nar-front-project && file=\"$CLAUDE_TOOL_RESPONSE_FILE_PATH\" && if [[ \"$file\" == *.ts || \"$file\" == *.tsx ]]; then pnpm eslint \"$file\" --max-warnings 0 2>&1 | head -30; fi"
+          }
+        ]
+      }
+    ]
+  }
+}

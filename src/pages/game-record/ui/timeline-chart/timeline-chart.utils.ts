@@ -1,4 +1,4 @@
-import type { GameDetailPlayer } from "@/entities/games/model/games.dto";
+import type { GameDetailPlayer } from "@/entities/games/api/games.dto";
 
 export interface TimelineChartPoint {
   time: number;

@@ -2,7 +2,7 @@
 
 import { Text } from "@mantine/core";
 import Image from "next/image";
-import type { ScheduleMatchSummary } from "@/entities/schedule/model/schedule.dto";
+import type { ScheduleMatchSummary } from "@/entities/schedule/api/schedule.dto";
 import { ReplayButton } from "@/pages/home/ui/replay-button";
 import { SpoilerCard } from "@/pages/home/ui/spoiler-card";
 import ChevronDown from "@/shared/assets/icons/chevron-down.svg";

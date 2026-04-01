@@ -3,9 +3,11 @@ export type SearchData = {
   blueTeamName: string;
   blueTeamCode: string;
   blueTeamImageUrl: string;
+  blueTeamScore?: number;
   redTeamName: string;
   redTeamCode: string;
   redTeamImageUrl: string;
+  redTeamScore?: number;
   blueWin: boolean;
   leagueName: string;
   gameDate: string;

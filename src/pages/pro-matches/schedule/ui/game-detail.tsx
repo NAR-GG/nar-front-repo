@@ -9,28 +9,12 @@ import {
   Loader,
   Collapse,
 } from "@mantine/core";
-import type { MatchDetailGame } from "@/entities/schedule/model/schedule.dto";
+import type { MatchDetailGame } from "@/entities/schedule/api/schedule.dto";
 import { sortByPosition } from "@/shared/lib/sort-by-position";
 import { useChampionImage } from "@/shared/lib/use-champion-image";
 import { IconChevronRight } from "@tabler/icons-react";
-const TEAM_NAME_MAP: Record<string, string> = {
-  "Bnk Fearx": "BFX",
-  "Dplus Kia": "DK",
-  "Kt Rolster": "KT",
-  "Nongshim Redforce": "NS",
-  "Hanwha Life Esports": "HLE",
-  "Gen.g": "GEN",
-  T1: "T1",
-  "Oksavingsbank Brion": "BRO",
-  Drx: "DRX",
-  "Dn Freecs": "DNF",
-};
-
-const formatGameTime = (seconds: number): string => {
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = seconds % 60;
-  return `${minutes}:${String(remainingSeconds).padStart(2, "0")}`;
-};
+import { getTeamShortName } from "@/shared/config/team-name-map";
+import { formatGameTime } from "@/shared/lib/format-game-time";
 
 type GameDetailProps = {
   isExpanded: boolean;
@@ -95,8 +79,7 @@ export function GameDetail({
                     <Stack gap="xs" align="center">
                       <Group gap="xs" align="center">
                         <Text size="xs" fw={600} fz={16}>
-                          {TEAM_NAME_MAP[game.blueTeam.teamName] ||
-                            game.blueTeam.teamName}{" "}
+                          {getTeamShortName(game.blueTeam.teamName)}{" "}
                           <Text
                             component="span"
                             c={
@@ -154,8 +137,7 @@ export function GameDetail({
                     <Stack gap="xs" align="center">
                       <Group gap="xs" align="center">
                         <Text size="xs" fw={600} fz={16}>
-                          {TEAM_NAME_MAP[game.redTeam.teamName] ||
-                            game.redTeam.teamName}{" "}
+                          {getTeamShortName(game.redTeam.teamName)}{" "}
                           <Text
                             component="span"
                             c={winnerSide === "red" ? "red" : "gray.6"}

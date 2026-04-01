@@ -14,30 +14,15 @@ import {
   Container,
 } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
-import { useEffect, useMemo, useRef, useState } from "react";
-import dayjs from "dayjs";
-import relativeTime from "dayjs/plugin/relativeTime";
-import "dayjs/locale/ko";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { storyQueries } from "@/entities/story/model/story.queries";
 import { useGetStoryVideoComments } from "@/entities/story/model/story.mutations";
-import StoryCard from "./story-card";
+import { StoryCard } from "./story-card";
 import CommentListBox from "./comment-list-box";
 import Image from "next/image";
-
-dayjs.extend(relativeTime);
-dayjs.locale("ko");
-
-const CATEGORY_ITEMS = [
-  { key: "all", label: "전체", type: null, badgeLabel: "Youtube" },
-  { key: "pro", label: "프로팀 Youtube", type: "pro", badgeLabel: "PRO" },
-  {
-    key: "shorts",
-    label: "롤 쇼츠 Youtube",
-    type: "shorts",
-    badgeLabel: "Shorts",
-  },
-];
+import { CATEGORY_ITEMS } from "../model/type";
+import { toStoryCardViewModel, toCommentViewModel } from "../model/youtube-stories.mapper";
 
 function YoutubeStoriesComponent() {
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -73,47 +58,37 @@ function YoutubeStoriesComponent() {
 
   const stories = useMemo(() => {
     if (!data?.pages) return [];
-    return data.pages.flatMap((page) => page?.content ?? []);
+    return data.pages.flatMap((page) => page?.content ?? []).map(toStoryCardViewModel);
   }, [data]);
 
-  const handleLoadMore = () => {
+  const handleLoadMore = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
     }
-  };
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const getTimeAgo = (publishedAt: string) =>
-    publishedAt ? dayjs(publishedAt).fromNow() : "";
-
-  const resetSelectedVideo = () => {
+  const resetSelectedVideo = useCallback(() => {
     setSelectedVideoId(null);
     setSelectedVideoTitle(null);
     setShowComments(false);
-  };
+  }, []);
 
-  const handleOpenComments = (youtubeVideoId: string, title: string) => {
+  const handleOpenComments = useCallback((youtubeVideoId: string, title: string) => {
     commentsMutation.mutate({ youtubeVideoId });
     setSelectedVideoId(youtubeVideoId);
     setSelectedVideoTitle(title);
     setShowComments(true);
-  };
+  }, [commentsMutation]);
 
-  const handleCloseComments = () => {
+  const handleCloseComments = useCallback(() => {
     setShowComments(false);
     setSelectedVideoId(null);
     setSelectedVideoTitle(null);
-  };
+  }, []);
 
   const comments = useMemo(() => {
     if (!commentsMutation.data?.content) return [];
-    return commentsMutation.data.content.map((comment, index) => ({
-      id: index,
-      profileUrl: comment.authorProfileImageUrl,
-      nickname: comment.authorDisplayName,
-      timeAgo: getTimeAgo(comment.publishedAt),
-      content: comment.textDisplay,
-      likeCount: comment.likeCount,
-    }));
+    return commentsMutation.data.content.map(toCommentViewModel);
   }, [commentsMutation.data]);
 
   useEffect(() => {
@@ -280,26 +255,10 @@ function YoutubeStoriesComponent() {
                       stories.map((story) => (
                         <StoryCard
                           key={story.videoId}
-                          youtubeVideoId={story.youtubeVideoId}
-                          badgeLabel={story.channelType}
-                          channelName={story.channelName}
-                          timeAgo={getTimeAgo(story.publishedAt)}
-                          title={story.title}
-                          thumbnailUrl={story.thumbnailUrl}
-                          videoUrl={story.videoUrl}
-                          channelProfileUrl={story.channelProfileUrl}
+                          story={story}
                           isMobile={isMobile ?? false}
-                          likeCount={story.likeCount}
-                          commentCount={story.commentCount}
-                          isCommentSelected={
-                            selectedVideoId === story.youtubeVideoId
-                          }
-                          onMessage={() =>
-                            handleOpenComments(
-                              story.youtubeVideoId,
-                              story.title,
-                            )
-                          }
+                          isCommentSelected={selectedVideoId === story.youtubeVideoId}
+                          onMessage={() => handleOpenComments(story.youtubeVideoId, story.title)}
                         />
                       ))}
 

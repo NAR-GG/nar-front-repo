@@ -1,81 +1,68 @@
-import { cn } from "@/src/shared/lib/cn";
+import { memo, useMemo } from "react";
+import { cn } from "@/shared/lib/cn";
 import { Group, Table, Text, Avatar } from "@mantine/core";
-
-export type Top5Mode = "win" | "ban" | "pick";
-
-export interface ChampionTop5Row {
-  rank: number;
-  championName: string;
-  championImageUrl: string;
-  laneIcon: React.ReactNode;
-
-  winRate: number;
-  totalGames?: number;
-
-  pickRate?: number;
-  pickGames?: number;
-  winGames?: number;
-
-  banRate?: number;
-  banCount?: number;
-}
+import type {
+  ChampionTop5Mode,
+  ChampionTop5ViewModel,
+} from "../model/home.viewmodel";
 
 interface ChampionTop5TableProps {
-  data: ChampionTop5Row[];
-  mode: Top5Mode;
+  data: ChampionTop5ViewModel[];
+  mode: ChampionTop5Mode;
 }
 
 type Column = {
   key: string;
   header: string;
   valueColor?: string;
-  getRate: (row: ChampionTop5Row) => number;
-  getGames: (row: ChampionTop5Row) => number;
+  getRate: (row: ChampionTop5ViewModel) => number;
+  getGames: (row: ChampionTop5ViewModel) => number;
 };
 
-export function ChampionTop5Table({
-  data,
-  mode = "ban",
-}: ChampionTop5TableProps) {
-  const TD_CLASS = "bg-(--nar-bg-cont-livebox) !py-[12px]";
-  const TH_CLASS = "!py-[12px] !border-b-0";
-  const TR_CLASS = "!border-b-0";
-  const STICKY_HEADER_CLASS = "sticky top-0 z-20 bg-(--nar-bg-cont-livebox)";
-  const STICKY_FIRST_COL_CLASS = "sticky left-0 z-10 bg-(--nar-bg-cont-livebox)";
+const TD_CLASS = "bg-(--nar-bg-cont-livebox) !py-[12px]";
+const TH_CLASS = "!py-[12px] !border-b-0";
+const TR_CLASS = "!border-b-0";
+const STICKY_HEADER_CLASS = "sticky top-0 z-20 bg-(--nar-bg-cont-livebox)";
+const STICKY_FIRST_COL_CLASS = "sticky left-0 z-10 bg-(--nar-bg-cont-livebox)";
 
-  const winColumn: Column = {
-    key: "win",
-    header: "승률",
-    valueColor: "var(--nar-text-secondary)",
-    getRate: (row) => row.winRate,
-    getGames: (row) => row.winGames ?? 0,
-  };
+const WIN_COLUMN: Column = {
+  key: "win",
+  header: "승률",
+  valueColor: "var(--nar-text-secondary)",
+  getRate: (row) => row.winRate,
+  getGames: (row) => row.winGames ?? 0,
+};
 
-  const pickColumn: Column = {
-    key: "pick",
-    header: "픽률",
-    valueColor: "var(--nar-text-percent)",
-    getRate: (row) => row.pickRate ?? 0,
-    getGames: (row) => row.totalGames ?? 0,
-  };
+const PICK_COLUMN: Column = {
+  key: "pick",
+  header: "픽률",
+  valueColor: "var(--nar-text-percent)",
+  getRate: (row) => row.pickRate ?? 0,
+  getGames: (row) => row.totalGames ?? 0,
+};
 
-  const banColumn: Column = {
-    key: "ban",
-    header: "밴률",
-    valueColor: "var(--nar-text-percent)",
-    getRate: (row) => row.banRate ?? 0,
-    getGames: (row) => row.banCount ?? 0,
-  };
+const BAN_COLUMN: Column = {
+  key: "ban",
+  header: "밴률",
+  valueColor: "var(--nar-text-percent)",
+  getRate: (row) => row.banRate ?? 0,
+  getGames: (row) => row.banCount ?? 0,
+};
 
-  const columns: Column[] =
-    mode === "pick" ? [winColumn, pickColumn] : [winColumn, banColumn];
+interface ChampionRowProps {
+  row: ChampionTop5ViewModel;
+  columns: Column[];
+}
 
-  const rows = data.map((row) => (
-    <Table.Tr
-      key={`${mode}-${row.rank}-${row.championName}`}
-      className={TR_CLASS}
-    >
-      <Table.Td className={cn(TD_CLASS, STICKY_FIRST_COL_CLASS, "align-center")}>
+const ChampionRow = memo(function ChampionRow({
+  row,
+  columns,
+}: ChampionRowProps) {
+  return (
+    <Table.Tr className={TR_CLASS}>
+      <Table.Td
+        className={cn(TD_CLASS, STICKY_FIRST_COL_CLASS, "align-center")}
+      >
         <div className="w-6 h-6 flex items-center justify-center">
           <Text fw={600} fz={18} c="var(--nar-text-secondary)" lineClamp={1}>
             {row.rank}
@@ -116,7 +103,18 @@ export function ChampionTop5Table({
         </Table.Td>
       ))}
     </Table.Tr>
-  ));
+  );
+});
+
+export function ChampionTop5Table({
+  data,
+  mode = "ban",
+}: ChampionTop5TableProps) {
+  const columns = useMemo<Column[]>(
+    () =>
+      mode === "pick" ? [WIN_COLUMN, PICK_COLUMN] : [WIN_COLUMN, BAN_COLUMN],
+    [mode],
+  );
 
   return (
     <Table.ScrollContainer h={384} minWidth={346}>
@@ -131,19 +129,17 @@ export function ChampionTop5Table({
             <Table.Th
               className={`${TH_CLASS} ${STICKY_HEADER_CLASS} ${STICKY_FIRST_COL_CLASS} z-30`}
             >
-              <div className="w-[24px] h-[24px] flex items-center justify-center">
+              <div className="w-6 h-6 flex items-center justify-center">
                 <Text fw={600} fz={18} c="var(--nar-text-4)" lineClamp={1}>
                   #
                 </Text>
               </div>
             </Table.Th>
-
             <Table.Th className={`${TH_CLASS} ${STICKY_HEADER_CLASS}`}>
               <Text fw={600} fz={14} c="var(--nar-text-4)" lineClamp={1}>
                 라인 / 챔피언
               </Text>
             </Table.Th>
-
             {columns.map((col) => (
               <Table.Th
                 key={col.key}
@@ -157,7 +153,15 @@ export function ChampionTop5Table({
           </Table.Tr>
         </Table.Thead>
 
-        <Table.Tbody className="bg-(--nar-bg-cont-livebox)">{rows}</Table.Tbody>
+        <Table.Tbody className="bg-(--nar-bg-cont-livebox)">
+          {data.map((row) => (
+            <ChampionRow
+              key={`${mode}-${row.rank}-${row.championName}`}
+              row={row}
+              columns={columns}
+            />
+          ))}
+        </Table.Tbody>
       </Table>
     </Table.ScrollContainer>
   );

@@ -1,4 +1,6 @@
 export type { SortValue } from "@/shared/types/filter.types";
+export { TEAM_NAME_MAP, getTeamShortName } from "@/shared/config/team-name-map";
+export { formatGameTime } from "@/shared/lib/format-game-time";
 
 export interface Player {
   position: string;
@@ -27,22 +29,3 @@ export interface MatchListFilters {
   splitNames: string[];
   teamNames: string[];
 }
-
-export const TEAM_NAME_MAP: Record<string, string> = {
-  "Bnk Fearx": "BFX",
-  "Dplus Kia": "DK",
-  "Kt Rolster": "KT",
-  "Nongshim Redforce": "NS",
-  "Hanwha Life Esports": "HLE",
-  "Gen.g": "GEN",
-  T1: "T1",
-  "Oksavingsbank Brion": "BRO",
-  Drx: "DRX",
-  "Dn Freecs": "DNF",
-};
-
-export const formatGameTime = (seconds: number): string => {
-  const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = seconds % 60;
-  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-};

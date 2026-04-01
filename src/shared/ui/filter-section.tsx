@@ -16,9 +16,10 @@ import { IconSearch, IconX } from "@tabler/icons-react";
 import { useMediaQuery } from "@mantine/hooks";
 import { useQuery } from "@tanstack/react-query";
 import { categoriesQueries } from "@/entities/categories/model/categories.queries";
-import type { ChampionData } from "@/entities/champions/model/champions.dto";
+import type { ChampionData } from "@/entities/champions/api/champions.dto";
 import type { Mode, Filters } from "@/shared/types/filter.types";
 import { CustomMultiSelect } from "./custom-multi-select";
+import { removeFilterTagValue } from "@/shared/lib/filter-utils";
 
 interface FilterSectionProps {
   filters: Filters;
@@ -28,6 +29,7 @@ interface FilterSectionProps {
   currentMode?: Mode;
   showSearchButton?: boolean;
   variant?: "default" | "players";
+  hideTeamSelection?: boolean;
 }
 
 export function FilterSection({
@@ -38,6 +40,7 @@ export function FilterSection({
   currentMode = "team",
   showSearchButton = true,
   variant = "default",
+  hideTeamSelection = false,
 }: FilterSectionProps) {
   const isMobile = useMediaQuery("(max-width: 768px)");
   const isSearchDisabled = selectedChampions.filter(Boolean).length === 0;
@@ -295,38 +298,11 @@ export function FilterSection({
 
   const removeTag = useCallback(
     (type: "league" | "split" | "team", value: string) => {
-      if (type === "league") {
-        const newLeagues =
-          filters.leagueNames?.filter((name) => name !== value) || [];
-        handleFilterChange("leagueNames", newLeagues);
-      } else if (type === "split") {
-        const newSplits =
-          filters.splitNames?.filter((name) => name !== value) || [];
-        handleFilterChange("splitNames", newSplits);
-      } else if (type === "team") {
-        const newTeams =
-          filters.teamNames?.filter((name) => name !== value) || [];
-        handleFilterChange("teamNames", newTeams);
-      }
+      const [field, values] = removeFilterTagValue(filters, type, value);
+      handleFilterChange(field, values);
     },
     [filters, handleFilterChange],
   );
-
-  const tagStyle: React.CSSProperties = {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: "8px",
-    padding: "8px",
-    borderRadius: "8px",
-    fontSize: "16px",
-    fontWeight: "500",
-    cursor: "pointer",
-    outline: "none",
-    transition: "all 0.2s ease",
-    backgroundColor: "var(--nar-bg-tertiary)",
-    border: "1px solid var(--nar-line)",
-    color: "var(--nar-text-purple)",
-  };
 
   if (isLoading) {
     return (
@@ -408,7 +384,6 @@ export function FilterSection({
         </Box>
       );
     }
-
     return (
       <Group gap="md" align="end" wrap="wrap">
         <Box style={{ width: 192 }}>
@@ -528,16 +503,18 @@ export function FilterSection({
                 !filters.leagueNames || filters.leagueNames.length === 0
               }
             />
-            <CustomMultiSelect
-              label="팀"
-              placeholder="팀을 선택하세요"
-              data={teamOptions}
-              value={filters.teamNames || []}
-              onChange={(value) => handleFilterChange("teamNames", value)}
-              disabled={
-                !filters.leagueNames || filters.leagueNames.length === 0
-              }
-            />
+            {!hideTeamSelection && (
+              <CustomMultiSelect
+                label="팀"
+                placeholder="팀을 선택하세요"
+                data={teamOptions}
+                value={filters.teamNames || []}
+                onChange={(value) => handleFilterChange("teamNames", value)}
+                disabled={
+                  !filters.leagueNames || filters.leagueNames.length === 0
+                }
+              />
+            )}
           </Group>
 
           {showSearchButton && (
@@ -599,18 +576,20 @@ export function FilterSection({
                 }
               />
             </Box>
-            <Box style={{ width: 192 }}>
-              <CustomMultiSelect
-                label="팀"
-                placeholder="팀을 선택하세요"
-                data={teamOptions}
-                value={filters.teamNames || []}
-                onChange={(value) => handleFilterChange("teamNames", value)}
-                disabled={
-                  !filters.leagueNames || filters.leagueNames.length === 0
-                }
-              />
-            </Box>
+            {!hideTeamSelection && (
+              <Box style={{ width: 192 }}>
+                <CustomMultiSelect
+                  label="팀"
+                  placeholder="팀을 선택하세요"
+                  data={teamOptions}
+                  value={filters.teamNames || []}
+                  onChange={(value) => handleFilterChange("teamNames", value)}
+                  disabled={
+                    !filters.leagueNames || filters.leagueNames.length === 0
+                  }
+                />
+              </Box>
+            )}
           </Group>
 
           {showSearchButton && (
@@ -648,7 +627,7 @@ export function FilterSection({
               <Box
                 key={`league-${league}`}
                 component="button"
-                style={{ ...tagStyle }}
+                className="nar-tag"
                 onClick={() => removeTag("league", league)}
               >
                 <Text size="xs">리그: {league}</Text>
@@ -659,24 +638,25 @@ export function FilterSection({
               <Box
                 key={`split-${split}`}
                 component="button"
-                style={{ ...tagStyle }}
+                className="nar-tag"
                 onClick={() => removeTag("split", split)}
               >
                 <Text size="xs">스플릿: {split}</Text>
                 <IconX size={14} style={{ pointerEvents: "none" }} />
               </Box>
             ))}
-            {filters.teamNames?.map((team) => (
-              <Box
-                key={`team-${team}`}
-                component="button"
-                style={{ ...tagStyle }}
-                onClick={() => removeTag("team", team)}
-              >
-                <Text size="xs">팀: {team}</Text>
-                <IconX size={14} style={{ pointerEvents: "none" }} />
-              </Box>
-            ))}
+            {!hideTeamSelection &&
+              filters.teamNames?.map((team) => (
+                <Box
+                  key={`team-${team}`}
+                  component="button"
+                  className="nar-tag"
+                  onClick={() => removeTag("team", team)}
+                >
+                  <Text size="xs">팀: {team}</Text>
+                  <IconX size={14} style={{ pointerEvents: "none" }} />
+                </Box>
+              ))}
           </Group>
         </>
       )}

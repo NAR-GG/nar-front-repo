@@ -21,6 +21,8 @@ export interface TopBanStat {
 }
 
 export interface ChampionTop5Data {
+  patchVersion: string;
+  seasonInfo: string;
   topPicks: ChampionStat[];
   topBans: TopBanStat[];
 }

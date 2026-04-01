@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { ChampionsMetaComponent } from "@/src/pages/champions-meta/ui";
+import { ChampionsMetaComponent } from "@/src/pages/champions-meta/ui/champions-meta-component";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {

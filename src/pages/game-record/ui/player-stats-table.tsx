@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import {
   Table,
   Group,
@@ -10,13 +11,10 @@ import {
   Progress,
 } from "@mantine/core";
 
-import type { GameDetailPlayer } from "@/entities/games/model/games.dto";
-
-import TopIcon from "@/shared/assets/icons/nar_top.svg";
-import JungleIcon from "@/shared/assets/icons/nar_jungle.svg";
-import MidIcon from "@/shared/assets/icons/nar_mid.svg";
-import BottomIcon from "@/shared/assets/icons/nar_bottom.svg";
-import SupportIcon from "@/shared/assets/icons/nar_support.svg";
+import type { GameDetailPlayer } from "@/entities/games/api/games.dto";
+import { POSITION_ORDER } from "@/shared/config/positions";
+import { calculateKP } from "@/shared/lib/format-game-time";
+import { getRoleIcon, calculateKdaRatio, formatKilo } from "../lib/game-record.lib";
 
 interface PlayerStatsTableProps {
   players: GameDetailPlayer[];
@@ -25,47 +23,25 @@ interface PlayerStatsTableProps {
   getChampionImageUrl: (name: string) => string;
 }
 
-const calculateKP = (kills: number, assists: number, teamKills: number) => {
-  if (teamKills === 0) return "0%";
-  return `${Math.round(((kills + assists) / teamKills) * 100)}%`;
-};
-
-const POSITION_ORDER: Record<string, number> = {
-  top: 1,
-  jungle: 2,
-  jng: 2,
-  mid: 3,
-  middle: 3,
-  bottom: 4,
-  bot: 4,
-  adc: 4,
-  support: 5,
-  sup: 5,
-  utility: 5,
-};
-
 export function PlayerStatsTable({
   players,
   teamKills,
   getChampionImageUrl,
 }: PlayerStatsTableProps) {
-  const maxDamage = Math.max(...players.map((p) => p.damageToChampions));
+  const maxDamage = useMemo(
+    () => Math.max(...players.map((p) => p.damageToChampions)),
+    [players],
+  );
 
-  const sortedPlayers = [...players].sort((a, b) => {
-    const orderA = POSITION_ORDER[a.position.toLowerCase()] || 99;
-    const orderB = POSITION_ORDER[b.position.toLowerCase()] || 99;
-    return orderA - orderB;
-  });
-
-  const getRoleIcon = (position: string) => {
-    const pos = position.toLowerCase();
-    if (POSITION_ORDER[pos] === 1) return TopIcon;
-    if (POSITION_ORDER[pos] === 2) return JungleIcon;
-    if (POSITION_ORDER[pos] === 3) return MidIcon;
-    if (POSITION_ORDER[pos] === 4) return BottomIcon;
-    if (POSITION_ORDER[pos] === 5) return SupportIcon;
-    return TopIcon;
-  };
+  const sortedPlayers = useMemo(
+    () =>
+      [...players].sort((a, b) => {
+        const orderA = POSITION_ORDER[a.position.toLowerCase()] || 99;
+        const orderB = POSITION_ORDER[b.position.toLowerCase()] || 99;
+        return orderA - orderB;
+      }),
+    [players],
+  );
 
   return (
     <div className="overflow-x-auto">
@@ -162,10 +138,7 @@ export function PlayerStatsTable({
         </Table.Thead>
         <Table.Tbody>
           {sortedPlayers.map((p) => {
-            const kdaRatio =
-              p.deaths === 0
-                ? "Perfect"
-                : ((p.kills + p.assists) / p.deaths).toFixed(2);
+            const kdaRatio = calculateKdaRatio(p.kills, p.assists, p.deaths);
             const damagePercent = (p.damageToChampions / maxDamage) * 100;
 
             return (
@@ -259,7 +232,7 @@ export function PlayerStatsTable({
                       c="var(--nar-text-tertiary)"
                       ta="center"
                     >
-                      {(p.damageToChampions / 1000).toFixed(1)}K
+                      {formatKilo(p.damageToChampions)}
                     </Text>
                     <Progress
                       value={damagePercent}
@@ -281,7 +254,7 @@ export function PlayerStatsTable({
                 </Table.Td>
                 <Table.Td className="p-0! sm:p-5! text-center">
                   <Text fw={400} fz={16} c="var(--nar-text-tertiary)">
-                    {(p.totalGold / 1000).toFixed(1)}K
+                    {formatKilo(p.totalGold)}
                   </Text>
                 </Table.Td>
                 <Table.Td className="p-0! sm:p-5! text-center">

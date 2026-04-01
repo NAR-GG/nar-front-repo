@@ -1,3 +1,5 @@
+"use client";
+
 import type { CSSProperties, RefObject } from "react";
 
 export interface CommonTabItem {

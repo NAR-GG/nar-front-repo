@@ -1,6 +1,6 @@
 import { publicApi } from "@/shared/lib/api-client";
 import { gamesApiEndPoint, type GameListParams } from "./games-endpoint";
-import type { GameDetailData, GameListData } from "../model/games.dto";
+import type { GameDetailData, GameListData } from "../api/games.dto";
 
 export const getGameList = async (params?: GameListParams) => {
   const response = await publicApi.get<GameListData>(

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Text } from "@mantine/core";
 import {
+  memo,
   useCallback,
   useEffect,
   useRef,
@@ -9,9 +10,10 @@ import {
   type CSSProperties,
   type SVGProps,
 } from "react";
-import type { PlayerCardData } from "@/entities/players/model/players.dto";
+import type { PlayerCardData } from "@/entities/players/api/players.dto";
 import { BackCardSurface } from "./back-card";
 import { PlayerCardEffects } from "@/pages/team-players/player-list/ui/player-card-effects";
+import { clamp, round, adjust, toAbsoluteImageUrl } from "../lib/player-card.lib";
 import CardFrame from "@/shared/assets/images/card-frame.svg";
 import MostBg from "@/shared/assets/images/most-bg.svg";
 import NarGrayBfx from "@/shared/assets/icons/nar_gray_bfx.svg";
@@ -79,28 +81,6 @@ const POSITION_ICON_MAP: Record<
   SUP: NarGraySupport,
 };
 
-const clamp = (value: number, min = 0, max = 100) =>
-  Math.min(max, Math.max(min, value));
-
-const round = (value: number) => Math.round(value * 100) / 100;
-
-const adjust = (
-  value: number,
-  fromMin: number,
-  fromMax: number,
-  toMin: number,
-  toMax: number,
-) => {
-  if (fromMax === fromMin) return toMin;
-  const progress = (value - fromMin) / (fromMax - fromMin);
-  return round(toMin + (toMax - toMin) * progress);
-};
-
-const toAbsoluteImageUrl = (url?: string | null) => {
-  if (!url) return null;
-  if (url.startsWith("http")) return url;
-  return `https://api.nar.kr${url}`;
-};
 
 function PlayerCardFace({ player }: PlayerCardProps) {
   const backgroundImageUrl = toAbsoluteImageUrl(
@@ -214,7 +194,7 @@ function PlayerCardFace({ player }: PlayerCardProps) {
   );
 }
 
-export function PlayerCard({ player, onActiveChange }: PlayerCardProps) {
+export const PlayerCard = memo(function PlayerCard({ player, onActiveChange }: PlayerCardProps) {
   const slotRef = useRef<HTMLDivElement | null>(null);
   const cardRef = useRef<HTMLButtonElement | null>(null);
   const faceToggleRef = useRef<HTMLButtonElement | null>(null);
@@ -237,8 +217,6 @@ export function PlayerCard({ player, onActiveChange }: PlayerCardProps) {
   const [faceRotation, setFaceRotation] = useState(0);
   const [translateX, setTranslateX] = useState(0);
   const [translateY, setTranslateY] = useState(0);
-  const [originLeft, setOriginLeft] = useState(0);
-  const [originTop, setOriginTop] = useState(0);
 
   const closeCard = useCallback(() => {
     setActive(false);
@@ -249,8 +227,6 @@ export function PlayerCard({ player, onActiveChange }: PlayerCardProps) {
     setFaceRotation(0);
     setRotateX(0);
     setRotateY(0);
-    setOriginLeft(0);
-    setOriginTop(0);
     setPointerX(50);
     setPointerY(50);
     setCardOpacity(0);
@@ -288,8 +264,6 @@ export function PlayerCard({ player, onActiveChange }: PlayerCardProps) {
     const updateCenter = () => {
       if (!slotRef.current) return;
       const rect = slotRef.current.getBoundingClientRect();
-      setOriginLeft(round(rect.left));
-      setOriginTop(round(rect.top));
       setTranslateX(round(window.innerWidth / 2 - rect.left - rect.width / 2));
       setTranslateY(round(window.innerHeight / 2 - rect.top - rect.height / 2));
     };
@@ -321,17 +295,6 @@ export function PlayerCard({ player, onActiveChange }: PlayerCardProps) {
         window.clearTimeout(repositionTimerRef.current);
         repositionTimerRef.current = null;
       }
-    };
-  }, [active]);
-
-  useEffect(() => {
-    if (!active) return;
-
-    const { overflow } = document.body.style;
-    document.body.style.overflow = "hidden";
-
-    return () => {
-      document.body.style.overflow = overflow;
     };
   }, [active]);
 
@@ -442,7 +405,7 @@ export function PlayerCard({ player, onActiveChange }: PlayerCardProps) {
     "--card-opacity": `${cardOpacity}`,
     "--background-x": `${backgroundX}%`,
     "--background-y": `${backgroundY}%`,
-    "--rotate-x": `${rotateX + rotateDelta}deg`,
+    "--rotate-x": `${rotateX + rotateDelta + faceRotation}deg`,
     "--rotate-y": `${rotateY}deg`,
     "--card-scale": `${cardScale}`,
     "--translate-x": `${translateX}px`,
@@ -450,8 +413,6 @@ export function PlayerCard({ player, onActiveChange }: PlayerCardProps) {
     "--hover-tilt-x": `${pointerX / 100}`,
     "--hover-tilt-y": `${pointerY / 100}`,
     "--hover-tilt-opacity": `${cardOpacity}`,
-    left: active ? `${originLeft}px` : undefined,
-    top: active ? `${originTop}px` : undefined,
     transform: `translate3d(${translateX}px, ${translateY}px, ${cardScale * 150}px) scale(${cardScale})`,
     transformStyle: "preserve-3d",
     transition: "transform 1000ms cubic-bezier(0.22, 1, 0.36, 1)",
@@ -463,18 +424,7 @@ export function PlayerCard({ player, onActiveChange }: PlayerCardProps) {
       className="relative mx-auto h-[302px] w-[193px]"
       style={{ zIndex: active ? 999 : interacting ? 120 : 1 }}
     >
-      {active ? (
-        <button
-          type="button"
-          aria-label="선수 카드 닫기"
-          onClick={closeCard}
-          className="fixed inset-0 bg-[var(--nar-bg-playercard)]"
-        />
-      ) : null}
-      <div
-        className={active ? "fixed h-[302px] w-[193px]" : "absolute inset-0"}
-        style={dynamicStyles}
-      >
+      <div className="absolute inset-0" style={dynamicStyles}>
         <button
           ref={cardRef}
           type="button"
@@ -493,13 +443,8 @@ export function PlayerCard({ player, onActiveChange }: PlayerCardProps) {
                 "transform 1000ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 400ms ease",
             }}
           >
-            <div
-              className="absolute inset-0 transition-opacity duration-300"
-              style={{
-                opacity: faceRotation === 0 ? 1 : 0,
-              }}
-            >
-              {active || isInViewport ? (
+            <div className="absolute inset-0 [backface-visibility:hidden]">
+              {isInViewport ? (
                 <PlayerCardFace player={player} />
               ) : (
                 <div className="relative h-[302px] w-[193px] overflow-hidden rounded-[8px] bg-[#12051d]">
@@ -514,19 +459,14 @@ export function PlayerCard({ player, onActiveChange }: PlayerCardProps) {
                 </div>
               )}
             </div>
-            <div
-              className="absolute inset-0 transition-opacity duration-300"
-              style={{
-                opacity: faceRotation === 180 ? 1 : 0,
-              }}
-            >
+            <div className="absolute inset-0 [backface-visibility:visible] [transform:rotateY(180deg)]">
               <div
                 className="absolute left-1/2 top-1/2 origin-center"
                 style={{
                   transform: `translate(-50%, -50%) scale(${BACK_BASE_SCALE})`,
                 }}
               >
-                {active ? <BackCardSurface player={player} /> : null}
+                <BackCardSurface player={player} />
               </div>
             </div>
           </div>
@@ -554,4 +494,4 @@ export function PlayerCard({ player, onActiveChange }: PlayerCardProps) {
       </div>
     </div>
   );
-}
+});

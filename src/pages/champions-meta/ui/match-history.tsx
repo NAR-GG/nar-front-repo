@@ -1,55 +1,18 @@
 "use client";
 
 import { Stack, Group, Text, Avatar } from "@mantine/core";
-import type { ChampionInfo } from "../model/types";
+import type { ChampionInfoViewModel, GameMatchViewModel } from "../model/champions-meta.view-model";
 import { sortByPosition } from "@/shared/lib/sort-by-position";
-import { useChampionImage } from "@/shared/lib/use-champion-image";
 import { IconChevronRight, IconClock } from "@tabler/icons-react";
 import { useRouter } from "next/navigation";
 
-interface GameDetailFromApi {
-  gameId: number;
-  gameDate: string;
-  split: string;
-  league: string;
-  patch: string;
-  gameLengthSeconds: number;
-  ourTeam: {
-    teamName: string;
-    side: string;
-    isWin: boolean;
-    players: {
-      position: string;
-      championName: string;
-      playerName: string;
-    }[];
-  };
-  opponentTeam: {
-    teamName: string;
-    side: string;
-    isWin: boolean;
-    players: {
-      position: string;
-      championName: string;
-      playerName: string;
-    }[];
-  };
-}
-
 interface MatchHistoryProps {
-  champions: ChampionInfo[];
-  gameDetails: GameDetailFromApi[];
+  champions: ChampionInfoViewModel[];
+  gameDetails: GameMatchViewModel[];
 }
 
 export function MatchHistory({ gameDetails }: MatchHistoryProps) {
   const router = useRouter();
-  const { getChampionImageUrl } = useChampionImage();
-
-  const formatGameTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-  };
 
   if (!gameDetails || gameDetails.length === 0) {
     return (
@@ -67,32 +30,7 @@ export function MatchHistory({ gameDetails }: MatchHistoryProps) {
     <Stack gap="xs" mt="sm">
       <Stack gap="sm">
         {gameDetails.map((game, index) => {
-          if (!game || !game.ourTeam || !game.opponentTeam) {
-            return (
-              <div key={index} className="bg-(--nar-bg-tertiary) px-2 py-4">
-                <Text size="sm" c="red" ta="center">
-                  게임 데이터가 불완전합니다.
-                </Text>
-              </div>
-            );
-          }
-
-          const { ourTeam, opponentTeam } = game;
-          const ourTeamSide = (ourTeam?.side || "").toLowerCase();
-          const opponentTeamSide = (opponentTeam?.side || "").toLowerCase();
-
-          if (!ourTeamSide || !opponentTeamSide) {
-            return (
-              <div key={index} className="bg-(--nar-bg-tertiary) px-2 py-4">
-                <Text size="sm" c="red" ta="center">
-                  팀 사이드 정보가 없습니다.
-                </Text>
-              </div>
-            );
-          }
-
-          const blueTeam = ourTeamSide === "blue" ? ourTeam : opponentTeam;
-          const redTeam = ourTeamSide === "red" ? ourTeam : opponentTeam;
+          const { blueTeam, redTeam } = game;
 
           return (
             <div
@@ -101,7 +39,7 @@ export function MatchHistory({ gameDetails }: MatchHistoryProps) {
             >
               <div className="flex items-center justify-between h-[31px] border-b border-(--nar-line)">
                 <Text fz={14} fw={600} c="var(--nar-text-tertiary-sub)">
-                  {game.league} • Patch {game.patch}
+                  Game {game.gameNumber}
                 </Text>
                 <div className="flex items-center gap-[7px]">
                   <IconClock
@@ -110,7 +48,7 @@ export function MatchHistory({ gameDetails }: MatchHistoryProps) {
                     color="var(--nar-text-tertiary-sub)"
                   />
                   <Text fz={14} fw={600} c="var(--nar-text-tertiary-sub)">
-                    {formatGameTime(game.gameLengthSeconds)}
+                    {game.formattedGameLength}
                   </Text>
                 </div>
               </div>
@@ -122,11 +60,7 @@ export function MatchHistory({ gameDetails }: MatchHistoryProps) {
                         {blueTeam.teamName}{" "}
                         <Text
                           component="span"
-                          c={
-                            blueTeam.isWin
-                              ? "var(--nar-text-red)"
-                              : "var(--nar-text-4)"
-                          }
+                          c={blueTeam.isWin ? "var(--nar-text-red)" : "var(--nar-text-4)"}
                           fw={600}
                           fz={16}
                         >
@@ -137,18 +71,12 @@ export function MatchHistory({ gameDetails }: MatchHistoryProps) {
                     <div
                       className={`flex gap-[12.5px] lg:gap-4 ${blueTeam.isWin ? "bg-(--nar-red-opacity10) rounded-[8px] py-[6px] px-3" : ""}`}
                     >
-                      {sortByPosition(blueTeam.players || []).map((player) => (
+                      {sortByPosition(blueTeam.players).map((player) => (
                         <div
-                          key={`${game.gameId}-blue-${player.playerName}`}
+                          key={`${game.id}-blue-${player.playerName}`}
                           className="flex flex-col items-center w-[46px]"
                         >
-                          <Avatar
-                            src={
-                              getChampionImageUrl(player.championName) || null
-                            }
-                            size={46}
-                            radius="md"
-                          />
+                          <Avatar src={player.championImageUrl || null} size={46} radius="md" />
                           <Text
                             size="xs"
                             mt={2}
@@ -165,12 +93,7 @@ export function MatchHistory({ gameDetails }: MatchHistoryProps) {
                   </div>
 
                   <div className="flex items-center justify-center">
-                    <Text
-                      size="sm"
-                      fw={700}
-                      fz={26}
-                      c="var(--nar-text-tertiary-sub)"
-                    >
+                    <Text size="sm" fw={700} fz={26} c="var(--nar-text-tertiary-sub)">
                       vs
                     </Text>
                   </div>
@@ -181,11 +104,7 @@ export function MatchHistory({ gameDetails }: MatchHistoryProps) {
                         {redTeam.teamName}{" "}
                         <Text
                           component="span"
-                          c={
-                            redTeam.isWin
-                              ? "var(--nar-text-red)"
-                              : "var(--nar-text-4)"
-                          }
+                          c={redTeam.isWin ? "var(--nar-text-red)" : "var(--nar-text-4)"}
                           fw={600}
                           fz={16}
                         >
@@ -196,18 +115,12 @@ export function MatchHistory({ gameDetails }: MatchHistoryProps) {
                     <div
                       className={`flex gap-[12.5px] lg:gap-4 ${redTeam.isWin ? "bg-(--nar-red-opacity10) rounded-[8px]" : ""}`}
                     >
-                      {sortByPosition(redTeam.players || []).map((player) => (
+                      {sortByPosition(redTeam.players).map((player) => (
                         <div
-                          key={`${game.gameId}-red-${player.playerName}`}
+                          key={`${game.id}-red-${player.playerName}`}
                           className="flex flex-col items-center w-[46px]"
                         >
-                          <Avatar
-                            src={
-                              getChampionImageUrl(player.championName) || null
-                            }
-                            size={46}
-                            radius="md"
-                          />
+                          <Avatar src={player.championImageUrl || null} size={46} radius="md" />
                           <Text
                             size="xs"
                             fz={16}
@@ -225,7 +138,7 @@ export function MatchHistory({ gameDetails }: MatchHistoryProps) {
                 </div>
                 <IconChevronRight
                   className="hover:cursor-pointer absolute right-0"
-                  onClick={() => onNavigateToRecord(game.gameId)}
+                  onClick={() => onNavigateToRecord(game.id)}
                   color="var(--nar-icon-GNB-default)"
                 />
               </div>

@@ -20,8 +20,19 @@ import { IconSearch, IconX, IconChevronDown } from "@tabler/icons-react";
 import { useMediaQuery } from "@mantine/hooks";
 import { useQuery } from "@tanstack/react-query";
 import { categoriesQueries } from "@/entities/categories/model/categories.queries";
-import type { ChampionData } from "@/entities/champions/model/champions.dto";
-import type { Mode, SortValue, SelectOption, Filters } from "../model/types";
+import type { ChampionData } from "@/entities/champions/api/champions.dto";
+import type { Mode, SortValue, SelectOption, Filters } from "@/shared/types/filter.types";
+import {
+  getLeagueOptions,
+  getSplitOptions,
+  getTeamOptions,
+  cascadeFiltersOnChange,
+  getSearchButtonText,
+  getSelectedCountText,
+  getTagClassName,
+  getMultiSelectDisplayText,
+} from "../lib/filter-options";
+import { removeFilterTagValue } from "@/shared/lib/filter-utils";
 
 interface CustomMultiSelectProps {
   label: string;
@@ -105,16 +116,6 @@ function CustomMultiSelect({
     }
   }, [opened]);
 
-  const getDisplayText = () => {
-    if (label === "시즌") {
-      return "2025";
-    }
-    if (value.length > 0) {
-      return `${value.length}개 선택됨`;
-    }
-    return placeholder;
-  };
-
   return (
     <Box>
       <Text size="sm" fw={500} mb={4}>
@@ -152,7 +153,7 @@ function CustomMultiSelect({
               size="sm"
               c={disabled ? "dark" : value.length > 0 ? "dark" : "placeholder"}
             >
-              {getDisplayText()}
+              {getMultiSelectDisplayText(label, value, placeholder)}
             </Text>
           </Button>
         </Popover.Target>
@@ -237,200 +238,33 @@ export function FilterSection({
     categoriesQueries.tree()
   );
 
-  const getButtonText = () => {
-    return currentMode === "1v1" ? "매치업 보기" : "조합 보기";
-  };
+  const leagueOptions = useMemo(
+    () => (categoryData ? getLeagueOptions(categoryData) : []),
+    [categoryData],
+  );
 
-  const getSelectedCountText = () => {
-    if (currentMode === "1v1") {
-      return `선택된 챔피언: ${selectedChampions.filter(Boolean).length}/2`;
-    }
-    return `선택된 챔피언: ${selectedChampions.filter(Boolean).length}/5`;
-  };
+  const splitOptions = useMemo(
+    () => (categoryData ? getSplitOptions(categoryData, filters.leagueNames) : []),
+    [categoryData, filters.leagueNames],
+  );
 
-  const leagueOptions = useMemo(() => {
-    if (!categoryData) return [];
-
-    const season2025 = categoryData.seasons.find((s) => s.year === 2025);
-    if (!season2025) return [];
-
-    return season2025.leagues.map((league) => ({
-      value: league.name,
-      label: league.name,
-    }));
-  }, [categoryData]);
-
-  const splitOptions = useMemo(() => {
-    if (
-      !categoryData ||
-      !filters.leagueNames ||
-      filters.leagueNames.length === 0
-    ) {
-      return [];
-    }
-
-    const season2025 = categoryData.seasons.find((s) => s.year === 2025);
-    if (!season2025) return [];
-
-    const selectedLeagues = season2025.leagues.filter((l) =>
-      filters.leagueNames.includes(l.name)
-    );
-
-    const allSplits = selectedLeagues.flatMap((league) =>
-      league.splits
-        .filter((split) => split.name && split.name.trim() !== "")
-        .map((split) => split.name)
-    );
-
-    const uniqueSplits = [...new Set(allSplits)];
-
-    return uniqueSplits.map((splitName) => ({
-      value: splitName,
-      label: splitName,
-    }));
-  }, [categoryData, filters.leagueNames]);
-
-  const teamOptions = useMemo(() => {
-    if (
-      !categoryData ||
-      !filters.leagueNames ||
-      filters.leagueNames.length === 0
-    ) {
-      return [];
-    }
-
-    const season2025 = categoryData.seasons.find((s) => s.year === 2025);
-    if (!season2025) return [];
-
-    const selectedLeagues = season2025.leagues.filter((l) =>
-      filters.leagueNames.includes(l.name)
-    );
-
-    const relevantSplits = selectedLeagues.flatMap((league) =>
-      league.splits.filter((split) => {
-        if (!filters.splitNames || filters.splitNames.length === 0) return true;
-        if (!split.name || split.name.trim() === "") return true;
-        return filters.splitNames.includes(split.name);
-      })
-    );
-
-    const allTeams = relevantSplits.flatMap((split) =>
-      split.teams.map((team) => team.name)
-    );
-
-    const uniqueTeams = [...new Set(allTeams)];
-
-    return uniqueTeams.sort().map((teamName) => ({
-      value: teamName,
-      label: teamName,
-    }));
-  }, [categoryData, filters.leagueNames, filters.splitNames]);
+  const teamOptions = useMemo(
+    () => (categoryData ? getTeamOptions(categoryData, filters.leagueNames, filters.splitNames) : []),
+    [categoryData, filters.leagueNames, filters.splitNames],
+  );
 
   const handleFilterChange = useCallback(
     (field: keyof Filters, value: string[]) => {
-      const newFilters = { ...filters, [field]: value };
-
-      if (field === "leagueNames") {
-        if (newFilters.splitNames && newFilters.splitNames.length > 0) {
-          const season2025 = categoryData?.seasons.find((s) => s.year === 2025);
-          const selectedLeagues = season2025?.leagues.filter((l) =>
-            newFilters.leagueNames.includes(l.name)
-          );
-
-          const validSplits =
-            selectedLeagues?.flatMap((league) =>
-              league.splits
-                .filter((split) => split.name && split.name.trim() !== "")
-                .map((split) => split.name)
-            ) || [];
-
-          const uniqueValidSplits = [...new Set(validSplits)];
-          newFilters.splitNames = newFilters.splitNames.filter((split) =>
-            uniqueValidSplits.includes(split)
-          );
-        }
-
-        if (newFilters.teamNames && newFilters.teamNames.length > 0) {
-          const season2025 = categoryData?.seasons.find((s) => s.year === 2025);
-          const selectedLeagues = season2025?.leagues.filter((l) =>
-            newFilters.leagueNames.includes(l.name)
-          );
-
-          const allSplits =
-            selectedLeagues?.flatMap((league) =>
-              league.splits.filter((split) => {
-                if (!split.name || split.name.trim() === "") return false;
-                if (
-                  !newFilters.splitNames ||
-                  newFilters.splitNames.length === 0
-                )
-                  return true;
-                return newFilters.splitNames.includes(split.name);
-              })
-            ) || [];
-
-          const validTeams = allSplits.flatMap((split) =>
-            split.teams.map((team) => team.name)
-          );
-          const uniqueValidTeams = [...new Set(validTeams)];
-
-          newFilters.teamNames = newFilters.teamNames.filter((team) =>
-            uniqueValidTeams.includes(team)
-          );
-        }
-      }
-
-      if (field === "splitNames") {
-        if (newFilters.teamNames && newFilters.teamNames.length > 0) {
-          const season2025 = categoryData?.seasons.find((s) => s.year === 2025);
-          const selectedLeagues = season2025?.leagues.filter((l) =>
-            newFilters.leagueNames.includes(l.name)
-          );
-
-          const relevantSplits =
-            selectedLeagues?.flatMap((league) =>
-              league.splits.filter((split) => {
-                if (!split.name || split.name.trim() === "") return false;
-                if (
-                  !newFilters.splitNames ||
-                  newFilters.splitNames.length === 0
-                )
-                  return true;
-                return newFilters.splitNames.includes(split.name);
-              })
-            ) || [];
-
-          const validTeams = relevantSplits.flatMap((split) =>
-            split.teams.map((team) => team.name)
-          );
-          const uniqueValidTeams = [...new Set(validTeams)];
-
-          newFilters.teamNames = newFilters.teamNames.filter((team) =>
-            uniqueValidTeams.includes(team)
-          );
-        }
-      }
-
-      onFiltersChange(newFilters);
+      if (!categoryData) return;
+      onFiltersChange(cascadeFiltersOnChange(filters, field, value, categoryData));
     },
-    [filters, categoryData, onFiltersChange]
+    [filters, categoryData, onFiltersChange],
   );
 
   const removeTag = useCallback(
     (type: "league" | "split" | "team", value: string) => {
-      if (type === "league") {
-        const newLeagues =
-          filters.leagueNames?.filter((name) => name !== value) || [];
-        handleFilterChange("leagueNames", newLeagues);
-      } else if (type === "split") {
-        const newSplits =
-          filters.splitNames?.filter((name) => name !== value) || [];
-        handleFilterChange("splitNames", newSplits);
-      } else if (type === "team") {
-        const newTeams =
-          filters.teamNames?.filter((name) => name !== value) || [];
-        handleFilterChange("teamNames", newTeams);
-      }
+      const [field, values] = removeFilterTagValue(filters, type, value);
+      handleFilterChange(field, values);
     },
     [filters, handleFilterChange]
   );
@@ -459,33 +293,6 @@ export function FilterSection({
       ]}
     />
   );
-
-  const tagStyle: React.CSSProperties = {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: "4px",
-    padding: "4px 8px",
-    borderRadius: "4px",
-    fontSize: "12px",
-    fontWeight: "500",
-    cursor: "pointer",
-    border: "none",
-    outline: "none",
-    transition: "all 0.2s ease",
-  };
-
-  const getTagColor = (type: "league" | "split" | "team") => {
-    switch (type) {
-      case "league":
-        return { backgroundColor: "#e3f2fd", color: "#1976d2" };
-      case "split":
-        return { backgroundColor: "#e8f5e8", color: "#388e3c" };
-      case "team":
-        return { backgroundColor: "#fff3e0", color: "#f57c00" };
-      default:
-        return { backgroundColor: "#f5f5f5", color: "#666" };
-    }
-  };
 
   if (isLoading) {
     return (
@@ -544,14 +351,14 @@ export function FilterSection({
             {isSearchable ? (
               <Group gap="md" align="center">
                 <Text size="sm" c="dimmed">
-                  {getSelectedCountText()}
+                  {getSelectedCountText(currentMode, selectedChampions.filter(Boolean).length)}
                 </Text>
                 <Button
                   leftSection={<IconSearch size={16} />}
                   onClick={onCombinationSearch}
                   disabled={selectedChampions.filter(Boolean).length === 0}
                 >
-                  {getButtonText()}
+                  {getSearchButtonText(currentMode)}
                 </Button>
               </Group>
             ) : (
@@ -609,14 +416,14 @@ export function FilterSection({
           {isSearchable ? (
             <Group gap="md" align="center">
               <Text size="sm" c="dimmed">
-                {getSelectedCountText()}
+                {getSelectedCountText(currentMode, selectedChampions.filter(Boolean).length)}
               </Text>
               <Button
                 leftSection={<IconSearch size={16} />}
                 onClick={onCombinationSearch}
                 disabled={selectedChampions.filter(Boolean).length === 0}
               >
-                {getButtonText()}
+                {getSearchButtonText(currentMode)}
               </Button>
             </Group>
           ) : (
@@ -632,37 +439,34 @@ export function FilterSection({
           <Divider my="md" />
           <Group gap="xs" style={{ flexWrap: "wrap" }}>
             {filters.leagueNames?.map((league) => (
-              <Box
+              <button
                 key={`league-${league}`}
-                component="button"
-                style={{ ...tagStyle, ...getTagColor("league") }}
+                className={getTagClassName("league")}
                 onClick={() => removeTag("league", league)}
               >
                 <Text size="xs">리그: {league}</Text>
-                <IconX size={14} style={{ pointerEvents: "none" }} />
-              </Box>
+                <IconX size={14} className="pointer-events-none" />
+              </button>
             ))}
             {filters.splitNames?.map((split) => (
-              <Box
+              <button
                 key={`split-${split}`}
-                component="button"
-                style={{ ...tagStyle, ...getTagColor("split") }}
+                className={getTagClassName("split")}
                 onClick={() => removeTag("split", split)}
               >
                 <Text size="xs">스플릿: {split}</Text>
-                <IconX size={14} style={{ pointerEvents: "none" }} />
-              </Box>
+                <IconX size={14} className="pointer-events-none" />
+              </button>
             ))}
             {filters.teamNames?.map((team) => (
-              <Box
+              <button
                 key={`team-${team}`}
-                component="button"
-                style={{ ...tagStyle, ...getTagColor("team") }}
+                className={getTagClassName("team")}
                 onClick={() => removeTag("team", team)}
               >
                 <Text size="xs">팀: {team}</Text>
-                <IconX size={14} style={{ pointerEvents: "none" }} />
-              </Box>
+                <IconX size={14} className="pointer-events-none" />
+              </button>
             ))}
           </Group>
         </>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import {
   Container,
@@ -20,10 +20,13 @@ import { FilterSection } from "@/shared/ui/filter-section";
 import { SortControl } from "@/shared/ui/sort-control";
 import type { Filters, SortValue } from "@/shared/types/filter.types";
 import { GameRow } from "./game-row";
-import type { GameData } from "@/entities/games/model/games.dto";
 import { useChampionImage } from "@/shared/lib/use-champion-image";
 import { combinationsQueries } from "@/src/entities/combinations/model/combinations.queries";
 import dayjs from "dayjs";
+import {
+  toGameRowViewModel,
+  groupGamesByDate,
+} from "../model/match-list.mapper";
 
 export function MatchListPage() {
   const router = useRouter();
@@ -68,34 +71,28 @@ export function MatchListPage() {
     error,
   } = useQuery(gamesQueries.list(queryParams));
 
-  const handleNavigateToRecord = (gameId: number) => {
-    router.push(`/pro-matches/${gameId}/record`);
-  };
-
-  const groupGamesByDate = (games: GameData[]) => {
-    const grouped: Record<string, GameData[]> = {};
-
-    games.forEach((game) => {
-      const date = new Date(game.gameDate).toLocaleDateString("ko-KR", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-        weekday: "short",
-      });
-
-      if (!grouped[date]) {
-        grouped[date] = [];
-      }
-      grouped[date].push(game);
-    });
-
-    return grouped;
-  };
+  const handleNavigateToRecord = useCallback(
+    (gameId: number) => {
+      router.push(`/pro-matches/${gameId}/record`);
+    },
+    [router],
+  );
 
   const groupedGames = useMemo(() => {
     if (!matchData?.content) return {};
     return groupGamesByDate(matchData.content);
   }, [matchData]);
+
+  const groupedViewModels = useMemo(
+    () =>
+      Object.fromEntries(
+        Object.entries(groupedGames).map(([date, games]) => [
+          date,
+          games.map((g) => toGameRowViewModel(g, getChampionImageUrl)),
+        ]),
+      ),
+    [groupedGames, getChampionImageUrl],
+  );
 
   if (error) {
     return (
@@ -132,13 +129,12 @@ export function MatchListPage() {
           </Center>
         ) : matchData?.content && matchData.content.length > 0 ? (
           <Stack gap="md">
-            {Object.entries(groupedGames).map(([date, games]) => (
+            {Object.entries(groupedViewModels).map(([date, games]) => (
               <Stack key={date} gap="sm">
                 {games.map((game) => (
                   <GameRow
                     key={game.gameId}
                     game={game}
-                    getChampionImageUrl={getChampionImageUrl}
                     onNavigateToRecord={handleNavigateToRecord}
                   />
                 ))}

@@ -50,6 +50,11 @@ export interface GameBans {
   red: string[];
 }
 
+export interface GameFearless {
+  blue: string[];
+  red: string[];
+}
+
 export interface GameDetailPlayer {
   participantid: number;
   side: string;
@@ -254,6 +259,7 @@ export interface GameDetailData {
   gamelength: number;
 
   bans: GameBans;
+  fearless?: GameFearless;
   players: GameDetailPlayer[];
   setNav: GameSetNav;
 }

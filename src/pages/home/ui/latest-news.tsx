@@ -3,7 +3,7 @@
 import { Paper, Text, Skeleton } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { homeQueries } from "@/entities/home/model/home.queries";
-import type { NewsData } from "@/entities/home/model/home.dto";
+import type { NewsData } from "@/entities/home/api/home.dto";
 import { formatRelativeTime } from "@/shared/lib/format-date";
 import Image from "next/image";
 

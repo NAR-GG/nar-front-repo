@@ -15,7 +15,7 @@ import { IconSearch, IconChevronDown } from "@tabler/icons-react";
 import type { SelectOption } from "@/shared/types/filter.types";
 
 interface CustomMultiSelectProps {
-  label: string;
+  label?: string;
   placeholder: string;
   data: SelectOption[];
   value: string[];
@@ -108,9 +108,11 @@ export function CustomMultiSelect({
 
   return (
     <Box>
-      <Text size="sm" fw={500} mb={4}>
-        {label}
-      </Text>
+      {label && (
+        <Text size="sm" fw={500} mb={4}>
+          {label}
+        </Text>
+      )}
       <Popover
         opened={opened && !disabled}
         onClose={handleClose}

@@ -20,16 +20,9 @@ import {
   type PositionFilterId,
 } from "@/shared/ui/position-filter";
 import { playersQueries } from "@/entities/players/model/players.queries";
-import type { PlayerCardData } from "@/entities/players/model/players.dto";
+import type { PlayerCardData } from "@/entities/players/api/players.dto";
 import { PlayerCard } from "./player-card";
-
-const mapPositionToApi = (position: PositionFilterId) => {
-  if (position === "*") return null;
-  if (position === "JUG") return "JUNGLE";
-  if (position === "ADC") return "BOT";
-  if (position === "SUP") return "SUPPORT";
-  return position;
-};
+import { filterPlayers } from "../lib/player-list.lib";
 
 export function PlayerListPageComponent() {
   const isMobile = useMediaQuery("(max-width: 48em)");
@@ -64,25 +57,10 @@ export function PlayerListPageComponent() {
     }),
   );
 
-  const filteredPlayers = useMemo(() => {
-    const source = data?.players ?? [];
-    const keyword = searchTerm.trim().toLowerCase();
-    const selectedApiPosition = mapPositionToApi(selectedPosition);
-
-    return source.filter((player) => {
-      const matchesSearch =
-        keyword.length === 0 ||
-        player.playerName.toLowerCase().includes(keyword) ||
-        player.profile.name.toLowerCase().includes(keyword) ||
-        player.teamCode.toLowerCase().includes(keyword);
-
-      const matchesPosition =
-        selectedApiPosition == null ||
-        player.profile.position === selectedApiPosition;
-
-      return matchesSearch && matchesPosition;
-    });
-  }, [data?.players, searchTerm, selectedPosition]);
+  const filteredPlayers = useMemo(
+    () => filterPlayers(data?.players ?? [], searchTerm, selectedPosition),
+    [data?.players, searchTerm, selectedPosition],
+  );
 
   const tabItems = useMemo(
     () => [{ id: "player-cards", label: "선수 카드", value: "player-cards" }],
@@ -114,7 +92,7 @@ export function PlayerListPageComponent() {
                 />
               </div>
 
-              <div className="flex flex-col items-stretch sm:flex-row sm:items-center justify-between gap-4 px-[21px] py-[14px] rounded-[14px] bg-(--nar-BG-last)">
+              <div className="flex flex-col items-end sm:flex-row sm:items-center justify-between gap-4 px-[21px] py-[14px] rounded-[14px] bg-(--nar-BG-last)">
                 {isMobile ? (
                   <>
                     <TextInput
@@ -131,12 +109,11 @@ export function PlayerListPageComponent() {
                           borderRadius: "10px",
                         },
                       }}
-                      style={{ width: 231, alignSelf: "flex-end" }}
+                      style={{ width: 231 }}
                     />
                     <PositionFilter
                       selectedId={selectedPosition}
                       onSelect={setSelectedPosition}
-                      isMobile
                     />
                   </>
                 ) : (
@@ -179,7 +156,7 @@ export function PlayerListPageComponent() {
                 <>
                   {isMobile ? (
                     <div
-                      className={`-mx-1 flex snap-x snap-mandatory gap-4 px-1 pb-2 ${isCardExpanded ? "overflow-x-hidden touch-none" : "overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"}`}
+                      className={`-mx-1 flex snap-x snap-mandatory gap-4 px-1 pb-2 ${isCardExpanded ? "overflow-visible" : "overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"}`}
                     >
                       {filteredPlayers.map((player: PlayerCardData) => (
                         <div

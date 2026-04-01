@@ -3,7 +3,7 @@ import { scheduleApiEndPoint } from "./schedule-endpoint";
 import type {
   DateScheduleData,
   MatchDetailData,
-} from "../model/schedule.dto";
+} from "../api/schedule.dto";
 
 export const getDateSchedule = async (date: string): Promise<DateScheduleData> => {
   const response = await publicApi.get<DateScheduleData>(

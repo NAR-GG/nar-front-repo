@@ -18,8 +18,9 @@ import { useMediaQuery } from "@mantine/hooks";
 import { IconArrowLeft, IconChevronDown } from "@tabler/icons-react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { getCombinationDetail } from "@/entities/combinations/api/combinations.api";
-import type { ChampionData } from "@/entities/champions/model/champions.dto";
+import type { ChampionData } from "@/entities/champions/api/champions.dto";
 import type { Filters, Mode } from "@/shared/types/filter.types";
+import { mapCombinationSummaryToCardViewModel } from "../model/champions-meta.mapper";
 import { CombinationCard } from "./combination-card";
 import { CombinationDetail } from "./combination-detail";
 import { useChampionImage } from "@/shared/lib/use-champion-image";
@@ -255,20 +256,7 @@ export function CombinationResults({
                 if (!combination) return null;
                 const isExpanded = expandedCards[index] || false;
 
-                const cardData = {
-                  combinationId: combination.combinationId,
-                  champions: combination.champions.map((name: string) => ({
-                    championNameKr: name,
-                    championNameEn: name,
-                    imageUrl: getChampionImageUrl(name),
-                  })),
-                  winRate: combination.winRate,
-                  wins: combination.winCount,
-                  losses: combination.lossCount,
-                  recentGame: combination.latestGameDate,
-                  latestPatch: combination.latestPatch,
-                  frequency: combination.frequency,
-                };
+                const cardData = mapCombinationSummaryToCardViewModel(combination, getChampionImageUrl);
 
                 return (
                   <div

@@ -2,37 +2,16 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import {
-  Container,
-  Stack,
-  Paper,
-  Text,
-  ActionIcon,
-  Center,
-  Loader,
-  Popover,
-} from "@mantine/core";
+import { Container, Stack, Paper, Text, Popover } from "@mantine/core";
 import { DatePicker } from "@mantine/dates";
 import "dayjs/locale/ko";
 import { IconChevronDown, IconReload } from "@tabler/icons-react";
-import CaretLeft from "@/shared/assets/icons/caret-left.svg";
-import CaretRight from "@/shared/assets/icons/caret-right.svg";
 import NarCalendar from "@/shared/assets/icons/nar_calendar.svg";
-import Lck from "@/shared/assets/images/lck-home.svg";
-import Lpl from "@/shared/assets/images/lpl-home.svg";
-import Lec from "@/shared/assets/images/lec-home.svg";
-import Ljl from "@/shared/assets/images/lgl-home.svg";
-import Lcs from "@/shared/assets/images/lcs-home.svg";
-import Msi from "@/shared/assets/images/msi-home.svg";
-import Worlds from "@/shared/assets/images/worlds-home.svg";
 import { useQuery, useQueries } from "@tanstack/react-query";
 import { scheduleQueries } from "@/entities/schedule/model/schedule.queries";
-import clsx from "clsx";
-import dayjs from "dayjs";
-import { MatchCard } from "./match-card";
 import { useMediaQuery } from "@mantine/hooks";
-
-const DAY_NAMES = ["일", "월", "화", "수", "목", "금", "토"];
+import { WeekDateBar } from "./week-date-bar";
+import { LeagueMatchList } from "./league-match-list";
 
 const formatDateString = (date: Date): string => {
   const year = date.getFullYear();
@@ -42,25 +21,16 @@ const formatDateString = (date: Date): string => {
 };
 
 const getMonthDates = (year: number, month: number): Date[] => {
-  const dates: Date[] = [];
   const daysInMonth = new Date(year, month + 1, 0).getDate();
-  for (let day = 1; day <= daysInMonth; day++) {
-    dates.push(new Date(year, month, day));
-  }
-  return dates;
+  return Array.from({ length: daysInMonth }, (_, i) => new Date(year, month, i + 1));
 };
 
 const getWeekDates = (date: Date): Date[] => {
-  const week: Date[] = [];
   const tmp = new Date(date);
   const day = tmp.getDay();
   const diff = day === 0 ? -6 : 1 - day;
   tmp.setDate(tmp.getDate() + diff);
-
-  for (let i = 0; i < 7; i++) {
-    week.push(new Date(tmp.getFullYear(), tmp.getMonth(), tmp.getDate() + i));
-  }
-  return week;
+  return Array.from({ length: 7 }, (_, i) => new Date(tmp.getFullYear(), tmp.getMonth(), tmp.getDate() + i));
 };
 
 export const SchedulePageComponent = () => {
@@ -70,9 +40,7 @@ export const SchedulePageComponent = () => {
 
   const initializeDate = (): Date => {
     const dateParam = searchParams?.get("date");
-    if (dateParam && !isNaN(new Date(dateParam).getTime())) {
-      return new Date(dateParam);
-    }
+    if (dateParam && !isNaN(new Date(dateParam).getTime())) return new Date(dateParam);
     return new Date();
   };
 
@@ -82,25 +50,21 @@ export const SchedulePageComponent = () => {
   const dateString = formatDateString(selectedDate);
   const weekDates = getWeekDates(selectedDate);
 
-  const monthDates = useMemo(() => {
-    return getMonthDates(calendarMonth.getFullYear(), calendarMonth.getMonth());
-  }, [calendarMonth]);
+  const monthDates = useMemo(
+    () => getMonthDates(calendarMonth.getFullYear(), calendarMonth.getMonth()),
+    [calendarMonth],
+  );
 
-  // URL 동기화
   useEffect(() => {
     if (searchParams?.get("date") !== dateString) {
       router.push(`/pro-matches/schedule?date=${dateString}`);
     }
   }, [dateString, searchParams, router]);
 
-  // 스케줄 데이터 조회
-  const {
-    data: scheduleData,
-    isLoading: scheduleLoading,
-    isError: scheduleError,
-  } = useQuery(scheduleQueries.date(dateString));
+  const { data: scheduleData, isLoading: scheduleLoading, isError: scheduleError } = useQuery(
+    scheduleQueries.date(dateString),
+  );
 
-  // 주간 경기 유무 조회
   const weekScheduleQueries = useQueries({
     queries: weekDates.map((date) => ({
       ...scheduleQueries.date(formatDateString(date)),
@@ -113,7 +77,6 @@ export const SchedulePageComponent = () => {
     return query.data?.matches && query.data.matches.length > 0;
   });
 
-  // 월별 경기 유무 조회 (DatePicker용)
   const monthScheduleQueries = useQueries({
     queries: monthDates.map((date) => ({
       ...scheduleQueries.date(formatDateString(date)),
@@ -121,7 +84,6 @@ export const SchedulePageComponent = () => {
     })),
   });
 
-  // 경기 있는 날짜 Set
   const matchDatesSet = useMemo(() => {
     const set = new Set<string>();
     monthDates.forEach((date, idx) => {
@@ -133,87 +95,69 @@ export const SchedulePageComponent = () => {
     return set;
   }, [monthDates, monthScheduleQueries]);
 
-  // DatePicker renderDay 함수
   const renderDay = useCallback(
     (date: string) => {
       const dateObj = new Date(date);
-      const dateStr = formatDateString(dateObj);
-      const hasMatch = matchDatesSet.has(dateStr);
-      const day = dateObj.getDate();
-
+      const hasMatch = matchDatesSet.has(formatDateString(dateObj));
       return (
-        <div
-          className="nar-day-cell"
-          data-has-match={hasMatch ? "true" : undefined}
-        >
-          {day}
+        <div className="nar-day-cell" data-has-match={hasMatch ? "true" : undefined}>
+          {dateObj.getDate()}
         </div>
       );
     },
     [matchDatesSet],
   );
 
-  // DatePicker excludeDate 함수 (경기 없는 날짜 비활성화)
   const excludeDate = useCallback(
-    (date: string) => {
-      const dateObj = new Date(date);
-      const dateStr = formatDateString(dateObj);
-      return !matchDatesSet.has(dateStr);
-    },
+    (date: string) => !matchDatesSet.has(formatDateString(new Date(date))),
     [matchDatesSet],
   );
 
   const allQueriesLoaded = weekScheduleQueries.every((q) => !q.isLoading);
   const selectedDateStr = selectedDate.toDateString();
 
-  // 선택된 날짜에 경기가 없으면 경기 있는 날짜로 자동 이동
   useEffect(() => {
     if (!allQueriesLoaded) return;
-
-    const currentDayIndex = weekDates.findIndex(
-      (d) => d.toDateString() === selectedDateStr,
-    );
-
+    const currentDayIndex = weekDates.findIndex((d) => d.toDateString() === selectedDateStr);
     if (currentDayIndex === -1) return;
-
-    const currentHasMatches = weekHasMatches[currentDayIndex];
-
-    if (!currentHasMatches) {
-      const firstMatchIndex = weekHasMatches.findIndex(
-        (hasMatch) => hasMatch === true,
-      );
+    if (!weekHasMatches[currentDayIndex]) {
+      const firstMatchIndex = weekHasMatches.findIndex((hasMatch) => hasMatch === true);
       if (firstMatchIndex !== -1) {
-        // eslint-disable-next-line react-hooks/set-state-in-effect -- 경기 없는 날짜 선택 방지
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setSelectedDate(weekDates[firstMatchIndex]);
       }
     }
   }, [allQueriesLoaded, selectedDateStr, weekDates, weekHasMatches]);
 
-  // 매치 상세 조회
+  const handlePrevWeek = useCallback(() => {
+    setSelectedDate((prev) => { const d = new Date(prev); d.setDate(d.getDate() - 7); return d; });
+  }, []);
 
-  const handlePrevWeek = () => {
-    const newDate = new Date(selectedDate);
-    newDate.setDate(newDate.getDate() - 7);
-    setSelectedDate(newDate);
-  };
+  const handleNextWeek = useCallback(() => {
+    setSelectedDate((prev) => { const d = new Date(prev); d.setDate(d.getDate() + 7); return d; });
+  }, []);
 
-  const handleNextWeek = () => {
-    const newDate = new Date(selectedDate);
-    newDate.setDate(newDate.getDate() + 7);
-    setSelectedDate(newDate);
-  };
+  const handlePrevMonth = useCallback(() => {
+    setSelectedDate((prev) => { const d = new Date(prev); d.setMonth(d.getMonth() - 1); return d; });
+  }, []);
 
-  const handlePrevMonth = () => {
-    const newDate = new Date(selectedDate);
-    newDate.setMonth(newDate.getMonth() - 1);
-    setSelectedDate(newDate);
-  };
+  const handleNextMonth = useCallback(() => {
+    setSelectedDate((prev) => { const d = new Date(prev); d.setMonth(d.getMonth() + 1); return d; });
+  }, []);
 
-  const handleNextMonth = () => {
-    const newDate = new Date(selectedDate);
-    newDate.setMonth(newDate.getMonth() + 1);
-    setSelectedDate(newDate);
-  };
+  const gradientArrowStyle = (direction: "left" | "right"): React.CSSProperties => ({
+    background: "var(--nar_gradients)",
+    WebkitMaskImage: direction === "left"
+      ? `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 6l-6 6l6 6'/%3E%3C/svg%3E")`
+      : `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6l6 6l-6 6'/%3E%3C/svg%3E")`,
+    WebkitMaskRepeat: "no-repeat",
+    WebkitMaskPosition: "center",
+    maskImage: direction === "left"
+      ? `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 6l-6 6l6 6'/%3E%3C/svg%3E")`
+      : `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6l6 6l-6 6'/%3E%3C/svg%3E")`,
+    maskRepeat: "no-repeat",
+    maskPosition: "center",
+  });
 
   return (
     <Container size="xl" px={{ base: 0, sm: 24, md: 32 }}>
@@ -221,48 +165,25 @@ export const SchedulePageComponent = () => {
         <Paper withBorder radius={24}>
           <div className="flex relative items-center justify-center pt-5 sm:pt-10 pb-5.75 gap-5">
             {!isMobile && (
-              <button
-                onClick={handlePrevMonth}
-                className="flex items-center justify-center w-6 h-6"
-                style={{
-                  background: "var(--nar_gradients)",
-                  WebkitMaskImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 6l-6 6l6 6'/%3E%3C/svg%3E")`,
-                  WebkitMaskRepeat: "no-repeat",
-                  WebkitMaskPosition: "center",
-                  maskImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 6l-6 6l6 6'/%3E%3C/svg%3E")`,
-                  maskRepeat: "no-repeat",
-                  maskPosition: "center",
-                }}
-              />
+              <button onClick={handlePrevMonth} className="flex items-center justify-center w-6 h-6" style={gradientArrowStyle("left")} />
             )}
 
             <div className="flex items-center gap-1.5 w-40 justify-center">
               <Text fz={26} fw={700} c="var(--nar-text-GNB-default)">
-                {selectedDate.getFullYear()}.
-                {String(selectedDate.getMonth() + 1).padStart(2, "0")}
+                {selectedDate.getFullYear()}.{String(selectedDate.getMonth() + 1).padStart(2, "0")}
               </Text>
               <Popover position="bottom" withArrow shadow="md">
                 <Popover.Target>
                   <div className="flex items-center gap-1 cursor-pointer">
-                    <NarCalendar
-                      size={22}
-                      color="var(--nar-text-tertiary-sub)"
-                    />
-                    <IconChevronDown
-                      size={16}
-                      color="var(--nar-text-tertiary-sub)"
-                    />
+                    <NarCalendar size={22} color="var(--nar-text-tertiary-sub)" />
+                    <IconChevronDown size={16} color="var(--nar-text-tertiary-sub)" />
                   </div>
                 </Popover.Target>
                 <Popover.Dropdown>
                   <DatePicker
                     value={selectedDate}
                     onChange={(date) => {
-                      if (date) {
-                        const newDate = new Date(date);
-                        setSelectedDate(newDate);
-                        setCalendarMonth(newDate);
-                      }
+                      if (date) { const d = new Date(date); setSelectedDate(d); setCalendarMonth(d); }
                     }}
                     date={calendarMonth}
                     onDateChange={(date) => setCalendarMonth(new Date(date))}
@@ -275,205 +196,34 @@ export const SchedulePageComponent = () => {
             </div>
 
             {!isMobile && (
-              <button
-                onClick={handleNextMonth}
-                className="flex items-center justify-center w-6 h-6"
-                style={{
-                  background: "var(--nar_gradients)",
-                  WebkitMaskImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6l6 6l-6 6'/%3E%3C/svg%3E")`,
-                  WebkitMaskRepeat: "no-repeat",
-                  WebkitMaskPosition: "center",
-                  maskImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 6l6 6l-6 6'/%3E%3C/svg%3E")`,
-                  maskRepeat: "no-repeat",
-                  maskPosition: "center",
-                }}
-              />
+              <button onClick={handleNextMonth} className="flex items-center justify-center w-6 h-6" style={gradientArrowStyle("right")} />
             )}
 
             <button
               onClick={() => setSelectedDate(new Date())}
-              className="flex gap-1 items-center absolute right-5 justify-center px-2.5 py-1.5 w-[32px] h-[32px] sm:w-auto sm:h-auto rounded-lg bg-(--nar-bg-tertiary) border border-(--nar-line-2) text-(--nar-text-tertiary-sub) text-xs"
+              className="flex gap-1 items-center absolute right-5 justify-center px-2.5 py-1.5 w-8 h-8 sm:w-auto sm:h-auto rounded-lg bg-(--nar-bg-tertiary) border border-(--nar-line-2) text-(--nar-text-tertiary-sub) text-xs"
             >
-              <IconReload
-                width={12}
-                height={12}
-                color="var(--nar-text-tertiary-sub)"
-              />
+              <IconReload width={12} height={12} color="var(--nar-text-tertiary-sub)" />
               {!isMobile && "오늘 일자"}
             </button>
           </div>
 
-          <div className="flex items-center px-4 gap-0 sm:gap-6.5">
-            <ActionIcon
-              variant="transparent"
-              onClick={handlePrevWeek}
-              c="var(--nar-text-tertiary-sub)"
-            >
-              <CaretLeft size={20} />
-            </ActionIcon>
-
-            <div className="flex justify-around flex-1 overflow-x-auto pb-1">
-              {weekDates.map((date, idx) => {
-                const isSelected =
-                  date.toDateString() === selectedDate.toDateString();
-                const isToday =
-                  date.toDateString() === new Date().toDateString();
-                const dayIndex = date.getDay();
-                const hasMatches = weekHasMatches[idx];
-                const isLoading = weekScheduleQueries[idx].isLoading;
-                const isDisabled = isLoading || !hasMatches;
-
-                return (
-                  <div
-                    key={idx}
-                    onClick={() => {
-                      if (!isDisabled) {
-                        setSelectedDate(date);
-                      }
-                    }}
-                    className={clsx(
-                      "flex flex-col items-center justify-center pt-5 pb-1.75 px-2.5 gap-2.5 flex-1 border-b-4 border-transparent",
-                      isSelected && "[border-image:var(--nar_gradients)_1]",
-                      isDisabled ? "cursor-not-allowed" : "cursor-pointer",
-                    )}
-                    style={{
-                      boxShadow: `0 2px 0 ${isDisabled ? "var(--nar-searchbar-text-con)" : "var(--nar-text-tertiary-sub)"}`,
-                    }}
-                  >
-                    <Text
-                      lineClamp={1}
-                      className={clsx(
-                        "text-sm sm:text-base",
-                        isSelected ? "font-bold" : "font-normal",
-                      )}
-                      style={
-                        isSelected
-                          ? {
-                              background: "var(--nar_gradients)",
-                              WebkitBackgroundClip: "text",
-                              WebkitTextFillColor: "transparent",
-                            }
-                          : {
-                              color: isDisabled
-                                ? "var(--nar-searchbar-text-con)"
-                                : "var(--nar-text-tertiary-sub)",
-                            }
-                      }
-                    >
-                      {isToday ? "오늘" : DAY_NAMES[dayIndex]}
-                    </Text>
-                    <span
-                      className={clsx(
-                        "text-base sm:text-lg",
-                        isSelected ? "font-bold" : "font-medium",
-                      )}
-                      style={
-                        isSelected
-                          ? {
-                              background: "var(--nar_gradients)",
-                              WebkitBackgroundClip: "text",
-                              WebkitTextFillColor: "transparent",
-                            }
-                          : {
-                              color: isDisabled
-                                ? "var(--nar-searchbar-text-con)"
-                                : "var(--nar-text-tertiary-sub)",
-                            }
-                      }
-                    >
-                      {dayjs(date).format("M.D")}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-
-            <ActionIcon
-              variant="transparent"
-              onClick={handleNextWeek}
-              c="var(--nar-text-tertiary-sub)"
-            >
-              <CaretRight size={20} />
-            </ActionIcon>
-          </div>
+          <WeekDateBar
+            weekDates={weekDates}
+            selectedDate={selectedDate}
+            weekHasMatches={weekHasMatches}
+            weekIsLoading={weekScheduleQueries.map((q) => q.isLoading)}
+            onSelectDate={setSelectedDate}
+            onPrevWeek={handlePrevWeek}
+            onNextWeek={handleNextWeek}
+          />
 
           <div className="py-5 px-3.5 flex flex-col w-full gap-4 bg-(--nar-fill-secondary) rounded-b-3xl">
-            {scheduleLoading ? (
-              <Center p="xl">
-                <Loader />
-              </Center>
-            ) : scheduleError ? (
-              <Center p="xl">
-                <Text c="red">데이터를 불러오는 중 오류가 발생했습니다.</Text>
-              </Center>
-            ) : !scheduleData?.matches || scheduleData.matches.length === 0 ? (
-              <div className="py-10 text-center text-(--nar-text-tertiary)">
-                해당 날짜에 경기 일정이 없습니다.
-              </div>
-            ) : (
-              (() => {
-                const leagueOrder = [
-                  "LCK",
-                  "LPL",
-                  "LEC",
-                  "LJL",
-                  "LCS",
-                  "MSI",
-                  "WORLDS",
-                ];
-                const uniqueLeagues = [
-                  ...new Set(scheduleData.matches.map((m) => m.leagueInfo)),
-                ].sort((a, b) => {
-                  const aIndex = leagueOrder.findIndex((l) => a.includes(l));
-                  const bIndex = leagueOrder.findIndex((l) => b.includes(l));
-                  return (
-                    (aIndex === -1 ? 999 : aIndex) -
-                    (bIndex === -1 ? 999 : bIndex)
-                  );
-                });
-
-                const leagueIconMap: Record<string, typeof Lck> = {
-                  LCK: Lck,
-                  LEC: Lec,
-                  LPL: Lpl,
-                  LJL: Ljl,
-                  LCS: Lcs,
-                  MSI: Msi,
-                  WORLDS: Worlds,
-                };
-
-                return uniqueLeagues.map((leagueName) => {
-                  const leagueMatches = scheduleData.matches.filter(
-                    (m) => m.leagueInfo === leagueName,
-                  );
-
-                  if (leagueMatches.length === 0) return null;
-
-                  const leagueKey = Object.keys(leagueIconMap).find((key) =>
-                    leagueName.includes(key),
-                  );
-                  const LeagueIcon = leagueKey ? leagueIconMap[leagueKey] : Lpl;
-
-                  return (
-                    <div key={leagueName} className="flex flex-col gap-4">
-                      <div className="w-full flex gap-2.5 items-center">
-                        <LeagueIcon />
-                        <Text fz={28} fw={590} c="var(--nar-text-secondary)">
-                          {leagueName}
-                        </Text>
-                      </div>
-                      <div className="w-full flex flex-col [&>*:not(:first-child)]:border-t [&>*:not(:first-child)]:border-(--nar-line-2)">
-                        {leagueMatches.map((match) => (
-                          <div key={match.matchId}>
-                            <MatchCard match={match} />
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                });
-              })()
-            )}
+            <LeagueMatchList
+              scheduleData={scheduleData}
+              isLoading={scheduleLoading}
+              isError={scheduleError}
+            />
           </div>
         </Paper>
       </Stack>

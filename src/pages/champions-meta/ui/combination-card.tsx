@@ -1,19 +1,20 @@
 "use client";
 
-import { useMemo } from "react";
+import { memo } from "react";
 import { Group, Avatar, Text, Stack } from "@mantine/core";
 import { IconChevronDown, IconChevronUp } from "@tabler/icons-react";
 import { useMediaQuery } from "@mantine/hooks";
-import type { ChampionData } from "@/entities/champions/model/champions.dto";
-import type { ChampionInfo, CombinationCardData } from "../model/types";
+import type { ChampionData } from "@/entities/champions/api/champions.dto";
+import type { CombinationCardViewModel } from "../model/champions-meta.view-model";
+import { orderChampionsBySelection } from "../lib/combination-card.lib";
 
 interface CombinationCardProps {
-  combination: CombinationCardData;
+  combination: CombinationCardViewModel;
   isExpanded: boolean;
   selectedChampions: (ChampionData | null)[];
 }
 
-export function CombinationCard({
+export const CombinationCard = memo(function CombinationCard({
   combination,
   isExpanded,
   selectedChampions,
@@ -22,44 +23,17 @@ export function CombinationCard({
 
   const {
     champions = [],
-    winRate = 0,
+    displayWinRate = 0,
     wins = 0,
     losses = 0,
+    totalGames = 0,
+    winPct = 0,
+    lossPct = 0,
     recentGame = "",
     latestPatch = "",
   } = combination;
 
-  const totalGames = wins + losses;
-  const winPercentage = totalGames > 0 ? (wins / totalGames) * 100 : 0;
-  const lossPercentage = totalGames > 0 ? (losses / totalGames) * 100 : 0;
-  // API에서 winRate가 100.0 형태(이미 퍼센트)로 오면 그대로 사용, 0~1 사이면 *100
-  const displayWinRate =
-    winRate > 1 ? Math.round(winRate) : Math.round(winRate * 100);
-
-  const orderedChampions = useMemo(() => {
-    if (!selectedChampions || selectedChampions.length === 0) {
-      return champions;
-    }
-
-    const championMap = new Map<string, ChampionInfo>();
-    champions.forEach((champion) => {
-      championMap.set(champion.championNameEn, champion);
-    });
-
-    const selectedChampionNames = selectedChampions
-      .filter((c): c is ChampionData => c !== null)
-      .map((c) => c.championNameEn);
-
-    const selectedInOrder = selectedChampionNames
-      .map((name) => championMap.get(name))
-      .filter((c): c is ChampionInfo => c !== undefined);
-
-    const remaining = champions.filter(
-      (champion) => !selectedChampionNames.includes(champion.championNameEn),
-    );
-
-    return [...selectedInOrder, ...remaining];
-  }, [champions, selectedChampions]);
+  const orderedChampions = orderChampionsBySelection(champions, selectedChampions);
 
   return (
     <Stack gap="xs">
@@ -79,7 +53,7 @@ export function CombinationCard({
           {orderedChampions.map((champion, index) => (
             <div
               key={index}
-              className={`flex flex-col items-center gap-1 ${isMobile ? "w-[46px]" : "w-11"}`}
+              className={`flex flex-col items-center gap-1 ${isMobile ? "w-11.5" : "w-11"}`}
             >
               <Avatar
                 src={champion.imageUrl}
@@ -108,7 +82,7 @@ export function CombinationCard({
               <div
                 className="relative flex items-center justify-start px-2"
                 style={{
-                  width: `${winPercentage}%`,
+                  width: `${winPct}%`,
                 }}
               >
                 <div
@@ -132,7 +106,7 @@ export function CombinationCard({
               <div
                 className="relative flex items-center justify-end px-2"
                 style={{
-                  width: `${lossPercentage}%`,
+                  width: `${lossPct}%`,
                 }}
               >
                 <div
@@ -184,4 +158,4 @@ export function CombinationCard({
       </button>
     </Stack>
   );
-}
+});

@@ -315,6 +315,75 @@ export function FilterSection({
   }
 
   if (variant === "players") {
+    if (isMobile) {
+      return (
+        <Box className="grid w-full grid-cols-2 gap-3">
+          <Select
+            label="년도"
+            data={[
+              { value: "2025", label: "2025" },
+              { value: "2026", label: "2026" },
+            ]}
+            value={filters.year.toString()}
+            onChange={(v) =>
+              onFiltersChange({
+                ...filters,
+                year: parseInt(v || "2026", 10),
+                split: null,
+                patch: null,
+              })
+            }
+          />
+
+          <Select
+            label="스플릿"
+            placeholder="스플릿 선택"
+            data={playerSplitOptions}
+            value={filters.split}
+            onChange={(v) =>
+              onFiltersChange({
+                ...filters,
+                split: v ?? null,
+                patch: null,
+              })
+            }
+            clearable
+          />
+
+          <Select
+            label="패치"
+            placeholder="패치 선택"
+            data={playerPatchOptions}
+            value={filters.patch}
+            onChange={(v) =>
+              onFiltersChange({
+                ...filters,
+                patch: v ?? null,
+              })
+            }
+            clearable
+            searchable
+            disabled={playerPatchOptions.length === 0}
+          />
+
+          <Select
+            label="진영"
+            data={[
+              { value: "ALL", label: "ALL" },
+              { value: "BLUE", label: "BLUE" },
+              { value: "RED", label: "RED" },
+            ]}
+            value={filters.side ?? "ALL"}
+            onChange={(v) =>
+              onFiltersChange({
+                ...filters,
+                side: (v as "ALL" | "BLUE" | "RED") ?? "ALL",
+              })
+            }
+          />
+        </Box>
+      );
+    }
     return (
       <Group gap="md" align="end" wrap="wrap">
         <Box style={{ width: 192 }}>

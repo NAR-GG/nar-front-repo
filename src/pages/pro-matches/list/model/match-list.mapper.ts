@@ -1,7 +1,26 @@
 import type { GameData } from "@/entities/games/api/games.dto";
 import { getTeamShortName } from "@/shared/config/team-name-map";
 import { formatGameTime } from "@/shared/lib/format-game-time";
-import type { GameRowViewModel } from "./match-list.viewmodel";
+import type { GameRowViewModel, TeamViewModel } from "./match-list.viewmodel";
+
+function toTeamViewModel(
+  team: GameData["blueTeam"] | GameData["redTeam"] | undefined,
+  getChampionImageUrl: (name: string) => string,
+): TeamViewModel {
+  const teamName = team?.teamName ?? "TBD";
+
+  return {
+    teamName,
+    teamShortName: getTeamShortName(teamName),
+    isWin: team?.isWin ?? false,
+    players: (team?.players ?? []).map((player) => ({
+      playerName: player.playerName,
+      championName: player.championName,
+      position: player.position,
+      championImageUrl: getChampionImageUrl(player.championName),
+    })),
+  };
+}
 
 export const toGameRowViewModel = (
   game: GameData,
@@ -12,28 +31,8 @@ export const toGameRowViewModel = (
   patch: game.patch,
   gameDate: game.gameDate,
   gameLengthLabel: formatGameTime(game.gameLengthSeconds),
-  blueTeam: {
-    teamName: game.blueTeam.teamName,
-    teamShortName: getTeamShortName(game.blueTeam.teamName),
-    isWin: game.blueTeam.isWin,
-    players: game.blueTeam.players.map((p) => ({
-      playerName: p.playerName,
-      championName: p.championName,
-      position: p.position,
-      championImageUrl: getChampionImageUrl(p.championName),
-    })),
-  },
-  redTeam: {
-    teamName: game.redTeam.teamName,
-    teamShortName: getTeamShortName(game.redTeam.teamName),
-    isWin: game.redTeam.isWin,
-    players: game.redTeam.players.map((p) => ({
-      playerName: p.playerName,
-      championName: p.championName,
-      position: p.position,
-      championImageUrl: getChampionImageUrl(p.championName),
-    })),
-  },
+  blueTeam: toTeamViewModel(game.blueTeam, getChampionImageUrl),
+  redTeam: toTeamViewModel(game.redTeam, getChampionImageUrl),
 });
 
 export const groupGamesByDate = (games: GameData[]): Record<string, GameData[]> => {

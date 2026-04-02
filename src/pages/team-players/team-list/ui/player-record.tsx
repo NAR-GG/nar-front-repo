@@ -13,10 +13,18 @@ export function PlayerRecord({ data }: PlayerRecordProps) {
   return (
     <div className="flex flex-col gap-2">
       <Text c="var(--nar-text-secondary)" fz={18} fw={700}>
-        선수기록
+        선수 기록
       </Text>
       <div className="rounded-xl border border-(--nar-line) bg-(--nar-bg-tertiary) overflow-x-auto">
-        <Table miw={640} withRowBorders withTableBorder={false} styles={{ td: { borderColor: "var(--nar-line-2)" }, th: { borderColor: "var(--nar-line-2)" } }}>
+        <Table
+          miw={640}
+          withRowBorders
+          withTableBorder={false}
+          styles={{
+            td: { borderColor: "var(--nar-line-2)" },
+            th: { borderColor: "var(--nar-line-2)" },
+          }}
+        >
           <Table.Thead className="[&_th]:font-normal [&_th]:whitespace-nowrap [&_th]:text-[14px] [&_th]:leading-[155%] [&_th]:text-(--nar-text-tertiary-sub) [&>tr>th]:!py-4.5">
             <Table.Tr>
               <Table.Th ta="center" className="whitespace-nowrap">

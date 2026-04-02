@@ -22,6 +22,7 @@ export interface TeamGameSummaryData {
   avgBarons: number;
   avgDragons: number;
   avgTowers: number;
+  avgGameLengthSeconds: number;
   firstBloodCount: number;
   firstTowerCount: number;
   firstDragonCount: number;
@@ -230,6 +231,10 @@ export interface TeamsProfileHeaderParams {
 export interface TeamsRadarParams {
   teamId: number;
   year?: number;
+  league?: string;
+  split?: string;
+  patch?: string;
+  side?: TeamSideFilter;
 }
 
 export interface TeamsDetailStatsParams {
@@ -240,6 +245,9 @@ export interface TeamsDetailStatsParams {
 export interface TeamsScatterParams {
   year?: number;
   league?: string;
+  split?: string;
+  patch?: string;
+  side?: TeamSideFilter;
   metric?: TeamScatterMetric;
 }
 

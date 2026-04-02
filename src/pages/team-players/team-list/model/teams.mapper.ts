@@ -77,7 +77,7 @@ const mapPlayedChampionPlayer = (
     gamesPlayed: c.gamesPlayed,
     winRateLabel: `${c.winRatePct.toFixed(1)}%`,
     kdaLabel: c.avgKda.toFixed(2),
-    lastUsedLabel: dayjs(c.lastUsedAt).format("YYYY.MM"),
+    lastUsedLabel: dayjs(c.lastUsedAt).format("YYYY.MM.DD"),
   })),
 });
 
@@ -99,7 +99,10 @@ export function mapTeamDashboardToViewModel(
     teamName: dto.teamName,
     teamCode: dto.teamCode,
     teamImageUrl: dto.teamImageUrl,
-    gameSummary: { ...dto.gameSummary },
+    gameSummary: {
+      ...dto.gameSummary,
+      avgGameTime: `${(dto.gameSummary.avgGameLengthSeconds / 60).toFixed(1)}m`,
+    },
     playerRecords: dto.playerRecords.map(
       (p): PlayerRecordViewModel => ({
         playerId: p.playerId,
@@ -134,7 +137,9 @@ export function mapTeamDashboardToViewModel(
 }
 
 function getDaysAgoLabel(scheduledAt: string): string {
-  const days = dayjs().diff(dayjs(scheduledAt), "day");
+  const today = dayjs().startOf("day");
+  const scheduledDate = dayjs(scheduledAt).startOf("day");
+  const days = today.diff(scheduledDate, "day");
   if (days === 0) return "오늘";
   if (days < 0) return `${Math.abs(days)}일 후`;
   return `${days}일 전`;

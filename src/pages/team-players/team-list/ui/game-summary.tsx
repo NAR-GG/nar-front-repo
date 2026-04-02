@@ -26,10 +26,9 @@ const statItems = (data: TeamGameSummaryViewModel) => [
   },
   {
     label: "평균 게임 시간",
-    // TODO: avgGameTime not in TeamGameSummaryViewModel — request BE to add
-    value: "-",
+    value: data.avgGameTime,
     color: "var(--nar-text-purple)",
-    fw: 400,
+    fw: 700,
   },
 ];
 

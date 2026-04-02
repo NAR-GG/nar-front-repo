@@ -36,6 +36,7 @@ export type TeamGameSummaryViewModel = {
   avgBarons: number;
   avgDragons: number;
   avgTowers: number;
+  avgGameTime: string;
   firstBloodCount: number;
   firstTowerCount: number;
   firstDragonCount: number;

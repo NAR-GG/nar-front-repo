@@ -77,6 +77,7 @@
   --nar-bg-SNB-line: rgba(255, 255, 255, 0.5);
 
   /* Background */
+  --nar-BG-teamlogobox: var(--nar-gray-200);
   --nar-bg-primary: var(--nar-bg-lightmode-nargg);
   --nar-fill-secondary: var(--nar-white);
   --nar-bg-secondary: var(--nar-white);
@@ -192,7 +193,6 @@
   );
   --nar-gradi-card-start: rgba(255, 255, 255, 0.78);
   --nar-gradi-card-end: rgba(230, 221, 243, 0.78);
-
 }
 
 [data-mantine-color-scheme="dark"] {
@@ -222,6 +222,7 @@
   --nar-gradi-card-end: rgba(64, 7, 75, 0.66);
 
   /* Background */
+  --nar-BG-teamlogobox: var(--nar-gray-700);
   --nar-bg-primary: var(--nar-dark-800);
   --nar-fill-secondary: var(--nar-dark-700);
   --nar-bg-secondary: var(--nar-dark-700);

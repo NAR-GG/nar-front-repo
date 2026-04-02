@@ -25,6 +25,12 @@ export const NAV_ITEMS: NavItem[] = [
         href: "/pro-matches/list",
         match: (p) => p === "/pro-matches/list",
       },
+      {
+        key: "league-stats",
+        label: "리그 통계",
+        href: "/pro-matches/league-stats",
+        match: (p) => p === "/pro-matches/league-stats",
+      },
     ],
   },
   {

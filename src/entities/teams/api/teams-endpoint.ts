@@ -41,9 +41,13 @@ export const teamsApiEndPoint = {
       : `${TEAMS_PREFIX.teams}/${teamId}/profile-header`;
   },
 
-  getTeamsRadar: ({ teamId, year }: TeamsRadarParams) => {
+  getTeamsRadar: ({ teamId, year, league, split, patch, side }: TeamsRadarParams) => {
     const searchParams = new URLSearchParams();
     if (year !== undefined) searchParams.set("year", year.toString());
+    if (league) searchParams.set("league", league);
+    if (split) searchParams.set("split", split);
+    if (patch) searchParams.set("patch", patch);
+    if (side) searchParams.set("side", side);
     const queryString = searchParams.toString();
     return queryString
       ? `${TEAMS_PREFIX.teams}/${teamId}/radar?${queryString}`
@@ -66,6 +70,9 @@ export const teamsApiEndPoint = {
     if (params?.year !== undefined)
       searchParams.set("year", params.year.toString());
     if (params?.league) searchParams.set("league", params.league);
+    if (params?.split) searchParams.set("split", params.split);
+    if (params?.patch) searchParams.set("patch", params.patch);
+    if (params?.side) searchParams.set("side", params.side);
     if (params?.metric) searchParams.set("metric", params.metric);
     const queryString = searchParams.toString();
     return queryString

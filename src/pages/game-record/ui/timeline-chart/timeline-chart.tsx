@@ -59,17 +59,17 @@ export function TimelineChart({
               >
                 <stop
                   offset="0%"
-                  stopColor="var(--logo-gradient-start, #e26212)"
+                  stopColor="var(--logo-gradient-start)"
                   stopOpacity={0.5}
                 />
                 <stop
                   offset="40%"
-                  stopColor="var(--logo-gradient-mid, #950371)"
+                  stopColor="var(--logo-gradient-mid)"
                   stopOpacity={0.5}
                 />
                 <stop
                   offset="100%"
-                  stopColor="var(--logo-gradient-end, #250657)"
+                  stopColor="var(--logo-gradient-end)"
                   stopOpacity={0.5}
                 />
               </linearGradient>

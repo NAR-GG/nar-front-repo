@@ -1,7 +1,9 @@
 import dayjs from "dayjs";
 
 export const getDaysAgo = (scheduledAt: string, isToday: boolean) => {
-  const days = dayjs().diff(dayjs(scheduledAt), "day");
+  const today = dayjs().startOf("day");
+  const scheduledDate = dayjs(scheduledAt).startOf("day");
+  const days = today.diff(scheduledDate, "day");
   if (isToday) {
     return (
       <span className="badge-live">

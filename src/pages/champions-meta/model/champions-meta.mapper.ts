@@ -28,15 +28,17 @@ function mapPlayerToViewModel(
 }
 
 function mapTeamToViewModel(
-  team: GameTeam,
+  team: GameTeam | undefined,
   side: "blue" | "red",
   getImageUrl: (name: string) => string,
 ): MatchTeamViewModel {
   return {
-    teamName: team.teamName,
-    isWin: team.isWin,
+    teamName: team?.teamName ?? "TBD",
+    isWin: team?.isWin ?? false,
     side,
-    players: team.players.map((p) => mapPlayerToViewModel(p, getImageUrl)),
+    players: (team?.players ?? []).map((p) =>
+      mapPlayerToViewModel(p, getImageUrl),
+    ),
   };
 }
 

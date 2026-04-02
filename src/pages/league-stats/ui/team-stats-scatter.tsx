@@ -4,6 +4,7 @@ import type { TeamScatterMetric } from "@/entities/teams/api/teams.dto";
 import { teamsQueries } from "@/entities/teams/model/teams.queries";
 import type { Filters } from "@/shared/types/filter.types";
 import { SegmentedControl, Text } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import {
@@ -39,20 +40,21 @@ function TeamPin(props: Record<string, unknown>) {
     teamImageUrl: string;
     xAboveAvg: boolean;
   };
+  const compact = Boolean(props.compact);
 
   if (cx === undefined || cy === undefined) return null;
 
   const { teamId, teamImageUrl } = payload;
 
-  const markerTipX = 18;
-  const markerTipY = 41;
+  const markerTipX = compact ? 13 : 18;
+  const markerTipY = compact ? 31 : 41;
 
   const translateX = cx - markerTipX;
   const translateY = cy - markerTipY;
 
-  const imageRadius = 16;
+  const imageRadius = compact ? 11 : 16;
   const imageCx = cx;
-  const imageCy = translateY + 18;
+  const imageCy = translateY + (compact ? 13 : 18);
 
   const clipId = `pin-clip-${teamId}`;
 
@@ -80,7 +82,11 @@ function TeamPin(props: Record<string, unknown>) {
       </defs>
       <g transform={`translate(${translateX}, ${translateY})`}>
         <path
-          d="M18 0C27.9411 0 36 8.05887 36 18C36 26.6793 29.8569 33.9228 21.6816 35.6221L18.8662 40.5C18.4813 41.1667 17.5187 41.1667 17.1338 40.5L14.3174 35.6221C6.1426 33.9225 0 26.679 0 18C0 8.05887 8.05887 0 18 0Z"
+          d={
+            compact
+              ? "M13 0C20.1797 0 26 5.8203 26 13C26 19.2684 21.5622 24.4998 15.6589 25.7271L13.6256 29.5C13.3476 30.0167 12.6524 30.0167 12.3744 29.5L10.3411 25.7271C4.43769 24.4996 0 19.2681 0 13C0 5.8203 5.8203 0 13 0Z"
+              : "M18 0C27.9411 0 36 8.05887 36 18C36 26.6793 29.8569 33.9228 21.6816 35.6221L18.8662 40.5C18.4813 41.1667 17.5187 41.1667 17.1338 40.5L14.3174 35.6221C6.1426 33.9225 0 26.679 0 18C0 8.05887 8.05887 0 18 0Z"
+          }
           fill={`url(#marker-gradient-${teamId})`}
         />
       </g>
@@ -132,6 +138,7 @@ function ScatterTooltipContent({
 export function TeamStatsScatter({ filters }: TeamStatsScatterProps) {
   const leagueName = filters.leagueName ?? "LCK";
   const [metric, setMetric] = useState<MetricTab>("all");
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   const { data } = useQuery(
     teamsQueries.scatter({
@@ -181,10 +188,16 @@ export function TeamStatsScatter({ filters }: TeamStatsScatterProps) {
               { label: "골드", value: "gold" },
               { label: "오브젝트", value: "object" },
             ]}
-            className="md:w-85.75!"
+            className="w-full sm:w-fit"
           />
-          <ResponsiveContainer width="100%" height={380}>
-            <ScatterChart margin={{ top: 20, right: 30, bottom: 40, left: 40 }}>
+          <ResponsiveContainer width="100%" height={isMobile ? 280 : 380}>
+            <ScatterChart
+              margin={
+                isMobile
+                  ? { top: 12, right: 8, bottom: 18, left: 4 }
+                  : { top: 20, right: 30, bottom: 40, left: 40 }
+              }
+            >
               <defs>
                 <linearGradient
                   id="narTimelineGradient"
@@ -258,13 +271,20 @@ export function TeamStatsScatter({ filters }: TeamStatsScatterProps) {
                 name={xLabel}
                 domain={[xMin, xMax]}
                 tickCount={5}
-                label={{
-                  value: xLabel,
-                  position: "insideBottom",
-                  offset: -20,
-                  style: { fontSize: 12, fill: "var(--nar-text-tertiary-sub)" },
-                }}
-                tick={{ fontSize: 11 }}
+                label={
+                  isMobile
+                    ? undefined
+                    : {
+                        value: xLabel,
+                        position: "insideBottom",
+                        offset: -20,
+                        style: {
+                          fontSize: 12,
+                          fill: "var(--nar-text-tertiary-sub)",
+                        },
+                      }
+                }
+                tick={{ fontSize: isMobile ? 10 : 11 }}
                 tickLine={false}
                 axisLine={{ stroke: "var(--nar-text-primary)" }}
               />
@@ -274,14 +294,22 @@ export function TeamStatsScatter({ filters }: TeamStatsScatterProps) {
                 name="Win Rate (%)"
                 domain={[0, 100]}
                 tickFormatter={(v) => `${v}%`}
-                label={{
-                  value: "Win Rate (%)",
-                  angle: -90,
-                  position: "insideLeft",
-                  offset: -10,
-                  style: { fontSize: 12, fill: "var(--nar-text-tertiary-sub)" },
-                }}
-                tick={{ fontSize: 11 }}
+                label={
+                  isMobile
+                    ? undefined
+                    : {
+                        value: "Win Rate (%)",
+                        angle: -90,
+                        position: "insideLeft",
+                        offset: -10,
+                        style: {
+                          fontSize: 12,
+                          fill: "var(--nar-text-tertiary-sub)",
+                        },
+                      }
+                }
+                width={isMobile ? 26 : 60}
+                tick={{ fontSize: isMobile ? 10 : 11 }}
                 tickLine={false}
                 axisLine={{ stroke: "var(--nar-text-primary)" }}
               />
@@ -289,7 +317,10 @@ export function TeamStatsScatter({ filters }: TeamStatsScatterProps) {
               <Scatter
                 data={scatterData}
                 shape={(props: unknown) => (
-                  <TeamPin {...(props as Record<string, unknown>)} />
+                  <TeamPin
+                    {...(props as Record<string, unknown>)}
+                    compact={isMobile}
+                  />
                 )}
               />
             </ScatterChart>

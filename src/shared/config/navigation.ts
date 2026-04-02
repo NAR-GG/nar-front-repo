@@ -27,7 +27,7 @@ export const NAV_ITEMS: NavItem[] = [
       },
       {
         key: "league-stats",
-        label: "리그 통계",
+        label: "리그별 통계",
         href: "/pro-matches/league-stats",
         match: (p) => p === "/pro-matches/league-stats",
       },

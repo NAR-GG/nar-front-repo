@@ -22,6 +22,7 @@ import { PLAYED_CHAMPION_MENU } from "../config/league-stats.config";
 interface PlayedChampionProps {
   filters: Filters;
   className?: string;
+  onSideChange?: (side: Filters["side"]) => void;
 }
 
 type SideValue = "all" | "blue" | "red";
@@ -59,11 +60,6 @@ function ChampionPopoverContent({
   const champion = champions[idx];
 
   if (!champion) return null;
-
-  const playFrequency =
-    totalGames > 0
-      ? Math.round(((champion.playCount ?? 0) / totalGames) * 100)
-      : 0;
 
   return (
     <div className="flex flex-col gap-3 w-55">
@@ -110,7 +106,7 @@ function ChampionPopoverContent({
             빈도수
           </Text>
           <Text fz={14} fw={600} c="var(--nar-text-score)">
-            {playFrequency}%
+            {champion.playCount ?? 0}회
           </Text>
         </div>
         <div className="flex justify-between items-center">
@@ -236,6 +232,7 @@ function ChampionCell({ champions, totalGames }: ChampionCellProps) {
 export function PlayedChampion({
   filters,
   className,
+  onSideChange,
 }: PlayedChampionProps) {
   const leagueName = filters.leagueName ?? "LCK";
   const controlledSide = filters.side;
@@ -264,11 +261,21 @@ export function PlayedChampion({
   return (
     <div className={`flex h-full flex-col gap-2 ${className ?? ""}`}>
       <div className="flex w-full justify-between items-center">
-        <Text c="var(--nar-text-secondary)" fz={18} fw={700}>
+        <Text
+          c="var(--nar-text-secondary)"
+          fz={18}
+          fw={700}
+          className="whitespace-nowrap"
+        >
           플레이 한 챔피언
         </Text>
-        <Text c="var(--nar-text-tertiary-sub)" fz={14} fw={400}>
-          *챔피언 호버 시 각 챔피언 플레이 상세 지표를 확인 할 수 있습니다.
+        <Text
+          c="var(--nar-text-tertiary-sub)"
+          fz={14}
+          fw={400}
+          className="whitespace-nowrap"
+        >
+          *챔피언 클릭 시 각 챔피언 플레이 상세 지표를 확인 할 수 있습니다.
         </Text>
       </div>
       <div className="flex flex-1 flex-col rounded-xl border border-(--nar-line) bg-(--nar-bg-tertiary)">
@@ -276,9 +283,15 @@ export function PlayedChampion({
           items={[...PLAYED_CHAMPION_MENU]}
           value={side}
           onChange={(v) => {
-            if (!controlledSide) {
-              setInternalSide(v as SideValue);
+            const nextSide =
+              v === "blue" ? "BLUE" : v === "red" ? "RED" : "ALL";
+
+            if (onSideChange) {
+              onSideChange(nextSide);
+              return;
             }
+
+            setInternalSide(v as SideValue);
           }}
         />
         <Table.ScrollContainer minWidth={346} maxHeight={356}>

@@ -122,7 +122,16 @@ export function LeagueStatsPage() {
                 <TeamStatsGraph filters={filters} className="w-full" />
               </div>
               <div className="w-full sm:min-w-0 sm:basis-[56%] lg:basis-[58%]">
-                <PlayedChampion filters={filters} className="w-full" />
+                <PlayedChampion
+                  filters={filters}
+                  className="w-full"
+                  onSideChange={(side) =>
+                    setFilters((prev) => ({
+                      ...prev,
+                      side,
+                    }))
+                  }
+                />
               </div>
             </div>
             <TeamStatsScatter filters={filters} />

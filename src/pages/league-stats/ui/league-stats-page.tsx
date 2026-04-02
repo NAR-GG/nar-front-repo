@@ -40,7 +40,7 @@ const LEAGUE_INFO: Record<
 };
 
 const DEFAULT_LEAGUE = "LCK";
-const DEFAULT_YEAR = 2025;
+const DEFAULT_YEAR = 2026;
 
 export function LeagueStatsPage() {
   const [filters, setFilters] = useState<Filters>({

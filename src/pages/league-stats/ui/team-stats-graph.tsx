@@ -125,7 +125,7 @@ export function TeamStatsGraph({
       leagueNames: [leagueName],
       splits: filters.split ? [filters.split] : [],
       patch: filters.patch ?? undefined,
-      side: filters.side,
+      side: filters.side === "ALL" ? undefined : filters.side,
     }),
   );
 

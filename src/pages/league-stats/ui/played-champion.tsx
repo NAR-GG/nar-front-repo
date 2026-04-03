@@ -16,6 +16,7 @@ import { Popover, Table, Text } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { PLAYED_CHAMPION_MENU } from "../config/league-stats.config";
 
@@ -256,6 +257,7 @@ export function PlayedChampion({
     }),
   );
 
+  const router = useRouter();
   const rankings = rankingsData?.rankings ?? [];
 
   return (
@@ -368,7 +370,14 @@ export function PlayedChampion({
                       </Text>
                     </Table.Td>
                     <Table.Td>
-                      <div className="flex items-center gap-2">
+                      <button
+                        className="flex items-center gap-2 cursor-pointer!"
+                        onClick={() =>
+                          router.push(
+                            `/team-players/team-list?team=${team.teamName}`,
+                          )
+                        }
+                      >
                         {team.imageUrl && (
                           <div className="flex items-center justify-center w-11 h-11 rounded-lg bg-(--nar-BG-teamlogobox)">
                             <Image
@@ -383,7 +392,7 @@ export function PlayedChampion({
                         <Text fz={16} fw={600} c="var(--nar-text-secondary)">
                           {team.teamCode}
                         </Text>
-                      </div>
+                      </button>
                     </Table.Td>
                     <Table.Td ta="center">
                       <Text fz={14} fw={500} c="var(--nar-text-primary)">

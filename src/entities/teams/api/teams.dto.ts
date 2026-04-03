@@ -240,6 +240,9 @@ export interface TeamsRadarParams {
 export interface TeamsDetailStatsParams {
   year?: number;
   league?: string;
+  split?: string;
+  patch?: string;
+  side?: TeamSideFilter;
 }
 
 export interface TeamsScatterParams {

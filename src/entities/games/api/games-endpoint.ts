@@ -3,10 +3,12 @@ const GAMES_PREFIX = {
 };
 
 export interface GameListParams {
+  year?: number;
   leagueNames?: string[];
-  splitNames?: string[];
+  splits?: string[];
   teamNames?: string[];
   page?: number;
+  size?: number;
   sort?: "ASC" | "DESC";
 }
 
@@ -14,14 +16,17 @@ export const gamesApiEndPoint = {
   getGameList: (params?: GameListParams) => {
     const searchParams = new URLSearchParams();
 
+    if (params?.year !== undefined) {
+      searchParams.set("year", params.year.toString());
+    }
     if (params?.leagueNames?.length) {
       params.leagueNames.forEach((name) =>
         searchParams.append("leagueNames", name)
       );
     }
-    if (params?.splitNames?.length) {
-      params.splitNames.forEach((name) =>
-        searchParams.append("splitNames", name)
+    if (params?.splits?.length) {
+      params.splits.forEach((name) =>
+        searchParams.append("splits", name)
       );
     }
     if (params?.teamNames?.length) {
@@ -31,6 +36,9 @@ export const gamesApiEndPoint = {
     }
     if (params?.page !== undefined) {
       searchParams.set("page", params.page.toString());
+    }
+    if (params?.size !== undefined) {
+      searchParams.set("size", params.size.toString());
     }
     if (params?.sort) {
       searchParams.set("sort", params.sort);

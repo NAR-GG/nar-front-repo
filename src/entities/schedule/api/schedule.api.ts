@@ -3,6 +3,7 @@ import { scheduleApiEndPoint } from "./schedule-endpoint";
 import type {
   DateScheduleData,
   MatchDetailData,
+  ScheduleCalendarData,
 } from "../api/schedule.dto";
 
 export const getDateSchedule = async (date: string): Promise<DateScheduleData> => {
@@ -15,6 +16,13 @@ export const getDateSchedule = async (date: string): Promise<DateScheduleData> =
 export const getMatchDetail = async (matchId: string): Promise<MatchDetailData> => {
   const response = await publicApi.get<MatchDetailData>(
     scheduleApiEndPoint.getMatchDetail(matchId)
+  );
+  return response.data;
+};
+
+export const getScheduleCalendar = async (month: string): Promise<ScheduleCalendarData> => {
+  const response = await publicApi.get<ScheduleCalendarData>(
+    scheduleApiEndPoint.getCalendar(month)
   );
   return response.data;
 };

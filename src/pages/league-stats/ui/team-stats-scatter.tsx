@@ -6,6 +6,7 @@ import type { Filters } from "@/shared/types/filter.types";
 import { SegmentedControl, Text } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import { useQuery } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import {
   CartesianGrid,
@@ -136,6 +137,7 @@ function ScatterTooltipContent({
 }
 
 export function TeamStatsScatter({ filters }: TeamStatsScatterProps) {
+  const router = useRouter();
   const leagueName = filters.leagueName ?? "LCK";
   const [metric, setMetric] = useState<MetricTab>("all");
   const isMobile = useMediaQuery("(max-width: 768px)");
@@ -322,6 +324,10 @@ export function TeamStatsScatter({ filters }: TeamStatsScatterProps) {
                     compact={isMobile}
                   />
                 )}
+                onClick={(data: { teamName: string }) =>
+                  router.push(`/team-players/team-list?team=${data.teamName}`)
+                }
+                cursor="pointer"
               />
             </ScatterChart>
           </ResponsiveContainer>

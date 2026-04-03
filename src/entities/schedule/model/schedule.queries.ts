@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import { getDateSchedule, getMatchDetail } from "../api/schedule.api";
+import { getDateSchedule, getMatchDetail, getScheduleCalendar } from "../api/schedule.api";
 
 export const scheduleQueries = {
   all: () => ["schedule"] as const,
@@ -16,5 +16,12 @@ export const scheduleQueries = {
     queryOptions({
       queryKey: [...scheduleQueries.details(), matchId] as const,
       queryFn: () => getMatchDetail(matchId),
+    }),
+
+  calendars: () => [...scheduleQueries.all(), "calendar"] as const,
+  calendar: (month: string) =>
+    queryOptions({
+      queryKey: [...scheduleQueries.calendars(), month] as const,
+      queryFn: () => getScheduleCalendar(month),
     }),
 };

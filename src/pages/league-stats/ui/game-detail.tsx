@@ -5,6 +5,7 @@ import Info from "@/shared/assets/icons/info-circle.svg";
 import { Table, Text } from "@mantine/core";
 import { useQuery } from "@tanstack/react-query";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 type GameDetailProps = {
@@ -28,6 +29,7 @@ function formatNumber(value: number | undefined) {
 }
 
 export function GameDetail({ filters }: GameDetailProps) {
+  const router = useRouter();
   const [isFirstKillOpen, setIsFirstKillOpen] = useState(false);
   const [isGoldOpen, setIsGoldOpen] = useState(false);
 
@@ -35,6 +37,9 @@ export function GameDetail({ filters }: GameDetailProps) {
     teamsQueries.detailStats({
       year: filters.year,
       league: filters.leagueName ?? "LCK",
+      split: filters.split ?? undefined,
+      patch: filters.patch ?? undefined,
+      side: filters.side ?? undefined,
     }),
   );
 
@@ -161,7 +166,10 @@ export function GameDetail({ filters }: GameDetailProps) {
                   </Text>
                 </Table.Td>
                 <Table.Td>
-                  <div className="flex items-center gap-2 min-w-[140px]">
+                  <button
+                    className="flex items-center gap-2 min-w-35 cursor-pointer!"
+                    onClick={() => router.push(`/team-players/team-list?team=${team.teamName}`)}
+                  >
                     {team.teamImageUrl && (
                       <div className="flex items-center justify-center w-11 h-11 rounded-lg bg-(--nar-BG-teamlogobox)">
                         <Image
@@ -178,7 +186,7 @@ export function GameDetail({ filters }: GameDetailProps) {
                         {team.teamCode}
                       </Text>
                     </div>
-                  </div>
+                  </button>
                 </Table.Td>
                 <Table.Td ta="center">
                   <Text fz={14} c="var(--nar-text-primary)">

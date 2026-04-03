@@ -17,9 +17,8 @@ export const getCombinationDetail = async (params: Record<string, unknown>) => {
 };
 
 export const getCombinationGameDetails = async (combinationId: string) => {
-  // combinationId를 디코딩해서 숫자로 변환하거나, 그대로 사용
   const response = await publicApi.get(
-    `${combinationsApiEndPoint.getCombinations()}${combinationId}/detail`
+    combinationsApiEndPoint.getCombinationDetail({ combinationId })
   );
   return { data: response.data };
 };

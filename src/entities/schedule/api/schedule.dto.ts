@@ -58,3 +58,13 @@ export interface MatchDetailData {
 }
 
 export type MatchDetailResponseDTO = ApiResponse<MatchDetailData>;
+
+export interface ScheduleDateSummaryData {
+  date: string;
+  matchCount: number;
+}
+
+export interface ScheduleCalendarData {
+  month: string;
+  dates: ScheduleDateSummaryData[];
+}

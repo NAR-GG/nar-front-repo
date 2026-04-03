@@ -59,6 +59,9 @@ export const teamsApiEndPoint = {
     if (params?.year !== undefined)
       searchParams.set("year", params.year.toString());
     if (params?.league) searchParams.set("league", params.league);
+    if (params?.split) searchParams.set("split", params.split);
+    if (params?.patch) searchParams.set("patch", params.patch);
+    if (params?.side) searchParams.set("side", params.side);
     const queryString = searchParams.toString();
     return queryString
       ? `${TEAMS_PREFIX.teams}/detail-stats?${queryString}`

@@ -7,6 +7,7 @@ import { Box, Container, Paper, Select, Stack, Text } from "@mantine/core";
 import { useMediaQuery } from "@mantine/hooks";
 import Image from "next/image";
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTeamPlayersPage } from "../model/use-team-players-page";
 import BrandHomeIcon from "@/shared/assets/icons/home.svg";
 import BrandInstarIcon from "@/shared/assets/icons/brand-instagram.svg";
@@ -27,8 +28,9 @@ import { TeamMatchList } from "./team-match-list";
 export function TeamListPageComponent() {
   const isMobile = useMediaQuery("(max-width: 768px)");
   const [activeTab, setActiveTab] = useState<"total" | "play-list">("total");
+  const searchParams = useSearchParams();
   const [teamName, setTeamName] = useState<string | null>(
-    DEFAULT_TEAM_DASHBOARD_FILTERS.defaultTeamName,
+    searchParams?.get("team") ?? DEFAULT_TEAM_DASHBOARD_FILTERS.defaultTeamName,
   );
   const [dashboardFilters, setDashboardFilters] = useState<Filters>({
     year: DEFAULT_TEAM_DASHBOARD_FILTERS.year,

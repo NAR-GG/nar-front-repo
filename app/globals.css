@@ -471,27 +471,41 @@ code {
 
 /* Nar Chip MD (calendar match chip) */
 @utility nar-chip-md {
-  @apply flex items-center justify-center w-full h-[22px] sm:h-[30px]
-    gap-1 sm:gap-2 px-1 sm:px-2 rounded-md
+  @apply flex items-center justify-center w-full
+    h-[23px] sm:h-[30px]
+    gap-0.5 sm:gap-2 px-1 sm:px-2 rounded-md
     border border-[var(--nar-line)]
     bg-[var(--nar-BG-last)]
-    text-[var(--nar-text)]
-    text-[9px] sm:text-[16px] font-normal leading-none
-    font-['Open_Sans'] whitespace-nowrap overflow-hidden;
+    whitespace-nowrap overflow-hidden;
 }
 
 @utility nar-chip-md-team-l {
-  @apply shrink-0;
+  @apply min-w-0
+    overflow-hidden text-ellipsis
+    text-[var(--nar-text)]
+    font-['SF_Pro'] text-[8px] sm:text-[16px] font-normal leading-[23px] sm:leading-none;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
 }
 
 @utility nar-chip-md-team-r {
-  @apply shrink-0;
+  @apply min-w-0
+    overflow-hidden text-ellipsis
+    text-[var(--nar-text)]
+    font-['SF_Pro'] text-[8px] sm:text-[16px] font-normal leading-[23px] sm:leading-none;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
 }
 
 @utility nar-chip-md-vs {
-  @apply font-bold text-[var(--nar-text-score)]
-    text-[9px] sm:text-[16px] leading-none
-    font-['Open_Sans'];
+  @apply shrink-0 overflow-hidden text-ellipsis
+    text-[var(--nar-text-score)]
+    font-['SF_Pro'] text-[7px] sm:text-[16px] font-bold leading-[23px] sm:leading-none;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
 }
 
 /* Position Filter Button */

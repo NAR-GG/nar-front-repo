@@ -75,7 +75,7 @@ export function MonthlyCalendar({
 
   return (
     <Paper withBorder radius={24} className="overflow-hidden">
-      <div className="flex items-start justify-between px-5 sm:px-8 pt-5 sm:pt-8 pb-4">
+      <div className="flex items-start justify-between px-3 sm:px-8 pt-5 sm:pt-8 pb-4">
         <Text
           fz={80}
           fw={700}
@@ -99,12 +99,12 @@ export function MonthlyCalendar({
         </div>
       </div>
 
-      <div className="px-3 sm:px-5">
+      <div className="px-1 sm:px-5">
           <div className="grid grid-cols-7 border-b-2 border-[var(--nar-text-con1-nav)]">
             {WEEKDAYS.map((day) => (
               <div
                 key={day}
-                className="flex-1 basis-0 flex flex-col justify-center items-center gap-[10px] pt-5 px-[10px] pb-[10px] text-[var(--nar-text-tertiary-sub)] font-medium text-xs sm:text-sm"
+                className="flex-1 basis-0 flex flex-col justify-center items-center gap-[10px] pt-5 px-1 sm:px-[10px] pb-[10px] text-[var(--nar-text-tertiary-sub)] font-medium text-xs sm:text-sm"
               >
                 {day}
               </div>
@@ -136,7 +136,7 @@ export function MonthlyCalendar({
                       key={`day-${date.getTime()}`}
                       type="button"
                       onClick={() => onSelectDate(date)}
-                      className="flex-1 basis-0 h-[109px] pt-0 px-1 sm:px-[10px] pb-[10px] flex flex-col items-start gap-[10px] border-r border-(--nar-line) last:border-r-0 hover:bg-(--nar-bg-cont-livebox) transition-colors min-w-0"
+                      className="flex-1 basis-0 h-[109px] pt-0 px-0.5 sm:px-[10px] pb-[10px] flex flex-col items-start gap-[10px] border-r border-(--nar-line) last:border-r-0 hover:bg-(--nar-bg-cont-livebox) transition-colors min-w-0"
                     >
                       <span className="text-left text-base leading-none font-[590] text-[var(--nar-text-con1-nav)]">
                         {date.getDate()}

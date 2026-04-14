@@ -8,7 +8,8 @@ import { mapGameDetailToViewModel } from "./game-record.mapper";
 export function useGameDataProcessor(
   gameData: GameDetailData | null | undefined,
 ) {
-  const { getChampionImageUrl } = useChampionImage();
+  const { getChampionImageUrl, getChampionLoadingImageUrl } =
+    useChampionImage();
 
   const processed = useMemo(() => {
     if (!gameData) return null;
@@ -21,6 +22,8 @@ export function useGameDataProcessor(
     redTeam: processed?.redTeam ?? null,
     setNav: gameData?.setNav ?? null,
     bans: gameData?.bans ?? null,
+    fearless: gameData?.fearless ?? null,
     getChampionImageUrl,
+    getChampionLoadingImageUrl,
   };
 }

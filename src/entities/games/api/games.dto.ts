@@ -51,8 +51,8 @@ export interface GameBans {
 }
 
 export interface GameFearless {
-  blue: string[];
-  red: string[];
+  blue: Record<string, string[]>;
+  red: Record<string, string[]>;
 }
 
 export interface GameDetailPlayer {

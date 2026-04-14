@@ -1,7 +1,7 @@
 "use client";
 
-import { memo, useCallback } from "react";
-import { Group, Text, Avatar, Box } from "@mantine/core";
+import { useCallback } from "react";
+import { Group, Text } from "@mantine/core";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { IconClock, IconDots } from "@tabler/icons-react";
@@ -15,10 +15,16 @@ import Ljl from "@/shared/assets/images/lgl-home.svg";
 import Lcs from "@/shared/assets/images/lcs-home.svg";
 import Msi from "@/shared/assets/images/msi-home.svg";
 import Worlds from "@/shared/assets/images/worlds-home.svg";
+import NarGrayTop from "@/shared/assets/icons/nar_gray_top.svg";
+import NarGrayJungle from "@/shared/assets/icons/nar_gray_jungle.svg";
+import NarGrayMid from "@/shared/assets/icons/nar_gray_mid.svg";
+import NarGrayBottom from "@/shared/assets/icons/nar_gray_bottom.svg";
+import NarGraySupport from "@/shared/assets/icons/nar_gray_support.svg";
 import type {
   GameDetailPlayer,
   GameSetNav,
   GameBans,
+  GameFearless,
 } from "@/entities/games/api/games.dto";
 import type { GameInfoViewModel } from "../model/game-record.view-model";
 import { sortByPosition } from "@/shared/lib/sort-by-position";
@@ -38,41 +44,10 @@ interface GameHeaderProps {
   redTeam: TeamData;
   setNav: GameSetNav;
   bans: GameBans;
+  fearless: GameFearless | null;
   getChampionImageUrl: (name: string) => string;
+  getChampionLoadingImageUrl: (name: string) => string;
 }
-
-const BannedChampion = memo(function BannedChampion({
-  championName,
-  size = 32,
-  getChampionImageUrl,
-}: {
-  championName: string;
-  size?: number;
-  getChampionImageUrl: (name: string) => string;
-}) {
-  return (
-    <Box style={{ position: "relative" }}>
-      <Avatar
-        src={getChampionImageUrl(championName)}
-        size={size}
-        radius="sm"
-        style={{ filter: "grayscale(50%)" }}
-      />
-      <Box
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          width: `calc(${size}px * 1.2)`,
-          height: "2px",
-          backgroundColor: "rgba(100, 100, 100, 0.8)",
-          transform: "translate(-50%, -50%) rotate(-45deg)",
-          borderRadius: "2px",
-        }}
-      />
-    </Box>
-  );
-});
 
 const leagueIconMap: Record<string, typeof Lck> = {
   LCK: Lck,
@@ -91,7 +66,9 @@ export function GameHeader({
   redTeam,
   setNav,
   bans,
+  fearless,
   getChampionImageUrl,
+  getChampionLoadingImageUrl,
 }: GameHeaderProps) {
   const router = useRouter();
   const hasVod = hasVodInSets(setNav.sets);
@@ -136,84 +113,110 @@ export function GameHeader({
     const isBlue = color === "blue";
     const sideLabel = isBlue ? "Blue Side" : "Red Side";
     const resultText = team.result === 1 ? "(승)" : "(패)";
-    const banList = isBlue ? bans.blue : bans.red;
+    const currentBans = isBlue ? bans.blue : bans.red;
 
     return (
-      <div className="flex flex-col items-center gap-2 sm:gap-6 flex-1 min-w-0">
-        <Text
-          className="text-xs sm:text-sm"
-          fw={600}
-          fz={16}
-          c={isBlue ? "blue.7" : "red.7"}
-        >
-          {sideLabel}
-        </Text>
-
-        <div className="flex items-center gap-2">
-          <Text fw={700} fz={22} c="var(--nar-text-primary)">
-            {team.name}
-          </Text>
-          <Text
-            fw={600}
-            fz={22}
-            c={team.result === 1 ? "red.6" : "var(--nar-text-tertiary-sub)"}
+      <div className="flex flex-col gap-[9px] flex-1 min-w-0">
+        <div className="flex items-center justify-between gap-2">
+          <span
+            className={`whitespace-nowrap text-base leading-none font-[590] ${
+              isBlue ? "text-[var(--mantine-color-blue-6)]" : "text-[var(--mantine-color-red-6)]"
+            }`}
           >
-            {resultText}
-          </Text>
+            {sideLabel}
+          </span>
+          <div className="flex items-center gap-1">
+            <span className="text-[22px] leading-none font-[590] text-[var(--nar-text-primary)]">
+              {team.name}
+            </span>
+            <span
+              className={`text-[22px] leading-none font-[590] ${
+                team.result === 1
+                  ? "text-[var(--mantine-color-red-6)]"
+                  : "text-[var(--nar-text-tertiary-sub)]"
+              }`}
+            >
+              {resultText}
+            </span>
+          </div>
         </div>
 
-        <div className="flex gap-1 sm:gap-3 justify-center flex-wrap">
+        <div className={`flex gap-[2px] ${isBlue ? "" : "sm:justify-end"}`}>
+          {currentBans.map((champion, idx) => (
+            <div
+              key={`${color}-ban-${idx}`}
+              className="relative w-9 h-9 rounded-lg overflow-hidden border-2 border-[var(--nar-gray-500)]"
+            >
+              <Image
+                src={getChampionImageUrl(champion)}
+                alt={champion}
+                width={48}
+                height={48}
+                className="w-full h-full object-cover scale-110"
+              />
+              <span className="absolute inset-0 flex items-center justify-center">
+                <span className="block w-[44px] h-[2px] bg-[var(--nar-gray-500)] rotate-[-45deg]" />
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <div className="grid grid-cols-5 gap-[2px]">
           {sortByPosition(team.players).map((player) => (
             <div
               key={player.participantid}
-              className="flex flex-col items-center gap-0.5 sm:gap-1 w-11.5"
+              className="relative aspect-[60/101] sm:aspect-[81.5/189] overflow-hidden rounded-lg min-w-0"
             >
-              <Avatar
-                src={getChampionImageUrl(player.champion)}
-                size={46}
-                radius="md"
-                className="hidden sm:block border-[3px]"
-                style={{
-                  borderColor: `var(--mantine-color-${color}-6)`,
-                  backgroundColor: `var(--mantine-color-${color}-1)`,
-                }}
+              <Image
+                src={getChampionLoadingImageUrl(player.champion)}
+                alt={player.champion}
+                fill
+                sizes="100px"
+                className="object-cover scale-110"
               />
-              <Text
-                className="text-[10px] sm:text-xs w-11 sm:w-14"
-                ta="center"
-                c="var(--nar-text-tertiary)"
-                fw={500}
-                truncate="end"
-              >
+              <span className="absolute inset-0 shadow-[0px_-32px_55px_0px_var(--nar-dark-opacity62)_inset] pointer-events-none" />
+              <span className="absolute bottom-2 left-2 text-[var(--nar-gray-0)] font-bold text-base leading-[150%]">
                 {player.playername}
-              </Text>
-            </div>
-          ))}
-        </div>
-
-        <div className="flex justify-center gap-1 sm:gap-2 mt-2">
-          {banList.map((champion, idx) => (
-            <div key={idx} className="hidden sm:block">
-              <BannedChampion
-                championName={champion}
-                size={36}
-                getChampionImageUrl={getChampionImageUrl}
-              />
-            </div>
-          ))}
-          {banList.map((champion, idx) => (
-            <div key={idx} className="block sm:hidden">
-              <BannedChampion
-                championName={champion}
-                size={28}
-                getChampionImageUrl={getChampionImageUrl}
-              />
+              </span>
             </div>
           ))}
         </div>
       </div>
     );
   };
+
+  const positionColumns: {
+    key: string;
+    aliases: string[];
+    Icon: typeof NarGrayTop;
+  }[] = [
+    { key: "top", aliases: ["top"], Icon: NarGrayTop },
+    { key: "jng", aliases: ["jng", "jungle"], Icon: NarGrayJungle },
+    { key: "mid", aliases: ["mid", "middle"], Icon: NarGrayMid },
+    { key: "bot", aliases: ["bot", "bottom", "adc"], Icon: NarGrayBottom },
+    { key: "sup", aliases: ["sup", "support", "utility"], Icon: NarGraySupport },
+  ];
+
+  const pickBySide = (
+    sideMap: Record<string, string[]> | undefined,
+    aliases: string[],
+  ): string[] => {
+    if (!sideMap) return [];
+    for (const key of Object.keys(sideMap)) {
+      if (aliases.includes(key.toLowerCase())) return sideMap[key] ?? [];
+    }
+    return [];
+  };
+
+  const seriesByPosition = positionColumns.map((col) => ({
+    ...col,
+    blue: pickBySide(fearless?.blue, col.aliases),
+    red: pickBySide(fearless?.red, col.aliases),
+  }));
+
+  const hasSeriesBans = seriesByPosition.some(
+    (col) => col.blue.length > 0 || col.red.length > 0,
+  );
 
   return (
     <div>
@@ -350,6 +353,40 @@ export function GameHeader({
         />
 
         <div className="bg-(--nar-bg-tertiary) p-[10px] pb-5 flex flex-col gap-[10px] rounded-tr-[14px] border border-(--nar-line) border-b-0">
+          {hasSeriesBans && (
+            <div className="flex flex-col gap-3 rounded-lg p-[21px] sm:px-3 sm:py-4">
+              <span className="text-base leading-none font-[590] text-[var(--nar-text-tertiary-sub)] text-center">
+                SERIES BAN
+              </span>
+              <div className="grid grid-cols-2 gap-[21px] sm:grid-cols-5 sm:gap-4 justify-items-center">
+                {seriesByPosition.map(({ key, Icon, blue, red }) => (
+                  <div
+                    key={key}
+                    className="flex flex-row items-center gap-2 sm:flex-col sm:items-start min-w-0"
+                  >
+                    <Icon className="w-5 h-5 shrink-0" />
+                    <div className="grid grid-cols-4 gap-[2px]">
+                      {[...blue, ...red].map((champion, idx) => (
+                        <div
+                          key={`${champion}-${idx}`}
+                          className="w-6 h-6 sm:w-[35px] sm:h-[22px] rounded-[4px] overflow-hidden"
+                        >
+                          <Image
+                            src={getChampionImageUrl(champion)}
+                            alt={champion}
+                            width={44}
+                            height={44}
+                            className="w-full h-full object-cover scale-125"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="flex items-center justify-between border-b border-(--nar-line) pt-[5px] pb-2">
             <Group gap="sm">
               <Text size="sm" fw={600} c="var(--nar-text-tertiary-sub)">
@@ -370,12 +407,12 @@ export function GameHeader({
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-0 mt-4">
+          <div className="flex flex-col sm:flex-row items-stretch justify-center gap-[30px] sm:gap-0 mt-4">
             {renderTeamDisplay(blueTeam, "blue")}
-            <div className="px-4 sm:px-0">
-              <Text fw={700} fz={26} c="var(--nar-text-tertiary-sub)">
-                vs
-              </Text>
+            <div className="flex items-center justify-center sm:mx-5">
+              <span className="font-bold text-[26px] leading-[150%] text-[var(--nar-text-tertiary-sub)] text-center">
+                VS
+              </span>
             </div>
             {renderTeamDisplay(redTeam, "red")}
           </div>

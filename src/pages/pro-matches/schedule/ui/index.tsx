@@ -12,6 +12,7 @@ import { scheduleQueries } from "@/entities/schedule/model/schedule.queries";
 import { useMediaQuery } from "@mantine/hooks";
 import { WeekDateBar } from "./week-date-bar";
 import { LeagueMatchList } from "./league-match-list";
+import { MonthlyCalendar } from "./monthly-calendar";
 
 const formatDateString = (date: Date): string => {
   const year = date.getFullYear();
@@ -161,7 +162,16 @@ export const SchedulePageComponent = () => {
 
   return (
     <Container size="xl" px={{ base: 0, sm: 24, md: 32 }}>
-      <Stack gap="lg" mt="md">
+      <Stack gap={40} mt="md">
+        <MonthlyCalendar
+          calendarMonth={calendarMonth}
+          monthDates={monthDates}
+          monthScheduleQueries={monthScheduleQueries}
+          onSelectDate={(date) => {
+            setSelectedDate(date);
+            setCalendarMonth(date);
+          }}
+        />
         <Paper withBorder radius={24}>
           <div className="flex relative items-center justify-center pt-5 sm:pt-10 pb-5.75 gap-5">
             {!isMobile && (

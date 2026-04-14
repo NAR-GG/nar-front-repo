@@ -98,6 +98,7 @@
   --nar-text-tertiary: var(--nar-dark-600);
   --nar-text-tertiary-sub: var(--nar-dark-200);
   --nar-text-cont-nav: var(--nar-dark-100);
+  --nar-text-con1-nav: var(--nar-gray-400);
   --nar-text-score: var(--nar-red-600);
   --nar-text-percent: var(--nar-red-700);
   --nar-text-red: var(--nar-red-500);
@@ -154,6 +155,7 @@
   --nar-scrollbar: var(--nar-dark-0);
 
   /* Gradients */
+  --nar-gradients-main-dark: #ff6c11;
   --nar_gradients: linear-gradient(
     90deg,
     #e26212 -7.5%,
@@ -243,6 +245,7 @@
   --nar-text-tertiary: var(--nar-gray-0);
   --nar-text-tertiary-sub: var(--nar-dark-100);
   --nar-text-cont-nav: var(--nar-gray-400);
+  --nar-text-con1-nav: var(--nar-gray-400);
   --nar-text-score: var(--nar-red-700);
   --nar-text-percent: var(--nar-red-700);
   --nar-text-red: var(--nar-red-500);
@@ -299,6 +302,7 @@
   --nar-scrollbar: var(--nar-dark-700);
 
   /* Gradients */
+  --nar-gradients-main-dark: #ff6c11;
   --nar_gradients: linear-gradient(
     90deg,
     #ff6c11 -7.5%,
@@ -451,6 +455,43 @@ code {
     border border-[var(--nar-line)]
     bg-[var(--nar-bg-tertiary)]
     text-[var(--nar-text-purple)];
+}
+
+/* League Select Trigger (gradient border) */
+@utility league-select-trigger {
+  @apply inline-flex items-center gap-1
+    py-[5px] pl-3 pr-[6px] rounded-[10px]
+    text-[var(--nar-text-tertiary)]
+    font-['SF_Pro'] text-base font-normal leading-[155%]
+    border border-transparent;
+  background:
+    linear-gradient(var(--nar-bg-secondary), var(--nar-bg-secondary)) padding-box,
+    var(--nar_gradients) border-box;
+}
+
+/* Nar Chip MD (calendar match chip) */
+@utility nar-chip-md {
+  @apply flex items-center justify-center w-full h-[22px] sm:h-[30px]
+    gap-1 sm:gap-2 px-1 sm:px-2 rounded-md
+    border border-[var(--nar-line)]
+    bg-[var(--nar-BG-last)]
+    text-[var(--nar-text)]
+    text-[9px] sm:text-[16px] font-normal leading-none
+    font-['Open_Sans'] whitespace-nowrap overflow-hidden;
+}
+
+@utility nar-chip-md-team-l {
+  @apply shrink-0;
+}
+
+@utility nar-chip-md-team-r {
+  @apply shrink-0;
+}
+
+@utility nar-chip-md-vs {
+  @apply font-bold text-[var(--nar-text-score)]
+    text-[9px] sm:text-[16px] leading-none
+    font-['Open_Sans'];
 }
 
 /* Position Filter Button */

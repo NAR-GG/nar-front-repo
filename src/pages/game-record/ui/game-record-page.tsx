@@ -32,8 +32,16 @@ export function GameRecordPage({ gameId }: GameRecordPageProps) {
     error,
   } = useQuery(gamesQueries.detail(gameId));
 
-  const { gameInfo, blueTeam, redTeam, setNav, bans, getChampionImageUrl } =
-    useGameDataProcessor(gameData);
+  const {
+    gameInfo,
+    blueTeam,
+    redTeam,
+    setNav,
+    bans,
+    fearless,
+    getChampionImageUrl,
+    getChampionLoadingImageUrl,
+  } = useGameDataProcessor(gameData);
 
   if (isLoading) {
     return (
@@ -81,7 +89,9 @@ export function GameRecordPage({ gameId }: GameRecordPageProps) {
           redTeam={redTeam}
           setNav={setNav}
           bans={bans}
+          fearless={fearless}
           getChampionImageUrl={getChampionImageUrl}
+          getChampionLoadingImageUrl={getChampionLoadingImageUrl}
         />
 
         <Tabs

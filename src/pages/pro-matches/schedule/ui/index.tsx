@@ -21,10 +21,8 @@ const formatDateString = (date: Date): string => {
   return `${year}-${month}-${day}`;
 };
 
-const getMonthDates = (year: number, month: number): Date[] => {
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  return Array.from({ length: daysInMonth }, (_, i) => new Date(year, month, i + 1));
-};
+const formatMonthString = (date: Date): string =>
+  `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
 
 const getWeekDates = (date: Date): Date[] => {
   const tmp = new Date(date);
@@ -50,11 +48,7 @@ export const SchedulePageComponent = () => {
 
   const dateString = formatDateString(selectedDate);
   const weekDates = getWeekDates(selectedDate);
-
-  const monthDates = useMemo(
-    () => getMonthDates(calendarMonth.getFullYear(), calendarMonth.getMonth()),
-    [calendarMonth],
-  );
+  const monthString = formatMonthString(calendarMonth);
 
   useEffect(() => {
     if (searchParams?.get("date") !== dateString) {
@@ -78,23 +72,18 @@ export const SchedulePageComponent = () => {
     return query.data?.matches && query.data.matches.length > 0;
   });
 
-  const monthScheduleQueries = useQueries({
-    queries: monthDates.map((date) => ({
-      ...scheduleQueries.date(formatDateString(date)),
-      staleTime: 1000 * 60 * 10,
-    })),
+  const { data: calendarData } = useQuery({
+    ...scheduleQueries.calendar(monthString),
+    staleTime: 1000 * 60 * 10,
   });
 
   const matchDatesSet = useMemo(() => {
     const set = new Set<string>();
-    monthDates.forEach((date, idx) => {
-      const query = monthScheduleQueries[idx];
-      if (query.data?.matches && query.data.matches.length > 0) {
-        set.add(formatDateString(date));
-      }
+    calendarData?.dates.forEach((d) => {
+      if (d.matchCount > 0) set.add(formatDateString(new Date(d.date)));
     });
     return set;
-  }, [monthDates, monthScheduleQueries]);
+  }, [calendarData]);
 
   const renderDay = useCallback(
     (date: string) => {
@@ -165,8 +154,6 @@ export const SchedulePageComponent = () => {
       <Stack gap={40} mt="md">
         <MonthlyCalendar
           calendarMonth={calendarMonth}
-          monthDates={monthDates}
-          monthScheduleQueries={monthScheduleQueries}
           onSelectDate={(date) => {
             setSelectedDate(date);
             setCalendarMonth(date);

@@ -2,14 +2,13 @@
 
 import { useMemo, useState } from "react";
 import { Paper, Text } from "@mantine/core";
-import type { UseQueryResult } from "@tanstack/react-query";
+import { useQueries } from "@tanstack/react-query";
 import type { DateScheduleData } from "@/entities/schedule/api/schedule.dto";
+import { scheduleQueries } from "@/entities/schedule/model/schedule.queries";
 import { LeagueSelect, type LeagueId } from "@/shared/ui/league-select";
 
 interface MonthlyCalendarProps {
   calendarMonth: Date;
-  monthDates: Date[];
-  monthScheduleQueries: UseQueryResult<DateScheduleData>[];
   onSelectDate: (date: Date) => void;
 }
 
@@ -40,26 +39,10 @@ const buildCalendarGrid = (calendarMonth: Date): (Date | null)[][] => {
 
 export function MonthlyCalendar({
   calendarMonth,
-  monthDates,
-  monthScheduleQueries,
   onSelectDate,
 }: MonthlyCalendarProps) {
   const [collapsed, setCollapsed] = useState(true);
   const [selectedLeague, setSelectedLeague] = useState<LeagueId>("LCK");
-
-  const matchesByDate = useMemo(() => {
-    const map = new Map<string, DateScheduleData["matches"]>();
-    const leagueKey = selectedLeague.toLowerCase();
-    monthDates.forEach((date, idx) => {
-      const data = monthScheduleQueries[idx]?.data;
-      if (!data?.matches?.length) return;
-      const filtered = data.matches.filter((m) =>
-        (m.leagueInfo ?? "").toLowerCase().includes(leagueKey),
-      );
-      if (filtered.length > 0) map.set(formatDateKey(date), filtered);
-    });
-    return map;
-  }, [monthDates, monthScheduleQueries, selectedLeague]);
 
   const weeks = useMemo(() => buildCalendarGrid(calendarMonth), [calendarMonth]);
 
@@ -72,6 +55,30 @@ export function MonthlyCalendar({
     );
     return [weeks[matchIdx === -1 ? 0 : matchIdx]];
   }, [weeks, collapsed]);
+
+  // 접힌 상태(기본값)에서는 화면에 보이는 한 주만, 펼쳤을 때만 한 달 전체를 조회한다.
+  const visibleDates = useMemo(
+    () => visibleWeeks.flat().filter((d): d is Date => d !== null),
+    [visibleWeeks],
+  );
+
+  const visibleScheduleQueries = useQueries({
+    queries: visibleDates.map((date) => scheduleQueries.date(formatDateKey(date))),
+  });
+
+  const matchesByDate = useMemo(() => {
+    const map = new Map<string, DateScheduleData["matches"]>();
+    const leagueKey = selectedLeague.toLowerCase();
+    visibleDates.forEach((date, idx) => {
+      const data = visibleScheduleQueries[idx]?.data;
+      if (!data?.matches?.length) return;
+      const filtered = data.matches.filter((m) =>
+        (m.leagueInfo ?? "").toLowerCase().includes(leagueKey),
+      );
+      if (filtered.length > 0) map.set(formatDateKey(date), filtered);
+    });
+    return map;
+  }, [visibleDates, visibleScheduleQueries, selectedLeague]);
 
   return (
     <Paper withBorder radius={24} className="overflow-hidden">

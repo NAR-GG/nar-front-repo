@@ -10,11 +10,10 @@ import {
   dehydrate,
 } from "@tanstack/react-query";
 import { combinationsQueries } from "@/entities/combinations/model/combinations.queries";
+import { pretendard } from "@/shared/config/font";
 
 const GTM_ID = "GTM-K4N8CFDR";
 const GA_ID = "G-RTZ77QF42T";
-const PRETENDARD_CSS_URL =
-  "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -118,34 +117,8 @@ export default async function RootLayout({
   await queryClient.prefetchQuery(combinationsQueries.lastUpdate());
 
   return (
-    <html lang="ko" {...mantineHtmlProps}>
+    <html lang="ko" className={pretendard.variable} {...mantineHtmlProps}>
       <head>
-        <link
-          rel="preconnect"
-          href="https://cdn.jsdelivr.net"
-          crossOrigin="anonymous"
-        />
-        <link
-          rel="preload"
-          as="style"
-          href={PRETENDARD_CSS_URL}
-          suppressHydrationWarning
-        />
-        <script
-          id="pretendard-css-loader"
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function(){
-                var l=document.querySelector('link[rel="preload"][href="${PRETENDARD_CSS_URL}"]');
-                if(!l)return;
-                l.addEventListener('load',function(){l.rel='stylesheet';},{once:true});
-              })();
-            `,
-          }}
-        />
-        <noscript>
-          <link rel="stylesheet" href={PRETENDARD_CSS_URL} />
-        </noscript>
         <ColorSchemeScript defaultColorScheme="light" />
         <Script
           id="gtm-script"
